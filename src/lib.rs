@@ -1,4 +1,4 @@
-mod apicall {
+pub mod apicall {
     pub struct APICallInfo {
         kind: APICallType,
         service: service::Service,
@@ -31,7 +31,7 @@ mod apicall {
         fn to_params(&self) -> String;
     }
 
-    mod service {
+    pub mod service {
         pub struct Service {
             service_id: String,
             creds: Credentials,
@@ -64,7 +64,7 @@ mod apicall {
         }
     }
 
-    mod app {
+    pub mod app {
         pub enum App {
             AppId(String, Option<String>),
             UserKey(String),
@@ -72,7 +72,7 @@ mod apicall {
         }
     }
 
-    mod user {
+    pub mod user {
         pub enum User {
             UserId(String),
             OAuthToken(String)
