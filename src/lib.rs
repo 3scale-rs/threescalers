@@ -14,8 +14,8 @@ pub mod apicall {
 
     impl APICallType {
         pub fn method(&self) -> String {
-            match self {
-                Authorize => "GET".to_owned(),
+            match *self {
+                APICallType::Authorize => "GET".to_owned(),
                 _ => "POST".to_owned()
             }
         }
