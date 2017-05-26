@@ -104,6 +104,20 @@ pub mod apicall {
                 App::OAuthToken(token)
             }
         }
+
+        impl super::ToParams for App {
+            fn to_params(&self) -> String {
+                let(field, value) = match *self {
+                    // TODO case where there's an app_key
+                    App::AppId(ref app_id, _) => ("app_id=", app_id),
+                    App::UserKey(ref user_key) => ("user_key=", user_key),
+                    App::OAuthToken(ref token) => ("access_token=", token),
+                };
+                let mut params = field.to_owned();
+                params.push_str(value.as_str());
+                params
+            }
+        }
     }
 
     pub mod user {
@@ -119,6 +133,18 @@ pub mod apicall {
 
             pub fn from_oauth_token(token: String) -> Self {
                 User::OAuthToken(token)
+            }
+        }
+
+        impl super::ToParams for User {
+            fn to_params(&self) -> String {
+                let (field, value) = match *self {
+                    User::UserId(ref user_id) => ("user_id=", user_id),
+                    User::OAuthToken(ref token) => ("access_token=", token)
+                };
+                let mut params = field.to_owned();
+                params.push_str(value.as_str());
+                params
             }
         }
     }
