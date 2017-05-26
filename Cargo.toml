@@ -5,3 +5,4 @@ authors = ["Alejandro Martinez Ruiz <alex@flawedcode.org>", "David Ortiz Lopez <
 license = "Apache-2.0"
 
 [dependencies]
+error-chain = "*"
