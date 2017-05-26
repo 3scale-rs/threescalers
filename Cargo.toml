@@ -1,0 +1,6 @@
+[package]
+name = "threescalers"
+version = "0.1.0"
+authors = ["Alejandro Martinez Ruiz <alex@flawedcode.org>", "David Ortiz Lopez <z.david.ortiz@gmail.com>"]
+
+[dependencies]
