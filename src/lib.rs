@@ -37,6 +37,12 @@ pub mod apicall {
             creds: Credentials,
         }
 
+        impl Service {
+            pub fn new(service_id: String, creds: Credentials) -> Self {
+                Self { service_id, creds }
+            }
+        }
+
         impl super::ToParams for Service {
             fn to_params(&self) -> String {
                 let mut param = "service_id=".to_owned();
@@ -49,6 +55,16 @@ pub mod apicall {
         pub enum Credentials {
             ProviderKey(String),
             ServiceToken(String),
+        }
+
+        impl Credentials {
+            pub fn from_key(key: String) -> Self {
+                Credentials::ProviderKey(key)
+            }
+
+            pub fn from_token(token: String) -> Self {
+                Credentials::ServiceToken(token)
+            }
         }
 
         impl super::ToParams for Credentials {
@@ -70,12 +86,40 @@ pub mod apicall {
             UserKey(String),
             OAuthToken(String)
         }
+
+        impl App {
+            pub fn from_app_id(app_id: String) -> Self {
+                App::AppId(app_id, None)
+            }
+
+            pub fn from_app_id_and_key(app_id: String, app_key: String) -> Self {
+                App::AppId(app_id, Some(app_key))
+            }
+
+            pub fn from_user_key(user_key: String) -> Self {
+                App::UserKey(user_key)
+            }
+
+            pub fn from_oauth_token(token: String) -> Self {
+                App::OAuthToken(token)
+            }
+        }
     }
 
     pub mod user {
         pub enum User {
             UserId(String),
             OAuthToken(String)
+        }
+
+        impl User {
+            pub fn from_user_id(user_id: String) -> Self {
+                User::UserId(user_id)
+            }
+
+            pub fn from_oauth_token(token: String) -> Self {
+                User::OAuthToken(token)
+            }
         }
     }
 
