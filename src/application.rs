@@ -1,5 +1,6 @@
 use request::ToParams;
 
+#[derive(Debug)]
 pub enum Application {
     AppId(String, Option<String>),
     UserKey(String),

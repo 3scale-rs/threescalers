@@ -1,5 +1,6 @@
 use request::ToParams;
 
+#[derive(Debug)]
 pub enum Credentials {
     ProviderKey(String),
     ServiceToken(String),
@@ -27,6 +28,7 @@ impl ToParams for Credentials {
     }
 }
 
+#[derive(Debug)]
 pub struct Service {
     service_id: String,
     creds: Credentials,
