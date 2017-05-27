@@ -17,14 +17,13 @@ impl Credentials {
 }
 
 impl ToParams for Credentials {
-    fn to_params(&self) -> String {
+    fn to_params(&self) -> Vec<(&str, &str)> {
         let (field, value) = match *self {
-            Credentials::ProviderKey(ref key) => ("provider_key=", key),
-            Credentials::ServiceToken(ref token) => ("service_token=", token)
+            Credentials::ProviderKey(ref key) => ("provider_key", key),
+            Credentials::ServiceToken(ref token) => ("service_token", token)
         };
-        let mut param = field.to_owned();
-        param.push_str(value.as_str());
-        param
+
+        vec![(field, value)]
     }
 }
 
@@ -41,10 +40,10 @@ impl Service {
 }
 
 impl ToParams for Service {
-    fn to_params(&self) -> String {
-        let mut param = "service_id=".to_owned();
-        param.push_str(self.service_id.as_str());
-        param.push_str(self.creds.to_params().as_str());
-        param
+    fn to_params(&self) -> Vec<(&str, &str)> {
+        let mut res = vec![("service_id", self.service_id.as_str())];
+        let creds = self.creds.to_params();
+        res.extend(creds.iter());
+        res
     }
 }

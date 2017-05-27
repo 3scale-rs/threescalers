@@ -17,13 +17,11 @@ impl User {
 }
 
 impl ToParams for User {
-    fn to_params(&self) -> String {
+    fn to_params(&self) -> Vec<(&str, &str)> {
         let (field, value) = match *self {
-            User::UserId(ref user_id) => ("user_id=", user_id),
-            User::OAuthToken(ref token) => ("access_token=", token)
+            User::UserId(ref user_id) => ("user_id", user_id),
+            User::OAuthToken(ref token) => ("access_token", token)
         };
-        let mut params = field.to_owned();
-        params.push_str(value.as_str());
-        params
+        vec![(field, value)]
     }
 }
