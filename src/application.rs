@@ -26,23 +26,19 @@ impl Application {
 }
 
 impl ToParams for Application {
-    fn to_params(&self) -> String {
+    fn to_params(&self) -> Vec<(&str, &str)>{
         use self::Application::*;
 
         let (field, value) = match *self {
             AppId(ref app_id, None) => {
-                ("app_id=", app_id)
+                ("app_id", app_id)
             },
-            UserKey(ref user_key) => ("user_key=", user_key),
-            OAuthToken(ref token) => ("access_token=", token),
+            UserKey(ref user_key) => ("user_key", user_key),
+            OAuthToken(ref token) => ("access_token", token),
             // TODO case where there's an app_key
-            // This will most likely make us redesign how the interface works
-            // I have planned to make `to_params` return a Vec of tuples.
             _ => unimplemented!()
         };
 
-        let mut params = field.to_owned();
-        params.push_str(value.as_str());
-        params
+        vec![(field, value)]
     }
 }

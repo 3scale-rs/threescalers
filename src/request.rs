@@ -6,7 +6,7 @@ pub struct Request {
 }
 
 pub trait ToParams {
-    fn to_params(&self) -> String;
+    fn to_params(&self) -> Vec<(&str, &str)>;
 }
 
 pub trait ToRequest {
