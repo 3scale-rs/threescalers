@@ -3,6 +3,7 @@ use service::Service;
 use application::Application;
 use user::User;
 
+#[derive(Debug)]
 pub enum Type {
     Authorize,
     AuthRep,
@@ -19,6 +20,7 @@ impl Type {
     }
 }
 
+#[derive(Debug)]
 pub struct Info<'service, 'app, 'user> {
     kind: Type,
     service: &'service Service,

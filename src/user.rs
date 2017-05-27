@@ -1,5 +1,6 @@
 use request::ToParams;
 
+#[derive(Debug)]
 pub enum User {
     UserId(String),
     OAuthToken(String)

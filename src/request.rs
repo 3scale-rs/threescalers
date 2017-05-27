@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct Request {
     method: String,
     path: String,
