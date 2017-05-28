@@ -52,15 +52,15 @@ impl<'service, 'app, 'user> Info<'service, 'app, 'user> {
         use request::ToParams;
 
         let mut params: Vec<(&str, &str)> = Vec::new();
-        params.extend(self.service.to_params().iter());
-        params.extend(self.application.to_params().iter());
+        params.extend(self.service.to_params());
+        params.extend(self.application.to_params());
 
         if let Some(user_params) = self.user.as_ref() {
-            params.extend(user_params.to_params().iter());
+            params.extend(user_params.to_params());
         }
 
-        let params = params.iter()
-            .map(|&(param, value)| param.to_owned() + "=" + value)
+        let params = params.into_iter()
+            .map(|(param, value)| param.to_owned() + "=" + value)
             .collect::<Vec<String>>()
             .join("&");
 
