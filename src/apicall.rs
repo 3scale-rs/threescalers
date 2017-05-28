@@ -28,10 +28,11 @@ pub struct Info<'service, 'app, 'user> {
     user: Option<&'user User>,
 }
 
-// TODO: define endpoints for oauth
-const AUTH_ENDPOINT: &str = "/transactions/authorize.xml";
+const AUTHORIZE_ENDPOINT: &str = "/transactions/authorize.xml";
 const AUTHREP_ENDPOINT: &str = "/transactions/authrep.xml";
 const REPORT_ENDPOINT: &str = "/transactions.xml";
+const OAUTH_AUTHORIZE_ENDPOINT: &str = "/transactions/oauth_authorize.xml";
+const OAUTH_AUTHREP_ENDPOINT: &str = "/transactions/oauth_authrep.xml";
 
 impl<'service, 'app, 'user> Info<'service, 'app, 'user> {
     pub fn new(kind: Type, service: &'service Service, application: &'app Application, user: Option<&'user User>) -> Self {
@@ -40,11 +41,14 @@ impl<'service, 'app, 'user> Info<'service, 'app, 'user> {
 
     fn endpoint(&self) -> &str {
         use self::Type::*;
+        use self::Application::*;
 
-        match self.kind {
-            Authorize => AUTH_ENDPOINT,
-            AuthRep => AUTHREP_ENDPOINT,
-            Report => REPORT_ENDPOINT,
+        match (&self.kind, self.application) {
+            (&Authorize, &OAuthToken(_)) => OAUTH_AUTHORIZE_ENDPOINT,
+            (&Authorize, _) => AUTHORIZE_ENDPOINT,
+            (&AuthRep, &OAuthToken(_)) => OAUTH_AUTHREP_ENDPOINT,
+            (&AuthRep, _) => AUTHREP_ENDPOINT,
+            (&Report, _) => REPORT_ENDPOINT,
         }
     }
 
