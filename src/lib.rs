@@ -1,8 +1,8 @@
-mod request;
-mod service;
-mod application;
-mod user;
-mod apicall;
+pub mod request;
+pub mod service;
+pub mod application;
+pub mod user;
+pub mod apicall;
 
 #[cfg(test)]
 mod tests {
