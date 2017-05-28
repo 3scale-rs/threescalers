@@ -29,16 +29,19 @@ impl ToParams for Application {
     fn to_params(&self) -> Vec<(&str, &str)>{
         use self::Application::*;
 
-        let (field, value) = match *self {
+        let mut v = Vec::<(&str, &str)>::with_capacity(2);
+        match *self {
             AppId(ref app_id, None) => {
-                ("app_id", app_id)
+                v.push(("app_id", app_id));
             },
-            UserKey(ref user_key) => ("user_key", user_key),
-            OAuthToken(ref token) => ("access_token", token),
-            // TODO case where there's an app_key
-            _ => unimplemented!()
+            AppId(ref app_id, Some(ref app_key)) => {
+                v.push(("app_id", app_id));
+                v.push(("app_key", app_key));
+            },
+            UserKey(ref user_key) => v.push(("user_key", user_key)),
+            OAuthToken(ref token) => v.push(("access_token", token)),
         };
 
-        vec![(field, value)]
+        v
     }
 }
