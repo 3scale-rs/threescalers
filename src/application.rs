@@ -45,3 +45,54 @@ impl ToParams for Application {
         v
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn transforms_app_id_into_params() {
+        let app_id = "my_app_id";
+        let app = Application::from_app_id(app_id.to_owned());
+
+        let result = app.to_params();
+
+        let expected = vec![("app_id", app_id)];
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn transforms_app_id_and_key_into_params() {
+        let app_id = "my_app_id";
+        let key = "my_key";
+        let app = Application::from_app_id_and_key(app_id.to_owned(),
+                                                   key.to_owned());
+
+        let result = app.to_params();
+
+        let expected = vec![("app_id", app_id), ("app_key", key)];
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn transforms_user_key_into_params() {
+        let user_key = "my_user_key";
+        let app = Application::from_user_key(user_key.to_owned());
+
+        let result = app.to_params();
+
+        let expected = vec![("user_key", user_key)];
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn transforms_oauth_token_into_params() {
+        let oauth_token = "my_token";
+        let app = Application::from_oauth_token(oauth_token.to_owned());
+
+        let result = app.to_params();
+
+        let expected = vec![("access_token", oauth_token)];
+        assert_eq!(expected, result);
+    }
+}
