@@ -49,3 +49,36 @@ impl ToParams for Service {
         res
     }
 }
+
+#[cfg(test)]
+mod credentials_tests {
+    use super::*;
+
+    #[test]
+    fn transforms_service_id_and_key_into_params() {
+        let service_id = "my_service_id";
+        let provider_key = "my_provider_key";
+        let creds = Credentials::from_key(provider_key.to_owned());
+        let service = Service::new(service_id.to_owned(), creds);
+
+        let result = service.to_params();
+
+        let expected = vec![("service_id", service_id),
+                            ("provider_key", provider_key)];
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn transforms_service_id_and_token_into_params() {
+        let service_id = "my_service_id";
+        let token = "my_token";
+        let creds = Credentials::from_token(token.to_owned());
+        let service = Service::new(service_id.to_owned(), creds);
+
+        let result = service.to_params();
+
+        let expected = vec![("service_id", service_id),
+                            ("service_token", token)];
+        assert_eq!(expected, result);
+    }
+}

@@ -25,3 +25,30 @@ impl ToParams for User {
         vec![(field, value)]
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn transforms_user_id_into_params() {
+        let user_id = "my_user_id";
+        let user = User::from_user_id(user_id.to_owned());
+
+        let result = user.to_params();
+
+        let expected = vec![("user_id", user_id)];
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn transforms_oauth_token_into_params() {
+        let oauth_token = "my_oauth_token";
+        let user = User::from_oauth_token(oauth_token.to_owned());
+
+        let result = user.to_params();
+
+        let expected = vec![("access_token", oauth_token)];
+        assert_eq!(expected, result);
+    }
+}
