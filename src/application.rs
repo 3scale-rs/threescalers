@@ -153,18 +153,54 @@ impl Into<Application> for OAuthToken {
 }
 
 impl Application {
+    /// Creates a new `Application` from an `AppId`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use threescalers::application::*;
+    ///
+    /// let app = Application::from_app_id("my_app_id");
+    /// ```
     pub fn from_app_id<T: Into<AppId>>(app_id: T) -> Self {
         Application::AppId(app_id.into(), None)
     }
 
+    /// Creates a new `Application` from an `AppId` and an `AppKey`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use threescalers::application::*;
+    ///
+    /// let app = Application::from_app_id_and_key("my_app_id", "my_app_key");
+    /// ```
     pub fn from_app_id_and_key<T: Into<AppId>, U: Into<AppKey>>(app_id: T, app_key: U) -> Self {
         Application::AppId(app_id.into(), Some(app_key.into()))
     }
 
+    /// Creates a new `Application` from a `UserKey`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use threescalers::application::*;
+    ///
+    /// let app = Application::from_user_key("my_user_key");
+    /// ```
     pub fn from_user_key<T: Into<UserKey>>(user_key: T) -> Self {
         Application::UserKey(user_key.into())
     }
 
+    /// Creates a new `Application` from an `AppId`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use threescalers::application::*;
+    ///
+    /// let app = Application::from_oauth_token("my_token");
+    /// ```
     pub fn from_oauth_token<T: Into<OAuthToken>>(token: T) -> Self {
         Application::OAuthToken(token.into())
     }
