@@ -1,0 +1,3 @@
+build_lib = true
+cfg_test = true
+unstable_features = true
