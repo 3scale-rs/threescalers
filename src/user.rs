@@ -83,10 +83,28 @@ impl Into<User> for OAuthToken {
 }
 
 impl User {
+    /// Creates a `User` from a `UserId`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use threescalers::user::*;
+    ///
+    /// let user = User::from_user_id("my_id");
+    /// ```
     pub fn from_user_id<T: Into<UserId>>(user_id: T) -> Self {
         User::UserId(user_id.into())
     }
 
+    /// Creates a `User` from an `OAuthToken`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use threescalers::user::*;
+    ///
+    /// let user = User::from_oauth_token("my_token");
+    /// ```
     pub fn from_oauth_token<T: Into<OAuthToken>>(token: T) -> Self {
         User::OAuthToken(token.into())
     }
