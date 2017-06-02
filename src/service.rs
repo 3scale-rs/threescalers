@@ -83,10 +83,28 @@ impl Into<Credentials> for ServiceToken {
 }
 
 impl Credentials {
+    /// Creates `Credentials` from a `ProviderKey`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use threescalers::service::*;
+    ///
+    /// let creds = Credentials::from_key("my_key");
+    /// ```
     pub fn from_key<T: Into<ProviderKey>>(key: T) -> Self {
         Credentials::ProviderKey(key.into())
     }
 
+    /// Creates `Credentials` from a `ServiceToken`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use threescalers::service::*;
+    ///
+    /// let creds = Credentials::from_token("my_token");
+    /// ```
     pub fn from_token<T: Into<ServiceToken>>(token: T) -> Self {
         Credentials::ServiceToken(token.into())
     }
@@ -141,6 +159,16 @@ impl From<String> for ServiceId {
 }
 
 impl Service {
+    /// Creates a new `Service` from a `ServiceId` and `Credentials`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use threescalers::service::*;
+    ///
+    /// let creds = Credentials::from_token("my_token");
+    /// let service = Service::new("my_service_id", creds);
+    /// ```
     pub fn new<T: Into<ServiceId>>(service_id: T, creds: Credentials) -> Self {
         let service_id = service_id.into();
         Self { service_id, creds }
