@@ -17,4 +17,19 @@ impl Request {
     pub fn new(method: String, path: String, body: Option<String>) -> Request {
         Request { method, path, body }
     }
+
+    pub fn method(&self) -> &str {
+        &self.method
+    }
+
+    pub fn path(&self) -> &str {
+        &self.path
+    }
+
+    pub fn body(&self) -> Option<&str> {
+        match self.body {
+            Some(ref body) => Some(body.as_str()),
+            _ => None
+        }
+    }
 }
