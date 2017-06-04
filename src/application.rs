@@ -42,7 +42,7 @@ impl FromStr for AppId {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<AppId> {
-        Ok(AppId(s.to_owned()))
+        Ok(AppId(s.into()))
     }
 }
 
@@ -50,7 +50,7 @@ impl FromStr for AppKey {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<AppKey> {
-        Ok(AppKey(s.to_owned()))
+        Ok(AppKey(s.into()))
     }
 }
 
@@ -58,7 +58,7 @@ impl FromStr for UserKey {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<UserKey> {
-        Ok(UserKey(s.to_owned()))
+        Ok(UserKey(s.into()))
     }
 }
 
@@ -66,7 +66,7 @@ impl FromStr for OAuthToken {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<OAuthToken> {
-        Ok(OAuthToken(s.to_owned()))
+        Ok(OAuthToken(s.into()))
     }
 }
 
@@ -234,7 +234,7 @@ mod tests {
     #[test]
     fn transforms_app_id_into_params() {
         let app_id = "my_app_id";
-        let app = Application::from_app_id(app_id.to_owned());
+        let app = Application::from_app_id(app_id);
 
         let result = app.to_params();
 
@@ -246,8 +246,7 @@ mod tests {
     fn transforms_app_id_and_key_into_params() {
         let app_id = "my_app_id";
         let key = "my_key";
-        let app = Application::from_app_id_and_key(app_id.to_owned(),
-                                                   key.to_owned());
+        let app = Application::from_app_id_and_key(app_id, key);
 
         let result = app.to_params();
 
@@ -258,7 +257,7 @@ mod tests {
     #[test]
     fn transforms_user_key_into_params() {
         let user_key = "my_user_key";
-        let app = Application::from_user_key(user_key.to_owned());
+        let app = Application::from_user_key(user_key);
 
         let result = app.to_params();
 
@@ -269,7 +268,7 @@ mod tests {
     #[test]
     fn transforms_oauth_token_into_params() {
         let oauth_token = "my_token";
-        let app = Application::from_oauth_token(oauth_token.to_owned());
+        let app = Application::from_oauth_token(oauth_token);
 
         let result = app.to_params();
 

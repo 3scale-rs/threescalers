@@ -32,7 +32,7 @@ impl FromStr for ProviderKey {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<ProviderKey> {
-        Ok(ProviderKey(s.to_owned()))
+        Ok(ProviderKey(s.into()))
     }
 }
 
@@ -40,7 +40,7 @@ impl FromStr for ServiceToken {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<ServiceToken> {
-        Ok(ServiceToken(s.to_owned()))
+        Ok(ServiceToken(s.into()))
     }
 }
 
@@ -142,7 +142,7 @@ impl FromStr for ServiceId {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<ServiceId> {
-        Ok(ServiceId(s.to_owned()))
+        Ok(ServiceId(s.into()))
     }
 }
 
@@ -170,8 +170,7 @@ impl Service {
     /// let service = Service::new("my_service_id", creds);
     /// ```
     pub fn new<T: Into<ServiceId>>(service_id: T, creds: Credentials) -> Self {
-        let service_id = service_id.into();
-        Self { service_id, creds }
+        Self { service_id: service_id.into(), creds }
     }
 }
 
@@ -192,8 +191,8 @@ mod credentials_tests {
     fn transforms_service_id_and_key_into_params() {
         let service_id = "my_service_id";
         let provider_key = "my_provider_key";
-        let creds = Credentials::from_key(provider_key.to_owned());
-        let service = Service::new(service_id.to_owned(), creds);
+        let creds = Credentials::from_key(provider_key);
+        let service = Service::new(service_id, creds);
 
         let result = service.to_params();
 
@@ -206,8 +205,8 @@ mod credentials_tests {
     fn transforms_service_id_and_token_into_params() {
         let service_id = "my_service_id";
         let token = "my_token";
-        let creds = Credentials::from_token(token.to_owned());
-        let service = Service::new(service_id.to_owned(), creds);
+        let creds = Credentials::from_token(token);
+        let service = Service::new(service_id, creds);
 
         let result = service.to_params();
 
