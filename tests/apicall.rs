@@ -58,7 +58,6 @@ fn returns_auth_request_from_service_id_pkey_app_id_and_user_id() {
 }
 
 #[test]
-#[ignore] // TODO: fix code to pass test
 fn returns_auth_request_from_service_id_pkey_app_id_and_oauth_user() {
     let provider_key = "a_provider_key";
     let creds = Credentials::from_key(provider_key);
@@ -138,7 +137,6 @@ fn returns_auth_request_from_service_id_pkey_app_id_app_key_and_user_id() {
 }
 
 #[test]
-#[ignore] // TODO: fix code to pass test
 fn returns_auth_request_from_service_id_pkey_app_id_app_key_and_oauth_user() {
     let provider_key = "a_provider_key";
     let creds = Credentials::from_key(provider_key);
@@ -216,7 +214,6 @@ fn returns_auth_request_from_service_id_pkey_user_key_and_user_id() {
 }
 
 #[test]
-#[ignore] // TODO: fix code to pass test
 fn returns_auth_request_from_service_id_pkey_user_key_and_oauth_user() {
     let provider_key = "a_provider_key";
     let creds = Credentials::from_key(provider_key);
@@ -348,7 +345,6 @@ fn returns_auth_request_from_service_id_token_app_id_and_user_id() {
 }
 
 #[test]
-#[ignore] // TODO: fix code to pass test
 fn returns_auth_request_from_service_id_token_app_id_and_oauth_user() {
     let service_token = "a_service_token";
     let creds = Credentials::from_token(service_token);
@@ -428,7 +424,6 @@ fn returns_auth_request_from_service_id_token_app_id_app_key_and_user_id() {
 }
 
 #[test]
-#[ignore] // TODO: fix code to pass test
 fn returns_auth_request_from_service_id_token_app_id_app_key_and_oauth_user() {
     let service_token = "a_service_token";
     let creds = Credentials::from_token(service_token);
@@ -506,7 +501,6 @@ fn returns_auth_request_from_service_id_token_user_key_and_user_id() {
 }
 
 #[test]
-#[ignore] // TODO: fix code to pass test
 fn returns_auth_request_from_service_id_token_user_key_and_oauth_user() {
     let service_token = "a_service_token";
     let creds = Credentials::from_token(service_token);
