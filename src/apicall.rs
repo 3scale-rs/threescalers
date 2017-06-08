@@ -41,14 +41,15 @@ impl<'service, 'app, 'user> Info<'service, 'app, 'user> {
 
     fn endpoint(&self) -> &str {
         use self::Type::*;
-        use self::Application::*;
 
-        match (&self.kind, self.application) {
-            (&Authorize, &OAuthToken(_)) => OAUTH_AUTHORIZE_ENDPOINT,
-            (&Authorize, _) => AUTHORIZE_ENDPOINT,
-            (&AuthRep, &OAuthToken(_)) => OAUTH_AUTHREP_ENDPOINT,
-            (&AuthRep, _) => AUTHREP_ENDPOINT,
-            (&Report, _) => REPORT_ENDPOINT,
+        match (&self.kind, self.application, self.user) {
+            (&Authorize, &Application::OAuthToken(_), _) => OAUTH_AUTHORIZE_ENDPOINT,
+            (&Authorize, _, Some(&User::OAuthToken(_))) => OAUTH_AUTHORIZE_ENDPOINT,
+            (&Authorize, _, _) => AUTHORIZE_ENDPOINT,
+            (&AuthRep, &Application::OAuthToken(_), _) => OAUTH_AUTHREP_ENDPOINT,
+            (&AuthRep, _, Some(&User::OAuthToken(_))) => OAUTH_AUTHREP_ENDPOINT,
+            (&AuthRep, _, _) => AUTHREP_ENDPOINT,
+            (&Report, _, _) => REPORT_ENDPOINT,
         }
     }
 
