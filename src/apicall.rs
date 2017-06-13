@@ -53,7 +53,7 @@ impl<'service, 'app, 'user> Info<'service, 'app, 'user> {
         }
     }
 
-    fn path(&self) -> String {
+    fn params(&self) -> Vec<(&str, &str)> {
         use request::ToParams;
 
         let mut params: Vec<(&str, &str)> = Vec::new();
@@ -64,17 +64,12 @@ impl<'service, 'app, 'user> Info<'service, 'app, 'user> {
             params.extend(user_params.to_params());
         }
 
-        let params = params.into_iter()
-            .map(|(param, value)| param.to_owned() + "=" + value)
-            .collect::<Vec<String>>()
-            .join("&");
-
-        self.endpoint().to_owned() + "?" + params.as_str()
+        params
     }
 }
 
 impl<'service, 'app, 'user> ToRequest for Info<'service, 'app, 'user> {
     fn to_request(&self) -> Request {
-        Request::new(self.kind.method(), self.path(), None)
+        Request::new(self.kind.method(), self.endpoint(), self.params(), None)
     }
 }
