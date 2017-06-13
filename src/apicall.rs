@@ -11,11 +11,11 @@ pub enum Type {
 }
 
 impl Type {
-    pub fn method(&self) -> String {
+    pub fn method(&self) -> &str {
         use self::Type::*;
         match *self {
-            Report => "POST".to_owned(),
-            AuthRep | Authorize => "GET".to_owned(),
+            Report => "POST",
+            AuthRep | Authorize => "GET",
         }
     }
 }
