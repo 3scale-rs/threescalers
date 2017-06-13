@@ -1,10 +1,3 @@
-#[derive(Debug)]
-pub struct Request {
-    method: String,
-    path: String,
-    body: Option<String>
-}
-
 pub trait ToParams {
     fn to_params(&self) -> Vec<(&str, &str)>;
 }
@@ -13,17 +6,40 @@ pub trait ToRequest {
     fn to_request(&self) -> Request;
 }
 
-impl Request {
-    pub fn new(method: String, path: String, body: Option<String>) -> Request {
-        Request { method, path, body }
+#[derive(Debug)]
+pub struct Request<'m, 'ep, 'key, 'value> {
+    method: &'m str,
+    endpoint: &'ep str,
+    params: Vec<(&'key str, &'value str)>,
+    body: Option<String>
+}
+
+impl<'m, 'ep, 'key, 'value> Request<'m, 'ep, 'key, 'value> {
+    pub fn new(method: &'m str, endpoint: &'ep str, params: Vec<(&'key str, &'value str)>, body: Option<String>) -> Request<'m, 'ep, 'key, 'value> {
+        Request { method, endpoint, params, body }
     }
 
     pub fn method(&self) -> &str {
-        &self.method
+        self.method
     }
 
-    pub fn path(&self) -> &str {
-        &self.path
+    pub fn endpoint(&self) -> &str {
+        self.endpoint
+    }
+
+    pub fn params(&self) -> &Vec<(&str, &str)> {
+        self.params.as_ref()
+    }
+
+    pub fn url_params(&self) -> String {
+        self.params.iter()
+            .map(|&(param, value)| param.to_owned() + "=" + value)
+            .collect::<Vec<String>>()
+            .join("&")
+    }
+
+    pub fn path(&self) -> String {
+        self.endpoint.to_owned() + "?" + self.url_params().as_str()
     }
 
     pub fn body(&self) -> Option<&str> {
