@@ -112,9 +112,9 @@ impl User {
 
 impl ToParams for User {
     fn to_params(&self) -> Vec<(&str, &str)> {
-        let (field, value) = match *self {
-            User::UserId(ref user_id) => ("user_id", user_id.as_ref()),
-            User::OAuthToken(ref token) => ("access_token", token.as_ref())
+        let (field, value) = match self {
+            User::UserId(user_id) => ("user_id", user_id.as_ref()),
+            User::OAuthToken(token) => ("access_token", token.as_ref())
         };
         vec![(field, value)]
     }

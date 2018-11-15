@@ -13,7 +13,7 @@ pub enum Type {
 impl Type {
     pub fn method(&self) -> &str {
         use self::Type::*;
-        match *self {
+        match self {
             Report => "POST",
             AuthRep | Authorize => "GET",
         }
@@ -43,13 +43,13 @@ impl<'service, 'app, 'user> Info<'service, 'app, 'user> {
         use self::Type::*;
 
         match (&self.kind, self.application, self.user) {
-            (&Authorize, &Application::OAuthToken(_), _) => OAUTH_AUTHORIZE_ENDPOINT,
-            (&Authorize, _, Some(&User::OAuthToken(_))) => OAUTH_AUTHORIZE_ENDPOINT,
-            (&Authorize, _, _) => AUTHORIZE_ENDPOINT,
-            (&AuthRep, &Application::OAuthToken(_), _) => OAUTH_AUTHREP_ENDPOINT,
-            (&AuthRep, _, Some(&User::OAuthToken(_))) => OAUTH_AUTHREP_ENDPOINT,
-            (&AuthRep, _, _) => AUTHREP_ENDPOINT,
-            (&Report, _, _) => REPORT_ENDPOINT,
+            (Authorize, Application::OAuthToken(_), _) => OAUTH_AUTHORIZE_ENDPOINT,
+            (Authorize, _, Some(&User::OAuthToken(_))) => OAUTH_AUTHORIZE_ENDPOINT,
+            (Authorize, _, _) => AUTHORIZE_ENDPOINT,
+            (AuthRep, Application::OAuthToken(_), _) => OAUTH_AUTHREP_ENDPOINT,
+            (AuthRep, _, Some(&User::OAuthToken(_))) => OAUTH_AUTHREP_ENDPOINT,
+            (AuthRep, _, _) => AUTHREP_ENDPOINT,
+            (Report, _, _) => REPORT_ENDPOINT,
         }
     }
 

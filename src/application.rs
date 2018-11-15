@@ -211,16 +211,16 @@ impl ToParams for Application {
         use self::Application::*;
 
         let mut v = Vec::<(&str, &str)>::with_capacity(2);
-        match *self {
-            AppId(ref app_id, None) => {
+        match self {
+            AppId(app_id, None) => {
                 v.push(("app_id", app_id.as_ref()));
             },
-            AppId(ref app_id, Some(ref app_key)) => {
+            AppId(app_id, Some(app_key)) => {
                 v.push(("app_id", app_id.as_ref()));
                 v.push(("app_key", app_key.as_ref()));
             },
-            UserKey(ref user_key) => v.push(("user_key", user_key.as_ref())),
-            OAuthToken(ref token) => v.push(("access_token", token.as_ref())),
+            UserKey(user_key) => v.push(("user_key", user_key.as_ref())),
+            OAuthToken(token) => v.push(("access_token", token.as_ref())),
         };
 
         v

@@ -114,9 +114,9 @@ impl ToParams for Credentials {
     fn to_params(&self) -> Vec<(&str, &str)> {
         use self::Credentials::*;
 
-        let (field, value) = match *self {
-            ProviderKey(ref key) => ("provider_key", key.as_ref()),
-            ServiceToken(ref token) => ("service_token", token.as_ref())
+        let (field, value) = match self {
+            ProviderKey(key) => ("provider_key", key.as_ref()),
+            ServiceToken(token) => ("service_token", token.as_ref())
         };
 
         vec![(field, value)]
