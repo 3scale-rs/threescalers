@@ -1,7 +1,7 @@
-use request::{Request, ToRequest};
-use service::Service;
-use application::Application;
-use user::User;
+use crate::request::{Request, ToRequest};
+use crate::service::Service;
+use crate::application::Application;
+use crate::user::User;
 
 #[derive(Debug)]
 pub enum Type {
@@ -13,7 +13,7 @@ pub enum Type {
 impl Type {
     pub fn method(&self) -> &str {
         use self::Type::*;
-        match *self {
+        match self {
             Report => "POST",
             AuthRep | Authorize => "GET",
         }
@@ -43,18 +43,18 @@ impl<'service, 'app, 'user> Info<'service, 'app, 'user> {
         use self::Type::*;
 
         match (&self.kind, self.application, self.user) {
-            (&Authorize, &Application::OAuthToken(_), _) => OAUTH_AUTHORIZE_ENDPOINT,
-            (&Authorize, _, Some(&User::OAuthToken(_))) => OAUTH_AUTHORIZE_ENDPOINT,
-            (&Authorize, _, _) => AUTHORIZE_ENDPOINT,
-            (&AuthRep, &Application::OAuthToken(_), _) => OAUTH_AUTHREP_ENDPOINT,
-            (&AuthRep, _, Some(&User::OAuthToken(_))) => OAUTH_AUTHREP_ENDPOINT,
-            (&AuthRep, _, _) => AUTHREP_ENDPOINT,
-            (&Report, _, _) => REPORT_ENDPOINT,
+            (Authorize, Application::OAuthToken(_), _) => OAUTH_AUTHORIZE_ENDPOINT,
+            (Authorize, _, Some(&User::OAuthToken(_))) => OAUTH_AUTHORIZE_ENDPOINT,
+            (Authorize, _, _) => AUTHORIZE_ENDPOINT,
+            (AuthRep, Application::OAuthToken(_), _) => OAUTH_AUTHREP_ENDPOINT,
+            (AuthRep, _, Some(&User::OAuthToken(_))) => OAUTH_AUTHREP_ENDPOINT,
+            (AuthRep, _, _) => AUTHREP_ENDPOINT,
+            (Report, _, _) => REPORT_ENDPOINT,
         }
     }
 
     fn params(&self) -> Vec<(&str, &str)> {
-        use request::ToParams;
+        use crate::request::ToParams;
 
         let mut params: Vec<(&str, &str)> = Vec::new();
         params.extend(self.service.to_params());

@@ -1,5 +1,5 @@
-use request::ToParams;
-use errors::*;
+use crate::request::ToParams;
+use crate::errors::*;
 
 use std::str::FromStr;
 
@@ -39,14 +39,14 @@ impl FromStr for OAuthToken {
 }
 
 // These trait impls are similar to FromStr (but are infallible)
-impl<'a> From<&'a str> for UserId where Self: FromStr {
-    fn from(s: &'a str) -> UserId {
+impl From<&str> for UserId where Self: FromStr {
+    fn from(s: &str) -> UserId {
         s.parse().unwrap()
     }
 }
 
-impl<'a> From<&'a str> for OAuthToken where Self: FromStr {
-    fn from(s: &'a str) -> OAuthToken {
+impl From<&str> for OAuthToken where Self: FromStr {
+    fn from(s: &str) -> OAuthToken {
         s.parse().unwrap()
     }
 }
@@ -112,9 +112,9 @@ impl User {
 
 impl ToParams for User {
     fn to_params(&self) -> Vec<(&str, &str)> {
-        let (field, value) = match *self {
-            User::UserId(ref user_id) => ("user_id", user_id.as_ref()),
-            User::OAuthToken(ref token) => ("access_token", token.as_ref())
+        let (field, value) = match self {
+            User::UserId(user_id) => ("user_id", user_id.as_ref()),
+            User::OAuthToken(token) => ("access_token", token.as_ref())
         };
         vec![(field, value)]
     }
