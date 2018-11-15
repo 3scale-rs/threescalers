@@ -1,5 +1,5 @@
-use request::ToParams;
-use errors::*;
+use crate::request::ToParams;
+use crate::errors::*;
 
 use std::str::FromStr;
 

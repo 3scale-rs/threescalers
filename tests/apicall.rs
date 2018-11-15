@@ -8,7 +8,7 @@ use threescalers::user::*;
 
 use std::collections::HashMap;
 
-use helpers::*;
+use crate::helpers::*;
 
 #[test]
 fn returns_auth_request_from_service_id_pkey_and_app_id() {

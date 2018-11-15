@@ -1,7 +1,7 @@
-use request::{Request, ToRequest};
-use service::Service;
-use application::Application;
-use user::User;
+use crate::request::{Request, ToRequest};
+use crate::service::Service;
+use crate::application::Application;
+use crate::user::User;
 
 #[derive(Debug)]
 pub enum Type {
@@ -54,7 +54,7 @@ impl<'service, 'app, 'user> Info<'service, 'app, 'user> {
     }
 
     fn params(&self) -> Vec<(&str, &str)> {
-        use request::ToParams;
+        use crate::request::ToParams;
 
         let mut params: Vec<(&str, &str)> = Vec::new();
         params.extend(self.service.to_params());
