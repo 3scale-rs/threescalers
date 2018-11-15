@@ -192,7 +192,7 @@ impl Application {
         Application::UserKey(user_key.into())
     }
 
-    /// Creates a new `Application` from an `AppId`.
+    /// Creates a new `Application` from an `OAuthToken`.
     ///
     /// # Examples
     ///
