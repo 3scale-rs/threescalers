@@ -39,14 +39,14 @@ impl FromStr for OAuthToken {
 }
 
 // These trait impls are similar to FromStr (but are infallible)
-impl<'a> From<&'a str> for UserId where Self: FromStr {
-    fn from(s: &'a str) -> UserId {
+impl From<&str> for UserId where Self: FromStr {
+    fn from(s: &str) -> UserId {
         s.parse().unwrap()
     }
 }
 
-impl<'a> From<&'a str> for OAuthToken where Self: FromStr {
-    fn from(s: &'a str) -> OAuthToken {
+impl From<&str> for OAuthToken where Self: FromStr {
+    fn from(s: &str) -> OAuthToken {
         s.parse().unwrap()
     }
 }

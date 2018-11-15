@@ -45,14 +45,14 @@ impl FromStr for ServiceToken {
 }
 
 // These trait impls are similar to FromStr (but are infallible)
-impl<'a> From<&'a str> for ProviderKey where Self: FromStr {
-    fn from(s: &'a str) -> ProviderKey {
+impl From<&str> for ProviderKey where Self: FromStr {
+    fn from(s: &str) -> ProviderKey {
         s.parse().unwrap()
     }
 }
 
-impl<'a> From<&'a str> for ServiceToken where Self: FromStr {
-    fn from(s: &'a str) -> ServiceToken {
+impl From<&str> for ServiceToken where Self: FromStr {
+    fn from(s: &str) -> ServiceToken {
         s.parse().unwrap()
     }
 }
@@ -146,8 +146,8 @@ impl FromStr for ServiceId {
     }
 }
 
-impl<'a> From<&'a str> for ServiceId where Self: FromStr {
-    fn from(s: &'a str) -> ServiceId {
+impl From<&str> for ServiceId where Self: FromStr {
+    fn from(s: &str) -> ServiceId {
         s.parse().unwrap()
     }
 }
