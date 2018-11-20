@@ -1,4 +1,4 @@
-use request::ToParams;
+use crate::request::ToParams;
 
 #[derive(Debug)]
 pub struct Usage {
