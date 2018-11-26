@@ -232,6 +232,38 @@ mod tests {
     use super::*;
 
     #[test]
+    fn convert_application_from_app_id() {
+        let app_id = AppId::from("my_app_id");
+        let app = Application::from(app_id.clone());
+
+        assert_eq!(Application::AppId(app_id, None), app);
+    }
+
+    #[test]
+    fn convert_application_from_app_id_app_key() {
+        let app_id_key = (AppId::from("my_app_id"), AppKey::from("my_app_key"));
+        let app = Application::from(app_id_key.clone());
+
+        assert_eq!(Application::AppId(app_id_key.0, Some(app_id_key.1)), app);
+    }
+
+    #[test]
+    fn convert_application_from_user_key() {
+        let user_key = UserKey::from("my_user_key");
+        let app = Application::from(user_key.clone());
+
+        assert_eq!(Application::UserKey(user_key), app);
+    }
+
+    #[test]
+    fn convert_application_from_oauth_token() {
+        let token = OAuthToken::from("my_oauth_token");
+        let app = Application::from(token.clone());
+
+        assert_eq!(Application::OAuthToken(token), app);
+    }
+
+    #[test]
     fn transforms_app_id_into_params() {
         let app_id = "my_app_id";
         let app = Application::from_app_id(app_id);
