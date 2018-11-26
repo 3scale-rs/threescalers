@@ -128,27 +128,27 @@ pub enum Application {
 }
 
 // These trait impls build an Application variant out of its required types
-impl Into<Application> for AppId {
-    fn into(self) -> Application {
-        Application::AppId(self, None)
+impl From<AppId> for Application {
+    fn from(a: AppId) -> Self {
+        Application::AppId(a, None)
     }
 }
 
-impl Into<Application> for (AppId, AppKey) {
-    fn into(self) -> Application {
-        Application::AppId(self.0, Some(self.1))
+impl From<(AppId, AppKey)> for Application {
+    fn from(a: (AppId, AppKey)) -> Self {
+        Application::AppId(a.0, Some(a.1))
     }
 }
 
-impl Into<Application> for UserKey {
-    fn into(self) -> Application {
-        Application::UserKey(self)
+impl From<UserKey> for Application {
+    fn from(u: UserKey) -> Self {
+        Application::UserKey(u)
     }
 }
 
-impl Into<Application> for OAuthToken {
-    fn into(self) -> Application {
-        Application::OAuthToken(self)
+impl From<OAuthToken> for Application {
+    fn from(o: OAuthToken) -> Self {
+        Application::OAuthToken(o)
     }
 }
 
