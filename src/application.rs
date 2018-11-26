@@ -3,13 +3,13 @@ use crate::errors::*;
 
 use std::str::FromStr;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct AppId(String);
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct AppKey(String);
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct UserKey(String);
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct OAuthToken(String);
 
 // These trait impls provide a way to reference our types as &str
@@ -120,7 +120,7 @@ impl From<String> for OAuthToken {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Application {
     AppId(AppId, Option<AppKey>),
     UserKey(UserKey),
