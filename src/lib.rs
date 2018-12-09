@@ -1,5 +1,5 @@
-#[macro_use]
-extern crate error_chain;
+#![feature(test)]
+extern crate test;
 
 pub mod errors;
 pub mod request;
@@ -8,6 +8,7 @@ pub mod application;
 pub mod user;
 pub mod usage;
 pub mod apicall;
+pub mod http;
 
 #[cfg(test)]
 mod tests {

@@ -2,6 +2,9 @@ use crate::request::{Request, ToRequest};
 use crate::service::Service;
 use crate::application::Application;
 use crate::user::User;
+use crate::usage::Usage;
+
+use std::collections::HashMap;
 
 #[derive(Debug)]
 pub enum Type {
@@ -20,40 +23,46 @@ impl Type {
     }
 }
 
+type Extensions = HashMap<String, String>;
+
 #[derive(Debug)]
-pub struct Info<'service, 'app, 'user> {
+pub struct Info<'service, 'app, 'user, 'usage, 'extensions> {
     kind: Type,
     service: &'service Service,
     application: &'app Application,
     user: Option<&'user User>,
+    usage: Option<&'usage Usage>,
+    extensions: Option<&'extensions Extensions>,
 }
 
-const AUTHORIZE_ENDPOINT: &str = "/transactions/authorize.xml";
-const AUTHREP_ENDPOINT: &str = "/transactions/authrep.xml";
-const REPORT_ENDPOINT: &str = "/transactions.xml";
-const OAUTH_AUTHORIZE_ENDPOINT: &str = "/transactions/oauth_authorize.xml";
-const OAUTH_AUTHREP_ENDPOINT: &str = "/transactions/oauth_authrep.xml";
-
-impl<'service, 'app, 'user> Info<'service, 'app, 'user> {
-    pub fn new(kind: Type, service: &'service Service, application: &'app Application, user: Option<&'user User>) -> Self {
-        Self { kind, service, application, user }
+impl<'service, 'app, 'user, 'usage, 'extensions> Info<'service, 'app, 'user, 'usage, 'extensions> {
+    pub fn new(kind: Type, service: &'service Service, application: &'app Application,
+               user: Option<&'user User>, usage: Option<&'usage Usage>,
+               extensions: Option<&'extensions Extensions>) -> Self {
+        Self { kind, service, application, user, usage, extensions }
     }
 
-    fn endpoint(&self) -> &str {
-        use self::Type::*;
-
-        match (&self.kind, self.application, self.user) {
-            (Authorize, Application::OAuthToken(_), _) => OAUTH_AUTHORIZE_ENDPOINT,
-            (Authorize, _, Some(&User::OAuthToken(_))) => OAUTH_AUTHORIZE_ENDPOINT,
-            (Authorize, _, _) => AUTHORIZE_ENDPOINT,
-            (AuthRep, Application::OAuthToken(_), _) => OAUTH_AUTHREP_ENDPOINT,
-            (AuthRep, _, Some(&User::OAuthToken(_))) => OAUTH_AUTHREP_ENDPOINT,
-            (AuthRep, _, _) => AUTHREP_ENDPOINT,
-            (Report, _, _) => REPORT_ENDPOINT,
-        }
+    pub fn kind(&self) -> &Type {
+        &self.kind
     }
 
-    fn params(&self) -> Vec<(&str, &str)> {
+    pub fn service(&self) -> &'service Service {
+        self.service
+    }
+
+    pub fn application(&self) -> &'app Application {
+        self.application
+    }
+
+    pub fn user(&self) -> Option<&'user User> {
+        self.user
+    }
+
+    pub fn extensions(&self) -> Option<&'extensions Extensions> {
+        self.extensions
+    }
+
+    pub fn params(&self) -> Vec<(&str, &str)> {
         use crate::request::ToParams;
 
         let mut params: Vec<(&str, &str)> = Vec::new();
@@ -64,12 +73,18 @@ impl<'service, 'app, 'user> Info<'service, 'app, 'user> {
             params.extend(user_params.to_params());
         }
 
+        if let Some(usage_params) = self.usage.as_ref() {
+            params.extend(usage_params.to_params());
+        }
+
         params
     }
 }
 
-impl<'service, 'app, 'user> ToRequest for Info<'service, 'app, 'user> {
+//impl<'service, 'app, 'user, 'usage, 'extensions> ToRequest for Info<'service, 'app, 'user, 'usage, 'extensions> {
+impl ToRequest for Info<'_, '_, '_, '_, '_> {
+//impl ToRequest for Info {
     fn to_request(&self) -> Request {
-        Request::new(self.kind.method(), self.endpoint(), self.params(), None)
+        Request::new(self.kind.method(), "obsolete_endpoint_str", self.params(), None)
     }
 }

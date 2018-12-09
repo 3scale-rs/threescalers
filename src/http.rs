@@ -1,0 +1,71 @@
+use crate::apicall::{Type::*, *};
+use crate::application::*;
+use crate::user::*;
+
+use http::{Request, Method, HeaderMap};
+use http::{Uri, uri::{self, PathAndQuery}};
+
+use std::collections::HashMap;
+
+mod request_parameters;
+pub use self::request_parameters::RequestParameters;
+mod endpoints;
+use self::endpoints::*;
+mod encoding;
+
+#[derive(Clone, Debug)]
+pub struct Req {
+    pub method: Method,
+    pub path: &'static str,
+    pub rp: RequestParameters,
+}
+
+// TODO make it ok for any T, also () which means no body!!!
+impl From<Req> for Request<String> {
+    fn from(r: Req) -> Self {
+        let body = match r.rp.body() {
+            Some(s) => s.to_string(),
+            None => String::new(),
+        };
+        Request::builder()
+            .header("User-Agent", "threescalers/0.1.0")
+            .method(r.method)
+            .uri(r.rp.path_and_query(r.path).as_ref())
+            .body(body)
+            .unwrap()
+    }
+}
+
+impl From<&Info<'_, '_, '_, '_, '_>> for Req {
+   fn from(i: &Info) -> Self {
+       let (method, path) = match (i.kind(), i.application(), i.user()) {
+           (Authorize, Application::OAuthToken(_), _) => OAUTH_AUTHORIZE_ENDPOINT,
+           (Authorize, _, Some(&User::OAuthToken(_))) => OAUTH_AUTHORIZE_ENDPOINT,
+           (Authorize, _, _) => AUTHORIZE_ENDPOINT,
+           (AuthRep, Application::OAuthToken(_), _) => OAUTH_AUTHREP_ENDPOINT,
+           (AuthRep, _, Some(&User::OAuthToken(_))) => OAUTH_AUTHREP_ENDPOINT,
+           (AuthRep, _, _) => AUTHREP_ENDPOINT,
+           (Report, _, _) => REPORT_ENDPOINT,
+       };
+       let rp = RequestParameters::new(&method, &i.params());
+
+       Req { method, path, rp }
+   }
+}
+
+impl From<&Info<'_, '_, '_, '_, '_>> for Request<String> {
+    fn from(i: &Info) -> Self {
+        Req::from(i).into()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test::Bencher;
+
+    #[test]
+    fn it_works() {
+        assert_eq!(4, 2*2);
+    }
+}

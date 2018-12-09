@@ -19,7 +19,7 @@ impl Usage {
     /// metrics.push(("metric2", 20));
     /// let usage = Usage::new(&metrics);
     /// ```
-    pub fn new<T1: ToString, T2: ToString>(metrics: &Vec<(T1, T2)>) -> Self {
+    pub fn new<T1: ToString, T2: ToString>(metrics: &[(T1, T2)]) -> Self {
         let string_metrics = metrics
             .iter()
             .map(|&(ref metric, ref value)| (metric.to_string(), value.to_string()))
@@ -31,7 +31,7 @@ impl Usage {
         }
     }
 
-    fn usage_params_from<T1: ToString, T2: ToString>(metrics: &Vec<(T1, T2)>)
+    fn usage_params_from<T1: ToString, T2: ToString>(metrics: &[(T1, T2)])
                                                      -> Vec<(String, String)> {
         metrics
             .iter()
