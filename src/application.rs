@@ -3,13 +3,13 @@ use crate::errors::*;
 
 use std::str::FromStr;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct AppId(String);
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct AppKey(String);
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct UserKey(String);
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct OAuthToken(String);
 
 // These trait impls provide a way to reference our types as &str
@@ -120,7 +120,7 @@ impl From<String> for OAuthToken {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Application {
     AppId(AppId, Option<AppKey>),
     UserKey(UserKey),
@@ -128,27 +128,27 @@ pub enum Application {
 }
 
 // These trait impls build an Application variant out of its required types
-impl Into<Application> for AppId {
-    fn into(self) -> Application {
-        Application::AppId(self, None)
+impl From<AppId> for Application {
+    fn from(a: AppId) -> Self {
+        Application::AppId(a, None)
     }
 }
 
-impl Into<Application> for (AppId, AppKey) {
-    fn into(self) -> Application {
-        Application::AppId(self.0, Some(self.1))
+impl From<(AppId, AppKey)> for Application {
+    fn from(a: (AppId, AppKey)) -> Self {
+        Application::AppId(a.0, Some(a.1))
     }
 }
 
-impl Into<Application> for UserKey {
-    fn into(self) -> Application {
-        Application::UserKey(self)
+impl From<UserKey> for Application {
+    fn from(u: UserKey) -> Self {
+        Application::UserKey(u)
     }
 }
 
-impl Into<Application> for OAuthToken {
-    fn into(self) -> Application {
-        Application::OAuthToken(self)
+impl From<OAuthToken> for Application {
+    fn from(o: OAuthToken) -> Self {
+        Application::OAuthToken(o)
     }
 }
 
@@ -230,6 +230,38 @@ impl ToParams for Application {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn convert_application_from_app_id() {
+        let app_id = AppId::from("my_app_id");
+        let app = Application::from(app_id.clone());
+
+        assert_eq!(Application::AppId(app_id, None), app);
+    }
+
+    #[test]
+    fn convert_application_from_app_id_app_key() {
+        let app_id_key = (AppId::from("my_app_id"), AppKey::from("my_app_key"));
+        let app = Application::from(app_id_key.clone());
+
+        assert_eq!(Application::AppId(app_id_key.0, Some(app_id_key.1)), app);
+    }
+
+    #[test]
+    fn convert_application_from_user_key() {
+        let user_key = UserKey::from("my_user_key");
+        let app = Application::from(user_key.clone());
+
+        assert_eq!(Application::UserKey(user_key), app);
+    }
+
+    #[test]
+    fn convert_application_from_oauth_token() {
+        let token = OAuthToken::from("my_oauth_token");
+        let app = Application::from(token.clone());
+
+        assert_eq!(Application::OAuthToken(token), app);
+    }
 
     #[test]
     fn transforms_app_id_into_params() {
