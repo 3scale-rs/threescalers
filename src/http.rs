@@ -20,6 +20,9 @@ pub struct Req {
     pub rp: RequestParameters,
 }
 
+const THREESCALERS_VERSION: &str = "0.1.0";
+const USER_AGENT: &str = concat!("threescalers", stringify!(THREESCALERS_VERSION));
+
 // TODO make it ok for any T, also () which means no body!!!
 impl From<Req> for Request<String> {
     fn from(r: Req) -> Self {
@@ -27,8 +30,8 @@ impl From<Req> for Request<String> {
             Some(s) => s.to_string(),
             None => String::new(),
         };
-        Request::builder()
-            .header("User-Agent", "threescalers/0.1.0")
+        let mut rb = Request::builder();
+        rb.header("User-Agent", USER_AGENT)
             .method(r.method)
             .uri(r.rp.path_and_query(r.path).as_ref())
             .body(body)
