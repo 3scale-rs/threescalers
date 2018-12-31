@@ -1,4 +1,4 @@
-use crate::apicall::{Type::*, *};
+use crate::api_call::{Kind::*, *};
 use crate::application::*;
 use crate::user::*;
 use crate::ToParams;
@@ -40,8 +40,8 @@ impl From<Req> for Request<String> {
     }
 }
 
-impl From<&Info<'_, '_, '_, '_, '_>> for Req {
-   fn from(i: &Info) -> Self {
+impl From<&ApiCall<'_, '_, '_, '_, '_>> for Req {
+   fn from(i: &ApiCall) -> Self {
        let (method, path) = match (i.kind(), i.application(), i.user()) {
            (Authorize, Application::OAuthToken(_), _) => OAUTH_AUTHORIZE_ENDPOINT,
            (Authorize, _, Some(&User::OAuthToken(_))) => OAUTH_AUTHORIZE_ENDPOINT,
@@ -59,8 +59,8 @@ impl From<&Info<'_, '_, '_, '_, '_>> for Req {
    }
 }
 
-impl From<&Info<'_, '_, '_, '_, '_>> for Request<String> {
-    fn from(i: &Info) -> Self {
+impl From<&ApiCall<'_, '_, '_, '_, '_>> for Request<String> {
+    fn from(i: &ApiCall) -> Self {
         Req::from(i).into()
     }
 }

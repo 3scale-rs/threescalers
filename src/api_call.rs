@@ -8,8 +8,8 @@ use crate::ToParams;
 
 use std::collections::HashMap;
 
-#[derive(Clone, Copy, Debug)]
-pub enum Type {
+#[derive(Clone, Debug)]
+pub enum Kind {
     Authorize,
     AuthRep,
     Report
@@ -17,9 +17,9 @@ pub enum Type {
 
 type Extensions = HashMap<String, String>;
 
-#[derive(Debug)]
-pub struct Info<'service, 'app, 'user, 'usage, 'extensions> {
-    kind: Type,
+#[derive(Clone, Debug)]
+pub struct ApiCall<'service, 'app, 'user, 'usage, 'extensions> {
+    kind: Kind,
     service: &'service Service,
     application: &'app Application,
     user: Option<&'user User>,
@@ -30,7 +30,7 @@ pub struct Info<'service, 'app, 'user, 'usage, 'extensions> {
 #[derive(Clone, Debug)]
 pub struct Builder<'service, 'app, 'user, 'usage, 'extensions> {
     service: &'service Service,
-    kind: Option<Type>,
+    kind: Option<Kind>,
     application: Option<&'app Application>,
     user: Option<&'user User>,
     usage: Option<&'usage Usage>,
@@ -43,7 +43,7 @@ impl<'service, 'app, 'user, 'usage, 'extensions> Builder<'service, 'app, 'user, 
         self
     }
 
-    pub fn kind(&mut self, t: Type) -> &mut Self {
+    pub fn kind(&mut self, t: Kind) -> &mut Self {
         self.kind = Some(t);
         self
     }
@@ -68,14 +68,14 @@ impl<'service, 'app, 'user, 'usage, 'extensions> Builder<'service, 'app, 'user, 
         self
     }
 
-    pub fn build(&self) -> Result<Info> {
+    pub fn build(&self) -> Result<ApiCall> {
         let kind = self.kind.ok_or_else(|| { "kind error".to_string() })?;
         let app = self.application.ok_or_else(|| { "app error".to_string()})?;
-        Ok(Info::new(kind, self.service, app, self.user, self.usage, self.extensions))
+        Ok(ApiCall::new(kind, self.service, app, self.user, self.usage, self.extensions))
     }
 }
 
-impl<'service, 'app, 'user, 'usage, 'extensions> Info<'service, 'app, 'user, 'usage, 'extensions> {
+impl<'service, 'app, 'user, 'usage, 'extensions> ApiCall<'service, 'app, 'user, 'usage, 'extensions> {
     pub fn builder(service: &'service Service) -> Builder {
         Builder {
             service,
@@ -87,13 +87,13 @@ impl<'service, 'app, 'user, 'usage, 'extensions> Info<'service, 'app, 'user, 'us
         }
     }
 
-    pub fn new(kind: Type, service: &'service Service, application: &'app Application,
+    pub fn new(kind: Kind, service: &'service Service, application: &'app Application,
                user: Option<&'user User>, usage: Option<&'usage Usage>,
                extensions: Option<&'extensions Extensions>) -> Self {
         Self { kind, service, application, user, usage, extensions }
     }
 
-    pub fn kind(&self) -> &Type {
+    pub fn kind(&self) -> &Kind {
         &self.kind
     }
 
@@ -121,7 +121,7 @@ impl<'service, 'app, 'user, 'usage, 'extensions> Info<'service, 'app, 'user, 'us
     }
 }
 
-impl<'k, 'v, E> ToParams<'k, 'v, E> for Info<'_, '_, '_, '_, '_> where E: Extend<(&'k str, &'v str)> {
+impl<'k, 'v, E> ToParams<'k, 'v, E> for ApiCall<'_, '_, '_, '_, '_> where E: Extend<(&'k str, &'v str)> {
     fn to_params<'s: 'k + 'v>(&'s self, extendable: &mut E) {
         self.service.to_params(extendable);
         self.application.to_params(extendable);

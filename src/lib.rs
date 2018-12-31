@@ -7,7 +7,7 @@ pub mod service;
 pub mod application;
 pub mod user;
 pub mod usage;
-pub mod apicall;
+pub mod api_call;
 pub mod http;
 
 
