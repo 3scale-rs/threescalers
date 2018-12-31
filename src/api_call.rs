@@ -37,7 +37,20 @@ pub struct Builder<'service, 'app, 'user, 'usage, 'extensions> {
     extensions: Option<&'extensions Extensions>,
 }
 
+// TODO: we can improve this with a state machine of types so that we are required to set svc, app,
+// user and kind before being able to set (required) the usage to build the call
 impl<'service, 'app, 'user, 'usage, 'extensions> Builder<'service, 'app, 'user, 'usage, 'extensions> {
+    pub fn new(service: &'service Service) -> Self {
+        Builder {
+            service,
+            kind: Default::default(),
+            application: Default::default(),
+            user: Default::default(),
+            usage: Default::default(),
+            extensions: Default::default()
+        }
+    }
+
     pub fn service(&mut self, s: &'service Service) -> &mut Self {
         self.service = s;
         self
@@ -77,14 +90,7 @@ impl<'service, 'app, 'user, 'usage, 'extensions> Builder<'service, 'app, 'user, 
 
 impl<'service, 'app, 'user, 'usage, 'extensions> ApiCall<'service, 'app, 'user, 'usage, 'extensions> {
     pub fn builder(service: &'service Service) -> Builder {
-        Builder {
-            service,
-            kind: Default::default(),
-            application: Default::default(),
-            user: Default::default(),
-            usage: Default::default(),
-            extensions: Default::default()
-        }
+        Builder::new(service)
     }
 
     pub fn new(kind: Kind, service: &'service Service, application: &'app Application,

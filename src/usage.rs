@@ -6,6 +6,17 @@ pub struct Usage {
     usage_params: Vec<(String, String)>,
 }
 
+// TODO fix this to stop the wild cloning of strings
+// IMO we should treat Usage as a container itself and share it in multiple calls
+// ie.
+// let u = Usage::new();
+// u.push(("metric1", 10));
+// u.push(("metric2", 20));
+// We should also be able to cache the generated parameters, and turn into the inner container,
+// clone, iterate, etc.
+// An internal Vec should do, as we are unlikely to need direct access to specific entries once we
+// have a usage (we can do it anyway, but searching sequentially). If we needed something more
+// powerful we can always write conversions from Vec/HashMap to Usage.
 impl Usage {
     /// Creates a `Usage`.
     ///
