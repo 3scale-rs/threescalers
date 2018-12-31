@@ -1,7 +1,7 @@
 extern crate threescalers;
 
-use threescalers::request::*;
 use threescalers::apicall::*;
+use threescalers::credentials::*;
 use threescalers::service::*;
 use threescalers::application::*;
 use threescalers::user::*;
@@ -25,11 +25,11 @@ fn returns_auth_request_from_service_id_pkey_and_app_id() {
     expected_params.insert("service_id", service_id);
     expected_params.insert("app_id", app_id);
 
-    let request = call.to_request();
+    //let request = call.to_request();
 
-    assert_eq!("GET", request.method());
+    //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(request.params()));
+    assert_eq!(expected_params, vec_to_hash(&call.params()));
 }
 
 #[test]
@@ -50,11 +50,11 @@ fn returns_auth_request_from_service_id_pkey_app_id_and_user_id() {
     expected_params.insert("app_id", app_id);
     expected_params.insert("user_id", user_id);
 
-    let request = call.to_request();
+    //let request = call.to_request();
 
-    assert_eq!("GET", request.method());
+    //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(request.params()));
+    assert_eq!(expected_params, vec_to_hash(&call.params()));
 }
 
 #[test]
@@ -75,11 +75,11 @@ fn returns_auth_request_from_service_id_pkey_app_id_and_oauth_user() {
     expected_params.insert("app_id", app_id);
     expected_params.insert("access_token", user_oauth_token);
 
-    let request = call.to_request();
+    //let request = call.to_request();
 
-    assert_eq!("GET", request.method());
+    //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/oauth_authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(request.params()));
+    assert_eq!(expected_params, vec_to_hash(&call.params()));
 }
 
 #[test]
@@ -99,11 +99,11 @@ fn returns_auth_request_from_service_id_pkey_app_id_and_app_key() {
     expected_params.insert("app_id", app_id);
     expected_params.insert("app_key", app_key);
 
-    let request = call.to_request();
+    //let request = call.to_request();
 
-    assert_eq!("GET", request.method());
+    //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(request.params()));
+    assert_eq!(expected_params, vec_to_hash(&call.params()));
 }
 
 #[test]
@@ -126,11 +126,11 @@ fn returns_auth_request_from_service_id_pkey_app_id_app_key_and_user_id() {
     expected_params.insert("app_key", app_key);
     expected_params.insert("user_id", user_id);
 
-    let request = call.to_request();
+    //let request = call.to_request();
 
-    assert_eq!("GET", request.method());
+    //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(request.params()));
+    assert_eq!(expected_params, vec_to_hash(&call.params()));
 }
 
 #[test]
@@ -153,11 +153,11 @@ fn returns_auth_request_from_service_id_pkey_app_id_app_key_and_oauth_user() {
     expected_params.insert("app_key", app_key);
     expected_params.insert("access_token", user_oauth_token);
 
-    let request = call.to_request();
+    //let request = call.to_request();
 
-    assert_eq!("GET", request.method());
+    //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/oauth_authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(request.params()));
+    assert_eq!(expected_params, vec_to_hash(&call.params()));
 }
 
 #[test]
@@ -175,11 +175,11 @@ fn returns_auth_request_from_service_id_pkey_and_user_key() {
     expected_params.insert("service_id", service_id);
     expected_params.insert("user_key", user_key);
 
-    let request = call.to_request();
+    //let request = call.to_request();
 
-    assert_eq!("GET", request.method());
+    //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(request.params()));
+    assert_eq!(expected_params, vec_to_hash(&call.params()));
 }
 
 #[test]
@@ -200,11 +200,11 @@ fn returns_auth_request_from_service_id_pkey_user_key_and_user_id() {
     expected_params.insert("user_key", user_key);
     expected_params.insert("user_id", user_id);
 
-    let request = call.to_request();
+    //let request = call.to_request();
 
-    assert_eq!("GET", request.method());
+    //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(request.params()));
+    assert_eq!(expected_params, vec_to_hash(&call.params()));
 }
 
 #[test]
@@ -225,11 +225,11 @@ fn returns_auth_request_from_service_id_pkey_user_key_and_oauth_user() {
     expected_params.insert("user_key", user_key);
     expected_params.insert("access_token", user_oauth_token);
 
-    let request = call.to_request();
+    //let request = call.to_request();
 
-    assert_eq!("GET", request.method());
+    //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/oauth_authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(request.params()));
+    assert_eq!(expected_params, vec_to_hash(&call.params()));
 }
 
 #[test]
@@ -247,11 +247,11 @@ fn returns_auth_request_from_service_id_pkey_and_oauth_token() {
     expected_params.insert("service_id", service_id);
     expected_params.insert("access_token", oauth_token);
 
-    let request = call.to_request();
+    //let request = call.to_request();
 
-    assert_eq!("GET", request.method());
+    //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/oauth_authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(request.params()));
+    assert_eq!(expected_params, vec_to_hash(&call.params()));
 }
 
 #[test]
@@ -272,11 +272,11 @@ fn returns_auth_request_from_service_id_pkey_oauth_token_and_user_id() {
     expected_params.insert("access_token", oauth_token);
     expected_params.insert("user_id", user_id);
 
-    let request = call.to_request();
+    //let request = call.to_request();
 
-    assert_eq!("GET", request.method());
+    //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/oauth_authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(request.params()));
+    assert_eq!(expected_params, vec_to_hash(&call.params()));
 }
 
 #[test]
@@ -301,11 +301,11 @@ fn returns_auth_request_from_service_id_token_and_app_id() {
     expected_params.insert("service_id", service_id);
     expected_params.insert("app_id", app_id);
 
-    let request = call.to_request();
+    //let request = call.to_request();
 
-    assert_eq!("GET", request.method());
+    //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(request.params()));
+    assert_eq!(expected_params, vec_to_hash(&call.params()));
 }
 
 #[test]
@@ -326,11 +326,11 @@ fn returns_auth_request_from_service_id_token_app_id_and_user_id() {
     expected_params.insert("app_id", app_id);
     expected_params.insert("user_id", user_id);
 
-    let request = call.to_request();
+    //let request = call.to_request();
 
-    assert_eq!("GET", request.method());
+    //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(request.params()));
+    assert_eq!(expected_params, vec_to_hash(&call.params()));
 }
 
 #[test]
@@ -351,11 +351,11 @@ fn returns_auth_request_from_service_id_token_app_id_and_oauth_user() {
     expected_params.insert("app_id", app_id);
     expected_params.insert("access_token", user_oauth_token);
 
-    let request = call.to_request();
+    //let request = call.to_request();
 
-    assert_eq!("GET", request.method());
+    //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/oauth_authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(request.params()));
+    assert_eq!(expected_params, vec_to_hash(&call.params()));
 }
 
 #[test]
@@ -375,11 +375,11 @@ fn returns_auth_request_from_service_id_token_app_id_and_app_key() {
     expected_params.insert("app_id", app_id);
     expected_params.insert("app_key", app_key);
 
-    let request = call.to_request();
+    //let request = call.to_request();
 
-    assert_eq!("GET", request.method());
+    //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(request.params()));
+    assert_eq!(expected_params, vec_to_hash(&call.params()));
 }
 
 #[test]
@@ -402,11 +402,11 @@ fn returns_auth_request_from_service_id_token_app_id_app_key_and_user_id() {
     expected_params.insert("app_key", app_key);
     expected_params.insert("user_id", user_id);
 
-    let request = call.to_request();
+    //let request = call.to_request();
 
-    assert_eq!("GET", request.method());
+    //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(request.params()));
+    assert_eq!(expected_params, vec_to_hash(&call.params()));
 }
 
 #[test]
@@ -429,10 +429,11 @@ fn returns_auth_request_from_service_id_token_app_id_app_key_and_oauth_user() {
     expected_params.insert("app_key", app_key);
     expected_params.insert("access_token", user_oauth_token);
 
-    let request = call.to_request();
-    assert_eq!("GET", request.method());
+    //let request = call.to_request();
+
+    //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/oauth_authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(request.params()));
+    assert_eq!(expected_params, vec_to_hash(&call.params()));
 }
 
 #[test]
@@ -450,11 +451,11 @@ fn returns_auth_request_from_service_id_token_and_user_key() {
     expected_params.insert("service_id", service_id);
     expected_params.insert("user_key", user_key);
 
-    let request = call.to_request();
+    //let request = call.to_request();
 
-    assert_eq!("GET", request.method());
+    //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(request.params()));
+    assert_eq!(expected_params, vec_to_hash(&call.params()));
 }
 
 #[test]
@@ -475,11 +476,11 @@ fn returns_auth_request_from_service_id_token_user_key_and_user_id() {
     expected_params.insert("user_key", user_key);
     expected_params.insert("user_id", user_id);
 
-    let request = call.to_request();
+    //let request = call.to_request();
 
-    assert_eq!("GET", request.method());
+    //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(request.params()));
+    assert_eq!(expected_params, vec_to_hash(&call.params()));
 }
 
 #[test]
@@ -500,11 +501,11 @@ fn returns_auth_request_from_service_id_token_user_key_and_oauth_user() {
     expected_params.insert("user_key", user_key);
     expected_params.insert("access_token", oauth_user_token);
 
-    let request = call.to_request();
+    //let request = call.to_request();
 
-    assert_eq!("GET", request.method());
+    //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/oauth_authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(request.params()));
+    assert_eq!(expected_params, vec_to_hash(&call.params()));
 }
 
 #[test]
@@ -522,11 +523,11 @@ fn returns_auth_request_from_service_id_token_and_oauth_token() {
     expected_params.insert("service_id", service_id);
     expected_params.insert("access_token", oauth_token);
 
-    let request = call.to_request();
+    //let request = call.to_request();
 
-    assert_eq!("GET", request.method());
+    //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/oauth_authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(request.params()));
+    assert_eq!(expected_params, vec_to_hash(&call.params()));
 }
 
 #[test]
@@ -547,11 +548,11 @@ fn returns_auth_request_from_service_id_token_oauth_token_and_user_id() {
     expected_params.insert("access_token", oauth_token);
     expected_params.insert("user_id", user_id);
 
-    let request = call.to_request();
+    //let request = call.to_request();
 
-    assert_eq!("GET", request.method());
+    //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/oauth_authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(request.params()));
+    assert_eq!(expected_params, vec_to_hash(&call.params()));
 }
 
 #[test]

@@ -1,6 +1,7 @@
 use crate::apicall::{Type::*, *};
 use crate::application::*;
 use crate::user::*;
+use crate::ToParams;
 
 use http::{Request, Method, HeaderMap};
 use http::{Uri, uri::{self, PathAndQuery}};
@@ -50,7 +51,9 @@ impl From<&Info<'_, '_, '_, '_, '_>> for Req {
            (AuthRep, _, _) => AUTHREP_ENDPOINT,
            (Report, _, _) => REPORT_ENDPOINT,
        };
-       let rp = RequestParameters::new(&method, &i.params());
+       let mut params = Vec::new();
+       i.to_params(&mut params);
+       let rp = RequestParameters::new(&method, &params);
 
        Req { method, path, rp }
    }
@@ -65,7 +68,6 @@ impl From<&Info<'_, '_, '_, '_, '_>> for Request<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use test::Bencher;
 
     #[test]
     fn it_works() {

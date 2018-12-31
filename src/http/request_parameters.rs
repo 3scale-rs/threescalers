@@ -114,11 +114,11 @@ impl RequestParameters {
     }
 }
 
+#[cfg(test)]
 mod tests {
     use super::*;
     use test::Bencher;
 
-    #[cfg(test)]
     #[bench]
     fn bench_params_to_query(b: &mut Bencher) {
         let params = (1..10).map(|i| {

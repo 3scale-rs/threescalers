@@ -1,9 +1,10 @@
-use crate::request::{Request, ToRequest};
 use crate::service::Service;
 use crate::application::Application;
 use crate::user::User;
 use crate::usage::Usage;
 use crate::errors::*;
+
+use crate::ToParams;
 
 use std::collections::HashMap;
 
@@ -12,16 +13,6 @@ pub enum Type {
     Authorize,
     AuthRep,
     Report
-}
-
-impl Type {
-    pub fn method(&self) -> &str {
-        use self::Type::*;
-        match self {
-            Report => "POST",
-            AuthRep | Authorize => "GET",
-        }
-    }
 }
 
 type Extensions = HashMap<String, String>;
@@ -123,28 +114,24 @@ impl<'service, 'app, 'user, 'usage, 'extensions> Info<'service, 'app, 'user, 'us
     }
 
     pub fn params(&self) -> Vec<(&str, &str)> {
-        use crate::request::ToParams;
-
         let mut params: Vec<(&str, &str)> = Vec::new();
-        params.extend(self.service.to_params());
-        params.extend(self.application.to_params());
 
-        if let Some(user_params) = self.user.as_ref() {
-            params.extend(user_params.to_params());
-        }
-
-        if let Some(usage_params) = self.usage.as_ref() {
-            params.extend(usage_params.to_params());
-        }
-
+        self.to_params(&mut params);
         params
     }
 }
 
-//impl<'service, 'app, 'user, 'usage, 'extensions> ToRequest for Info<'service, 'app, 'user, 'usage, 'extensions> {
-impl ToRequest for Info<'_, '_, '_, '_, '_> {
-//impl ToRequest for Info {
-    fn to_request(&self) -> Request {
-        Request::new(self.kind.method(), "obsolete_endpoint_str", self.params(), None)
+impl<'k, 'v, E> ToParams<'k, 'v, E> for Info<'_, '_, '_, '_, '_> where E: Extend<(&'k str, &'v str)> {
+    fn to_params<'s: 'k + 'v>(&'s self, extendable: &mut E) {
+        self.service.to_params(extendable);
+        self.application.to_params(extendable);
+
+        if let Some(user_params) = self.user.as_ref() {
+            user_params.to_params(extendable);
+        }
+
+        if let Some(usage_params) = self.usage.as_ref() {
+            usage_params.to_params(extendable);
+        }
     }
 }

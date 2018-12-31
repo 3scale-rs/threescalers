@@ -1,4 +1,4 @@
-use crate::request::ToParams;
+use crate::ToParams;
 
 #[derive(Debug)]
 pub struct Usage {
@@ -46,12 +46,15 @@ impl Usage {
     }
 }
 
-impl ToParams for Usage {
-    fn to_params(&self) -> Vec<(&str, &str)> {
-        self.usage_params
-            .iter()
-            .map(|&(ref metric, ref value)| (metric.as_str(), value.as_str()))
-            .collect()
+impl<'k, 'v, E> ToParams<'k, 'v, E> for Usage where E: Extend<(&'k str, &'v str)> {
+    fn to_params<'s: 'k + 'v>(&'s self, extendable: &mut E) {
+        extendable.extend(
+            self.usage_params
+                .iter()
+                .map(|&(ref metric, ref value)|
+                    (metric.as_str(), value.as_str())
+                )
+        )
     }
 }
 
@@ -70,7 +73,8 @@ mod tests {
         metrics.push((metric2_name, metric2_val));
         let usage = Usage::new(&metrics);
 
-        let result = usage.to_params();
+        let mut result = Vec::new();
+        usage.to_params(&mut result);
 
         let expected = vec![("usage[metric1]", metric1_val),
                             ("usage[metric2]", metric2_val)];
