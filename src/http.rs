@@ -1,6 +1,7 @@
 use crate::api_call::{Kind::*, *};
 use crate::application::*;
 use crate::user::*;
+use crate::version::*;
 use crate::ToParams;
 
 use http::{Request, Method, HeaderMap};
@@ -20,9 +21,6 @@ pub struct Req {
     pub path: &'static str,
     pub rp: RequestParameters,
 }
-
-const THREESCALERS_VERSION: &str = "0.1.0";
-const USER_AGENT: &str = concat!("threescalers", stringify!(THREESCALERS_VERSION));
 
 // TODO make it ok for any T, also () which means no body!!!
 impl From<Req> for Request<String> {

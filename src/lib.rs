@@ -1,6 +1,7 @@
 #![feature(test)]
 extern crate test;
 
+pub mod version;
 pub mod errors;
 pub mod credentials;
 pub mod service;
