@@ -8,7 +8,7 @@ use crate::ToParams;
 
 use std::collections::HashMap;
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub enum Kind {
     Authorize,
     AuthRep,
@@ -17,7 +17,7 @@ pub enum Kind {
 
 type Extensions = HashMap<String, String>;
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct ApiCall<'service, 'app, 'user, 'usage, 'extensions> {
     kind: Kind,
     service: &'service Service,
@@ -27,7 +27,7 @@ pub struct ApiCall<'service, 'app, 'user, 'usage, 'extensions> {
     extensions: Option<&'extensions Extensions>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct Builder<'service, 'app, 'user, 'usage, 'extensions> {
     service: &'service Service,
     kind: Option<Kind>,
