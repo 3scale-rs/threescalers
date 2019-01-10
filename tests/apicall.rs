@@ -1,5 +1,3 @@
-extern crate threescalers;
-
 use threescalers::api_call::*;
 use threescalers::credentials::*;
 use threescalers::service::*;

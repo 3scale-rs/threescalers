@@ -4,16 +4,13 @@ use crate::user::*;
 use crate::version::*;
 use crate::ToParams;
 
-use http::{Request, Method, HeaderMap};
-use http::{Uri, uri::{self, PathAndQuery}};
-
-use std::collections::HashMap;
+use http::{Request, Method};
 
 mod request_parameters;
 pub use self::request_parameters::RequestParameters;
 mod endpoints;
 use self::endpoints::*;
-mod encoding;
+pub mod encoding;
 
 #[derive(Clone, Debug)]
 pub struct Req {
@@ -60,15 +57,5 @@ impl From<&ApiCall<'_, '_, '_, '_, '_>> for Req {
 impl From<&ApiCall<'_, '_, '_, '_, '_>> for Request<String> {
     fn from(i: &ApiCall) -> Self {
         Req::from(i).into()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        assert_eq!(4, 2*2);
     }
 }

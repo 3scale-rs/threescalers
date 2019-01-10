@@ -93,11 +93,7 @@ impl RequestParameters {
         s.push_str(q.as_str());
     }
 
-    fn params_to_string<S: AsRef<str>>(s: &str, params: &[(S, S)]) {
-        let v = Vec::<String>::with_capacity(params.len());
-        let y = v.join("&");
-    }
-
+    #[allow(clippy::type_complexity)]
     fn params_to_string_collection<S: AsRef<str>>(params: &[(S, S)]) -> Map<Iter<(S, S)>, fn(&(S, S)) -> String> {
         params.iter().map(|(k, v)| {
             //[self::encoding::encode(k.as_ref()), Cow::Borrowed("="), self::encoding::encode(v.as_ref())].concat()
