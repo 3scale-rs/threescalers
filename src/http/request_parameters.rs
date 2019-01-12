@@ -10,6 +10,11 @@ pub enum RequestParameters {
 use std::iter::Map;
 use std::slice::Iter;
 
+// This newtype is currently only used internally here, but we might want to move it elsewhere where
+// it could be more useful because of genericity. We could also aim at reducing the amount of
+// conversions in requests by having a type that only maps parameters once unless changed.
+type ParamsMapper<'a, S, T> = Map<Iter<'a, (S, S)>, fn(&(S, S)) -> T>;
+
 impl RequestParameters {
     pub fn new<S: AsRef<str>>(method: &Method, params: &[(S, S)]) -> Self {
         let params_s = Self::params_to_query(params);
@@ -93,8 +98,7 @@ impl RequestParameters {
         s.push_str(q.as_str());
     }
 
-    #[allow(clippy::type_complexity)]
-    fn params_to_string_collection<S: AsRef<str>>(params: &[(S, S)]) -> Map<Iter<(S, S)>, fn(&(S, S)) -> String> {
+    fn params_to_string_collection<S: AsRef<str>>(params: &[(S, S)]) -> ParamsMapper<S, String> {
         params.iter().map(|(k, v)| {
             //[self::encoding::encode(k.as_ref()), Cow::Borrowed("="), self::encoding::encode(v.as_ref())].concat()
             [k.as_ref(), "=", v.as_ref()].concat()
