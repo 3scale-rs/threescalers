@@ -11,6 +11,7 @@ pub mod application;
 pub mod user;
 pub mod usage;
 pub mod api_call;
+pub mod encoding;
 #[cfg(feature = "http-types")]
 pub mod http;
 

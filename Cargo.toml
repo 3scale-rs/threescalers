@@ -9,9 +9,9 @@ license = "Apache-2.0"
 default = ["http-types"]
 
 # Use the http crate types when asking for HTTP requests
-http-types = ["http", "percent-encoding"]
+http-types = ["http"]
 
 [dependencies]
 error-chain = "*"
+percent-encoding = "*"
 http = { version = "*", optional = true }
-percent-encoding = { version = "*", optional = true }
