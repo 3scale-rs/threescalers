@@ -1,4 +1,4 @@
-use crate::request::ToParams;
+use crate::ToParams;
 use crate::errors::*;
 
 use std::str::FromStr;
@@ -110,13 +110,14 @@ impl User {
     }
 }
 
-impl ToParams for User {
-    fn to_params(&self) -> Vec<(&str, &str)> {
+impl<'k, 'v, E> ToParams<'k, 'v, E> for User where E: Extend<(&'k str, &'v str)> {
+    fn to_params<'s: 'k + 'v>(&'s self, extendable: &mut E) {
         let (field, value) = match self {
             User::UserId(user_id) => ("user_id", user_id.as_ref()),
             User::OAuthToken(token) => ("access_token", token.as_ref())
         };
-        vec![(field, value)]
+
+        extendable.extend([(field, value)].iter().cloned());
     }
 }
 
@@ -129,7 +130,8 @@ mod tests {
         let user_id = "my_user_id";
         let user = User::from_user_id(user_id.to_owned());
 
-        let result = user.to_params();
+        let mut result = Vec::new();
+        user.to_params(&mut result);
 
         let expected = vec![("user_id", user_id)];
         assert_eq!(expected, result);
@@ -140,7 +142,8 @@ mod tests {
         let oauth_token = "my_oauth_token";
         let user = User::from_oauth_token(oauth_token.to_owned());
 
-        let result = user.to_params();
+        let mut result = Vec::new();
+        user.to_params(&mut result);
 
         let expected = vec![("access_token", oauth_token)];
         assert_eq!(expected, result);

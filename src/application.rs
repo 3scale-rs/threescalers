@@ -1,4 +1,4 @@
-use crate::request::ToParams;
+use crate::ToParams;
 use crate::errors::*;
 
 use std::str::FromStr;
@@ -206,24 +206,20 @@ impl Application {
     }
 }
 
-impl ToParams for Application {
-    fn to_params(&self) -> Vec<(&str, &str)>{
+impl<'k, 'v, E> ToParams<'k, 'v, E> for Application where E: Extend<(&'k str, &'v str)> {
+    fn to_params<'s: 'k + 'v>(&'s self, extendable: &mut E) {
         use self::Application::*;
 
-        let mut v = Vec::<(&str, &str)>::with_capacity(2);
-        match self {
-            AppId(app_id, None) => {
-                v.push(("app_id", app_id.as_ref()));
-            },
-            AppId(app_id, Some(app_key)) => {
-                v.push(("app_id", app_id.as_ref()));
-                v.push(("app_key", app_key.as_ref()));
-            },
-            UserKey(user_key) => v.push(("user_key", user_key.as_ref())),
-            OAuthToken(token) => v.push(("access_token", token.as_ref())),
+        let params = match self {
+            AppId(app_id, app_key_opt) => [
+                Some(("app_id", app_id.as_ref())),
+                app_key_opt.as_ref().map(|app_key| ("app_key", app_key.as_ref()))
+            ],
+            UserKey(user_key) => [Some(("user_key", user_key.as_ref())), None],
+            OAuthToken(token) => [Some(("access_token", token.as_ref())), None],
         };
 
-        v
+        extendable.extend(params.iter().filter_map(|&param| param));
     }
 }
 
@@ -268,7 +264,8 @@ mod tests {
         let app_id = "my_app_id";
         let app = Application::from_app_id(app_id);
 
-        let result = app.to_params();
+        let mut result = Vec::new();
+        app.to_params(&mut result);
 
         let expected = vec![("app_id", app_id)];
         assert_eq!(expected, result);
@@ -280,7 +277,8 @@ mod tests {
         let key = "my_key";
         let app = Application::from_app_id_and_key(app_id, key);
 
-        let result = app.to_params();
+        let mut result = Vec::new();
+        app.to_params(&mut result);
 
         let expected = vec![("app_id", app_id), ("app_key", key)];
         assert_eq!(expected, result);
@@ -291,7 +289,8 @@ mod tests {
         let user_key = "my_user_key";
         let app = Application::from_user_key(user_key);
 
-        let result = app.to_params();
+        let mut result = Vec::new();
+        app.to_params(&mut result);
 
         let expected = vec![("user_key", user_key)];
         assert_eq!(expected, result);
@@ -302,7 +301,8 @@ mod tests {
         let oauth_token = "my_token";
         let app = Application::from_oauth_token(oauth_token);
 
-        let result = app.to_params();
+        let mut result = Vec::new();
+        app.to_params(&mut result);
 
         let expected = vec![("access_token", oauth_token)];
         assert_eq!(expected, result);

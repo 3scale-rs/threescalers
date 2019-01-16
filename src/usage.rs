@@ -1,4 +1,4 @@
-use crate::request::ToParams;
+use crate::ToParams;
 
 #[derive(Debug)]
 pub struct Usage {
@@ -6,6 +6,17 @@ pub struct Usage {
     usage_params: Vec<(String, String)>,
 }
 
+// TODO fix this to stop the wild cloning of strings
+// IMO we should treat Usage as a container itself and share it in multiple calls
+// ie.
+// let u = Usage::new();
+// u.push(("metric1", 10));
+// u.push(("metric2", 20));
+// We should also be able to cache the generated parameters, and turn into the inner container,
+// clone, iterate, etc.
+// An internal Vec should do, as we are unlikely to need direct access to specific entries once we
+// have a usage (we can do it anyway, but searching sequentially). If we needed something more
+// powerful we can always write conversions from Vec/HashMap to Usage.
 impl Usage {
     /// Creates a `Usage`.
     ///
@@ -19,7 +30,7 @@ impl Usage {
     /// metrics.push(("metric2", 20));
     /// let usage = Usage::new(&metrics);
     /// ```
-    pub fn new<T1: ToString, T2: ToString>(metrics: &Vec<(T1, T2)>) -> Self {
+    pub fn new<T1: ToString, T2: ToString>(metrics: &[(T1, T2)]) -> Self {
         let string_metrics = metrics
             .iter()
             .map(|&(ref metric, ref value)| (metric.to_string(), value.to_string()))
@@ -31,7 +42,7 @@ impl Usage {
         }
     }
 
-    fn usage_params_from<T1: ToString, T2: ToString>(metrics: &Vec<(T1, T2)>)
+    fn usage_params_from<T1: ToString, T2: ToString>(metrics: &[(T1, T2)])
                                                      -> Vec<(String, String)> {
         metrics
             .iter()
@@ -46,12 +57,15 @@ impl Usage {
     }
 }
 
-impl ToParams for Usage {
-    fn to_params(&self) -> Vec<(&str, &str)> {
-        self.usage_params
-            .iter()
-            .map(|&(ref metric, ref value)| (metric.as_str(), value.as_str()))
-            .collect()
+impl<'k, 'v, E> ToParams<'k, 'v, E> for Usage where E: Extend<(&'k str, &'v str)> {
+    fn to_params<'s: 'k + 'v>(&'s self, extendable: &mut E) {
+        extendable.extend(
+            self.usage_params
+                .iter()
+                .map(|&(ref metric, ref value)|
+                    (metric.as_str(), value.as_str())
+                )
+        )
     }
 }
 
@@ -70,7 +84,8 @@ mod tests {
         metrics.push((metric2_name, metric2_val));
         let usage = Usage::new(&metrics);
 
-        let result = usage.to_params();
+        let mut result = Vec::new();
+        usage.to_params(&mut result);
 
         let expected = vec![("usage[metric1]", metric1_val),
                             ("usage[metric2]", metric2_val)];

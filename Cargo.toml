@@ -5,5 +5,13 @@ version = "0.1.0"
 authors = ["Alejandro Martinez Ruiz <alex@flawedcode.org>", "David Ortiz Lopez <z.david.ortiz@gmail.com>"]
 license = "Apache-2.0"
 
+[features]
+default = ["http-types"]
+
+# Use the http crate types when asking for HTTP requests
+http-types = ["http"]
+
 [dependencies]
 error-chain = "*"
+percent-encoding = "*"
+http = { version = "*", optional = true }
