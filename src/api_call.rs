@@ -1,52 +1,55 @@
 use crate::service::Service;
+use crate::transaction::Transaction;
 use crate::application::Application;
 use crate::user::User;
 use crate::usage::Usage;
+use crate::extensions::Extensions;
 use crate::errors::*;
 
 use crate::ToParams;
 
-use std::collections::HashMap;
-
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Kind {
     Authorize,
     AuthRep,
     Report
 }
 
-type Extensions = HashMap<String, String>;
+impl Kind {
+    // report requires specific treatment due to being the only call supporting
+    // multiple transactions.
+    pub fn is_report(self) -> bool {
+        match self {
+            Kind::Report => true,
+            _ => false,
+        }
+    }
+}
 
 #[derive(Copy, Clone, Debug)]
-pub struct ApiCall<'service, 'app, 'user, 'usage, 'extensions> {
+pub struct ApiCall<'service, 'tx, 'app, 'user, 'usage, 'extensions> {
     kind: Kind,
     service: &'service Service,
-    application: &'app Application,
-    user: Option<&'user User>,
-    usage: Option<&'usage Usage>,
+    transactions: &'tx [Transaction<'app, 'user, 'usage, 'tx>],
     extensions: Option<&'extensions Extensions>,
 }
 
 #[derive(Copy, Clone, Debug)]
-pub struct Builder<'service, 'app, 'user, 'usage, 'extensions> {
+pub struct Builder<'service, 'tx, 'app, 'user, 'usage, 'extensions> {
     service: &'service Service,
     kind: Option<Kind>,
-    application: Option<&'app Application>,
-    user: Option<&'user User>,
-    usage: Option<&'usage Usage>,
+    transactions: &'tx [Transaction<'app, 'user, 'usage, 'tx>],
     extensions: Option<&'extensions Extensions>,
 }
 
 // TODO: we can improve this with a state machine of types so that we are required to set svc, app,
 // user and kind before being able to set (required) the usage to build the call
-impl<'service, 'app, 'user, 'usage, 'extensions> Builder<'service, 'app, 'user, 'usage, 'extensions> {
+impl<'service, 'tx, 'app, 'user, 'usage, 'extensions> Builder<'service, 'tx, 'app, 'user, 'usage, 'extensions> {
     pub fn new(service: &'service Service) -> Self {
         Builder {
             service,
             kind: Default::default(),
-            application: Default::default(),
-            user: Default::default(),
-            usage: Default::default(),
+            transactions: Default::default(),
             extensions: Default::default()
         }
     }
@@ -61,18 +64,8 @@ impl<'service, 'app, 'user, 'usage, 'extensions> Builder<'service, 'app, 'user, 
         self
     }
 
-    pub fn app(&mut self, a: &'app Application) -> &mut Self {
-        self.application = Some(a);
-        self
-    }
-
-    pub fn user(&mut self, u: &'user User) -> &mut Self {
-        self.user = Some(u);
-        self
-    }
-
-    pub fn usage(&mut self, usage: &'usage Usage) -> &mut Self {
-        self.usage = Some(usage);
+    pub fn transactions(&mut self, txns: &'tx [Transaction<'app, 'user, 'usage, 'tx>]) -> &mut Self {
+        self.transactions = txns;
         self
     }
 
@@ -83,61 +76,98 @@ impl<'service, 'app, 'user, 'usage, 'extensions> Builder<'service, 'app, 'user, 
 
     pub fn build(&self) -> Result<ApiCall> {
         let kind = self.kind.ok_or_else(|| { "kind error".to_string() })?;
-        let app = self.application.ok_or_else(|| { "app error".to_string()})?;
-        Ok(ApiCall::new(kind, self.service, app, self.user, self.usage, self.extensions))
+        Ok(ApiCall::new(kind, self.service, self.transactions, self.extensions))
     }
 }
 
-impl<'service, 'app, 'user, 'usage, 'extensions> ApiCall<'service, 'app, 'user, 'usage, 'extensions> {
+use std::borrow::Cow;
+
+impl<'service, 'tx: 'app + 'user + 'usage, 'app, 'user, 'usage, 'extensions> ApiCall<'service, 'tx, 'app, 'user, 'usage, 'extensions> {
     pub fn builder(service: &'service Service) -> Builder {
         Builder::new(service)
     }
 
-    pub fn new(kind: Kind, service: &'service Service, application: &'app Application,
-               user: Option<&'user User>, usage: Option<&'usage Usage>,
+    pub fn new(kind: Kind, service: &'service Service, transactions: &'tx [Transaction<'app, 'user, 'usage, 'tx>],
                extensions: Option<&'extensions Extensions>) -> Self {
-        Self { kind, service, application, user, usage, extensions }
+        Self { kind, service, transactions, extensions }
     }
 
-    pub fn kind(&self) -> &Kind {
-        &self.kind
+    pub fn kind(&self) -> Kind {
+        self.kind
     }
 
     pub fn service(&self) -> &'service Service {
         self.service
     }
 
-    pub fn application(&self) -> &'app Application {
-        self.application
+    pub fn transactions(&self) -> &'tx [Transaction<'app, 'user, 'usage, 'tx>] {
+        self.transactions
+    }
+
+    // helper to get a transaction only if it's the only one
+    // useful for non-report calls
+    pub fn transaction(&self) -> Option<&'tx Transaction<'app, 'user, 'usage, 'tx>> {
+        let txns = self.transactions();
+
+        if txns.len() == 1 {
+            Some(&txns[0])
+        } else {
+            None
+        }
+    }
+
+    pub fn application(&self) -> Option<&'app Application> {
+        self.transaction().map(Transaction::application)
     }
 
     pub fn user(&self) -> Option<&'user User> {
-        self.user
+        self.transaction().and_then(Transaction::user)
+    }
+
+    pub fn usage(&self) -> Option<&'usage Usage> {
+        self.transaction().and_then(Transaction::usage)
     }
 
     pub fn extensions(&self) -> Option<&'extensions Extensions> {
         self.extensions
     }
 
-    pub fn params(&self) -> Vec<(&str, &str)> {
-        let mut params: Vec<(&str, &str)> = Vec::new();
+    // TODO candidate for removal, due to essentially doing what the user should do.
+    pub fn params<F: FnMut(Cow<'_, str>) -> Cow<'_, str>>(&self, key_mangling: &mut F) -> Vec<(Cow<'_, str>, &str)> {
+        let mut params = Vec::with_capacity(8);
 
-        self.to_params(&mut params);
+        self.to_params_with_mangling(&mut params, key_mangling);
         params
     }
 }
 
-impl<'k, 'v, E> ToParams<'k, 'v, E> for ApiCall<'_, '_, '_, '_, '_> where E: Extend<(&'k str, &'v str)> {
-    fn to_params<'s: 'k + 'v>(&'s self, extendable: &mut E) {
-        self.service.to_params(extendable);
-        self.application.to_params(extendable);
+impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for ApiCall<'_, '_, '_, '_, '_, '_> where 'this: 'k + 'v, E: Extend<(Cow<'k, str>, &'v str)> {
+    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(&'this self, extendable: &mut E, key_mangling: &mut F) {
+        self.service.to_params_with_mangling(extendable, key_mangling);
 
-        if let Some(user_params) = self.user.as_ref() {
-            user_params.to_params(extendable);
-        }
+        // keep the borrowck happy about stack closures living long enough
+        let mut txfn_storage_report;
+        let mut txfn_storage_rest;
 
-        if let Some(usage_params) = self.usage.as_ref() {
-            usage_params.to_params(extendable);
+        let key_mangling: &mut dyn FnMut(usize, Cow<'k, str>) -> Cow<'k, str> = if self.kind().is_report() {
+            txfn_storage_report = |n, c: Cow<'k, str>| {
+                // 3scale Apisonator takes arguments using the Rack format
+                key_mangling(format!("transactions[{}]{}", n, c).into())
+            };
+            &mut txfn_storage_report
+        } else {
+            txfn_storage_rest = |_n, c: Cow<'k, str>| {
+                key_mangling(c)
+            };
+            &mut txfn_storage_rest
+        };
+
+        // having multiple transactions with non-report endpoints
+        // is not allowed, but we can't fail in this trait impl
+        // (plus it would make sense to allow transactions in the
+        // other endpoints).
+        for (e, tx) in self.transactions().iter().enumerate() {
+            tx.to_params_with_mangling(extendable, &mut |c| key_mangling(e, c));
         }
     }
 }

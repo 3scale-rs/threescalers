@@ -1,9 +1,8 @@
 use crate::ToParams;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Usage {
     metrics: Vec<(String, String)>,
-    usage_params: Vec<(String, String)>,
 }
 
 // TODO fix this to stop the wild cloning of strings
@@ -38,33 +37,21 @@ impl Usage {
 
         Self {
             metrics: string_metrics,
-            usage_params: Usage::usage_params_from(metrics),
         }
-    }
-
-    fn usage_params_from<T1: ToString, T2: ToString>(metrics: &[(T1, T2)])
-                                                     -> Vec<(String, String)> {
-        metrics
-            .iter()
-            .map(|&(ref metric, ref value)| {
-                     (Usage::param_name(&metric.to_string()), value.to_string())
-                 })
-            .collect()
-    }
-
-    fn param_name(param: &str) -> String {
-        "usage[".to_owned() + param + "]"
     }
 }
 
-impl<'k, 'v, E> ToParams<'k, 'v, E> for Usage where E: Extend<(&'k str, &'v str)> {
-    fn to_params<'s: 'k + 'v>(&'s self, extendable: &mut E) {
+use std::borrow::Cow;
+
+impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Usage where 'this: 'k + 'v, E: Extend<(Cow<'k, str>, &'v str)> {
+    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(&'this self, extendable: &mut E, key_mangling: &mut F) {
         extendable.extend(
-            self.usage_params
+            self.metrics
                 .iter()
-                .map(|&(ref metric, ref value)|
-                    (metric.as_str(), value.as_str())
-                )
+                .map(|&(ref metric, ref value)| {
+                    let m = format!("usage[{}]", metric.as_str());
+                    (key_mangling(m.into()), value.as_str())
+                })
         )
     }
 }

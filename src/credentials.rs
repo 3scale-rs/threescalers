@@ -110,13 +110,15 @@ impl Credentials {
     }
 }
 
-impl<'k, 'v, E> ToParams<'k, 'v, E> for Credentials where E: Extend<(&'k str, &'v str)> {
-    fn to_params<'s: 'k + 'v>(&'s self, extendable: &mut E) {
+use std::borrow::Cow;
+
+impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Credentials where 'this: 'k + 'v, E: Extend<(Cow<'k, str>, &'v str)> {
+    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(&'this self, extendable: &mut E, key_mangling: &mut F) {
         use self::Credentials::*;
 
         let (field, value) = match self {
-            ProviderKey(key) => ("provider_key", key.as_ref()),
-            ServiceToken(token) => ("service_token", token.as_ref())
+            ProviderKey(key) => (key_mangling("provider_key".into()), key.as_ref()),
+            ServiceToken(token) => (key_mangling("service_token".into()), token.as_ref())
         };
 
         extendable.extend([(field, value)].iter().cloned());

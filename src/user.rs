@@ -110,14 +110,16 @@ impl User {
     }
 }
 
-impl<'k, 'v, E> ToParams<'k, 'v, E> for User where E: Extend<(&'k str, &'v str)> {
-    fn to_params<'s: 'k + 'v>(&'s self, extendable: &mut E) {
+use std::borrow::Cow;
+
+impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for User where 'this: 'k + 'v, E: Extend<(Cow<'k, str>, &'v str)> {
+    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(&'this self, extendable: &mut E, key_mangling: &mut F) {
         let (field, value) = match self {
             User::UserId(user_id) => ("user_id", user_id.as_ref()),
             User::OAuthToken(token) => ("access_token", token.as_ref())
         };
 
-        extendable.extend([(field, value)].iter().cloned());
+        extendable.extend([(key_mangling(field.into()), value)].iter().cloned());
     }
 }
 
