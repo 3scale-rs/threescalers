@@ -6,12 +6,17 @@ authors = ["Alejandro Martinez Ruiz <alex@flawedcode.org>", "David Ortiz Lopez <
 license = "Apache-2.0"
 
 [features]
-default = ["http-types"]
+default = ["http-request", "reqwest-all"]
 
-# Use the http crate types when asking for HTTP requests
-http-types = ["http"]
+# Add in conversions for http's crate types
+http-request = []
+# Add in conversions for reqwest's crate types
+reqwest-async = ["reqwest"]
+reqwest-sync = ["reqwest"]
+reqwest-all = ["reqwest-async", "reqwest-sync"]
 
 [dependencies]
 error-chain = "*"
 percent-encoding = "*"
-http = { version = "*", optional = true }
+http_types = { version = "*", package = "http" }
+reqwest = { version = "*", optional = true }

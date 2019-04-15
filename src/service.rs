@@ -24,10 +24,15 @@ impl Service {
     }
 }
 
-impl<'k, 'v, E> ToParams<'k, 'v, E> for Service where E: Extend<(&'k str, &'v str)> {
-    fn to_params<'s: 'k + 'v>(&'s self, extendable: &mut E) {
-        extendable.extend([("service_id", self.service_id.as_ref())].iter().cloned());
-        self.creds.to_params(extendable);
+use std::borrow::Cow;
+
+impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Service where 'this: 'k + 'v, E: Extend<(Cow<'k, str>, &'v str)> {
+    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(&'this self, extendable: &mut E, key_mangling: &mut F) {
+        let key = key_mangling("service_id".into());
+
+        extendable.extend([(key, self.service_id.as_ref())].iter().cloned());
+
+        self.creds.to_params_with_mangling(extendable, key_mangling);
     }
 }
 

@@ -1,4 +1,5 @@
-mod request_parameters;
-pub use self::request_parameters::RequestParameters;
+mod parameters;
+pub use self::parameters::Parameters;
 pub mod endpoints;
 pub mod request;
+pub use self::request::Request;

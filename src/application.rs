@@ -206,8 +206,10 @@ impl Application {
     }
 }
 
-impl<'k, 'v, E> ToParams<'k, 'v, E> for Application where E: Extend<(&'k str, &'v str)> {
-    fn to_params<'s: 'k + 'v>(&'s self, extendable: &mut E) {
+use std::borrow::Cow;
+
+impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Application where 'this: 'k + 'v, E: Extend<(Cow<'k, str>, &'v str)> {
+    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(&'this self, extendable: &mut E, key_mangling: &mut F) {
         use self::Application::*;
 
         let params = match self {
@@ -219,7 +221,11 @@ impl<'k, 'v, E> ToParams<'k, 'v, E> for Application where E: Extend<(&'k str, &'
             OAuthToken(token) => [Some(("access_token", token.as_ref())), None],
         };
 
-        extendable.extend(params.iter().filter_map(|&param| param));
+        extendable.extend(params.iter().filter_map(|&param| {
+            param.map(|(k, v)| {
+                (key_mangling(k.into()), v)
+            })
+        }));
     }
 }
 
