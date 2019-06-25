@@ -23,7 +23,7 @@ codecov = { repository = "3scale-rs/threescalers" }
 maintenance = { status = "actively-developed" }
 
 [features]
-default = ["http-types"]
+default = ["http-types", "xml-response"]
 
 # Add in conversions for http's crate types
 http-types = []
@@ -34,6 +34,8 @@ reqwest-sync = ["reqwest-types"]
 reqwest-all = ["reqwest-async", "reqwest-sync"]
 # Include all supported clients types
 all-types = ["http-types", "reqwest-all"]
+# Response parsing
+xml-response = ["serde-xml-rs", "serde"]
 # Internal feature, auto-enabled via build.rs when using nightly
 nightly = []
 
@@ -42,6 +44,8 @@ error-chain = "^0.12"
 percent-encoding = "^1"
 http_types = { version = "^0.1", package = "http" }
 reqwest = { version = "^0.9", optional = true }
+serde = { version = "*", optional = true, features = ["derive"] }
+serde-xml-rs = { version = "*", optional = true }
 
 [build-dependencies]
 rustc_version = "^0.2"

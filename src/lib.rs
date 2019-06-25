@@ -24,6 +24,9 @@ pub mod user;
 pub mod version;
 
 pub mod timestamp;
+#[cfg(feature = "xml-response")]
+pub mod response;
+
 
 use std::borrow::Cow;
 
