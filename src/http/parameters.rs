@@ -124,9 +124,12 @@ mod tests {
 
     #[bench]
     fn bench_params_to_query(b: &mut Bencher) {
-        let params = (1..10).map(|i| {
+        let params_str = (1..10).map(|i| {
             (format!("unakey{}", i), format!("unvalor{}", i))
         }).collect::<Vec<_>>();
+
+        let params = params_str.iter().map(|(k, v)| (k.as_str().into(), v.as_str()))
+            .collect::<Vec<(Cow<str>, &str)>>();
 
         b.iter(||
             Parameters::params_to_query(&params)

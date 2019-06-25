@@ -273,7 +273,7 @@ mod tests {
         let mut result = Vec::new();
         app.to_params(&mut result);
 
-        let expected = vec![("app_id", app_id)];
+        let expected: Vec<(Cow<str>, &str)> = vec![("app_id".into(), app_id)];
         assert_eq!(expected, result);
     }
 
@@ -286,7 +286,7 @@ mod tests {
         let mut result = Vec::new();
         app.to_params(&mut result);
 
-        let expected = vec![("app_id", app_id), ("app_key", key)];
+        let expected: Vec<(Cow<str>, &str)>  = vec![("app_id".into(), app_id), ("app_key".into(), key)];
         assert_eq!(expected, result);
     }
 
@@ -298,7 +298,7 @@ mod tests {
         let mut result = Vec::new();
         app.to_params(&mut result);
 
-        let expected = vec![("user_key", user_key)];
+        let expected: Vec<(Cow<str>, &str)>  = vec![("user_key".into(), user_key)];
         assert_eq!(expected, result);
     }
 
@@ -310,7 +310,7 @@ mod tests {
         let mut result = Vec::new();
         app.to_params(&mut result);
 
-        let expected = vec![("access_token", oauth_token)];
+        let expected: Vec<(Cow<str>, &str)>  = vec![("access_token".into(), oauth_token)];
         assert_eq!(expected, result);
     }
 }

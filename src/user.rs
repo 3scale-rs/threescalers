@@ -135,7 +135,7 @@ mod tests {
         let mut result = Vec::new();
         user.to_params(&mut result);
 
-        let expected = vec![("user_id", user_id)];
+        let expected: Vec<(Cow<str>, &str)> = vec![("user_id".into(), user_id)];
         assert_eq!(expected, result);
     }
 
@@ -147,7 +147,7 @@ mod tests {
         let mut result = Vec::new();
         user.to_params(&mut result);
 
-        let expected = vec![("access_token", oauth_token)];
+        let expected: Vec<(Cow<str>, &str)> = vec![("access_token".into(), oauth_token)];
         assert_eq!(expected, result);
     }
 }

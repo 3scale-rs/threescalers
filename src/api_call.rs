@@ -132,11 +132,10 @@ impl<'service, 'tx: 'app + 'user + 'usage, 'app, 'user, 'usage, 'extensions> Api
         self.extensions
     }
 
-    // TODO candidate for removal, due to essentially doing what the user should do.
-    pub fn params<F: FnMut(Cow<'_, str>) -> Cow<'_, str>>(&self, key_mangling: &mut F) -> Vec<(Cow<'_, str>, &str)> {
+    pub fn params(&self) -> Vec<(Cow<'_, str>, &str)> {
         let mut params = Vec::with_capacity(8);
 
-        self.to_params_with_mangling(&mut params, key_mangling);
+        self.to_params(&mut params);
         params
     }
 }

@@ -74,8 +74,8 @@ mod tests {
         let mut result = Vec::new();
         usage.to_params(&mut result);
 
-        let expected = vec![("usage[metric1]", metric1_val),
-                            ("usage[metric2]", metric2_val)];
+        let expected: Vec<(Cow<str>, &str)> = vec![("usage[metric1]".into(), metric1_val),
+                            ("usage[metric2]".into(), metric2_val)];
         assert_eq!(expected, result);
     }
 }

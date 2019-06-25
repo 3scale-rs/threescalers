@@ -16,6 +16,8 @@ pub mod api_call;
 pub mod encoding;
 pub mod http;
 
+pub mod timestamp;
+
 use std::borrow::Cow;
 
 // This is the trait to be implemented by structures that can set parameters to API calls.

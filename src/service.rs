@@ -50,8 +50,8 @@ mod service_tests {
         let mut result = Vec::new();
         service.to_params(&mut result);
 
-        let expected = vec![("service_id", service_id),
-                            ("provider_key", provider_key)];
+        let expected: Vec<(Cow<str>, &str)> = vec![("service_id".into(), service_id),
+                            ("provider_key".into(), provider_key)];
         assert_eq!(expected, result);
     }
 
@@ -65,8 +65,8 @@ mod service_tests {
         let mut result = Vec::new();
         service.to_params(&mut result);
 
-        let expected = vec![("service_id", service_id),
-                            ("service_token", token)];
+        let expected: Vec<(Cow<str>, &str)> = vec![("service_id".into(), service_id),
+                            ("service_token".into(), token)];
         assert_eq!(expected, result);
     }
 }
