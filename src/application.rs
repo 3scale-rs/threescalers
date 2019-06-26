@@ -1,5 +1,5 @@
-use crate::ToParams;
 use crate::errors::*;
+use crate::ToParams;
 
 use std::str::FromStr;
 
@@ -71,25 +71,37 @@ impl FromStr for OAuthToken {
 }
 
 // These trait impls are similar to FromStr (but are infallible)
-impl<'a> From<&'a str> for AppId where Self: FromStr {
+impl<'a> From<&'a str> for AppId
+where
+    Self: FromStr,
+{
     fn from(s: &'a str) -> AppId {
         s.parse().unwrap()
     }
 }
 
-impl<'a> From<&'a str> for AppKey where Self: FromStr {
+impl<'a> From<&'a str> for AppKey
+where
+    Self: FromStr,
+{
     fn from(s: &'a str) -> AppKey {
         s.parse().unwrap()
     }
 }
 
-impl<'a> From<&'a str> for UserKey where Self: FromStr {
+impl<'a> From<&'a str> for UserKey
+where
+    Self: FromStr,
+{
     fn from(s: &'a str) -> UserKey {
         s.parse().unwrap()
     }
 }
 
-impl<'a> From<&'a str> for OAuthToken where Self: FromStr {
+impl<'a> From<&'a str> for OAuthToken
+where
+    Self: FromStr,
+{
     fn from(s: &'a str) -> OAuthToken {
         s.parse().unwrap()
     }
@@ -124,7 +136,7 @@ impl From<String> for OAuthToken {
 pub enum Application {
     AppId(AppId, Option<AppKey>),
     UserKey(UserKey),
-    OAuthToken(OAuthToken)
+    OAuthToken(OAuthToken),
 }
 
 // These trait impls build an Application variant out of its required types
@@ -208,24 +220,34 @@ impl Application {
 
 use std::borrow::Cow;
 
-impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Application where 'this: 'k + 'v, E: Extend<(Cow<'k, str>, &'v str)> {
-    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(&'this self, extendable: &mut E, key_mangling: &mut F) {
+impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Application
+where
+    'this: 'k + 'v,
+    E: Extend<(Cow<'k, str>, &'v str)>,
+{
+    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(
+        &'this self,
+        extendable: &mut E,
+        key_mangling: &mut F,
+    ) {
         use self::Application::*;
 
         let params = match self {
             AppId(app_id, app_key_opt) => [
                 Some(("app_id", app_id.as_ref())),
-                app_key_opt.as_ref().map(|app_key| ("app_key", app_key.as_ref()))
+                app_key_opt
+                    .as_ref()
+                    .map(|app_key| ("app_key", app_key.as_ref())),
             ],
             UserKey(user_key) => [Some(("user_key", user_key.as_ref())), None],
             OAuthToken(token) => [Some(("access_token", token.as_ref())), None],
         };
 
-        extendable.extend(params.iter().filter_map(|&param| {
-            param.map(|(k, v)| {
-                (key_mangling(k.into()), v)
-            })
-        }));
+        extendable.extend(
+            params
+                .iter()
+                .filter_map(|&param| param.map(|(k, v)| (key_mangling(k.into()), v))),
+        );
     }
 }
 
@@ -286,7 +308,8 @@ mod tests {
         let mut result = Vec::new();
         app.to_params(&mut result);
 
-        let expected: Vec<(Cow<str>, &str)>  = vec![("app_id".into(), app_id), ("app_key".into(), key)];
+        let expected: Vec<(Cow<str>, &str)> =
+            vec![("app_id".into(), app_id), ("app_key".into(), key)];
         assert_eq!(expected, result);
     }
 
@@ -298,7 +321,7 @@ mod tests {
         let mut result = Vec::new();
         app.to_params(&mut result);
 
-        let expected: Vec<(Cow<str>, &str)>  = vec![("user_key".into(), user_key)];
+        let expected: Vec<(Cow<str>, &str)> = vec![("user_key".into(), user_key)];
         assert_eq!(expected, result);
     }
 
@@ -310,7 +333,7 @@ mod tests {
         let mut result = Vec::new();
         app.to_params(&mut result);
 
-        let expected: Vec<(Cow<str>, &str)>  = vec![("access_token".into(), oauth_token)];
+        let expected: Vec<(Cow<str>, &str)> = vec![("access_token".into(), oauth_token)];
         assert_eq!(expected, result);
     }
 }

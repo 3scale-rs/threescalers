@@ -43,16 +43,20 @@ impl Usage {
 
 use std::borrow::Cow;
 
-impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Usage where 'this: 'k + 'v, E: Extend<(Cow<'k, str>, &'v str)> {
-    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(&'this self, extendable: &mut E, key_mangling: &mut F) {
-        extendable.extend(
-            self.metrics
-                .iter()
-                .map(|&(ref metric, ref value)| {
-                    let m = format!("usage[{}]", metric.as_str());
-                    (key_mangling(m.into()), value.as_str())
-                })
-        )
+impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Usage
+where
+    'this: 'k + 'v,
+    E: Extend<(Cow<'k, str>, &'v str)>,
+{
+    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(
+        &'this self,
+        extendable: &mut E,
+        key_mangling: &mut F,
+    ) {
+        extendable.extend(self.metrics.iter().map(|&(ref metric, ref value)| {
+            let m = format!("usage[{}]", metric.as_str());
+            (key_mangling(m.into()), value.as_str())
+        }))
     }
 }
 
@@ -74,8 +78,10 @@ mod tests {
         let mut result = Vec::new();
         usage.to_params(&mut result);
 
-        let expected: Vec<(Cow<str>, &str)> = vec![("usage[metric1]".into(), metric1_val),
-                            ("usage[metric2]".into(), metric2_val)];
+        let expected: Vec<(Cow<str>, &str)> = vec![
+            ("usage[metric1]".into(), metric1_val),
+            ("usage[metric2]".into(), metric2_val),
+        ];
         assert_eq!(expected, result);
     }
 }

@@ -1,5 +1,5 @@
-use std::borrow::Cow;
 use http_types::Method;
+use std::borrow::Cow;
 
 #[derive(Clone, Debug)]
 pub enum Parameters {
@@ -35,14 +35,15 @@ impl Parameters {
     }
 
     pub fn path_and_query<'p>(&self, path: &'p str) -> Cow<'p, str> {
-        self.query().map_or_else(|| {
-            Cow::Borrowed(path)
-        }, |q| {
-            let mut url = path.to_string();
-            url.push('?');
-            url.push_str(q);
-            Cow::Owned(url)
-        })
+        self.query().map_or_else(
+            || Cow::Borrowed(path),
+            |q| {
+                let mut url = path.to_string();
+                url.push('?');
+                url.push_str(q);
+                Cow::Owned(url)
+            },
+        )
     }
 
     pub fn uri_and_body<'p>(&self, path: &'p str) -> (Cow<'p, str>, Option<&str>) {
@@ -102,10 +103,12 @@ impl Parameters {
         s.push_str(q.as_str());
     }
 
-    fn params_to_string_collection<'p, 'a: 'p, S: AsRef<str>>(params: &'a [(Cow<str>, S)]) -> ParamsMapper<'a, 'p, S, String> {
-        params.iter().map(|(k, v)| {
-            [k.as_ref().as_ref(), "=", v.as_ref()].concat()
-        })
+    fn params_to_string_collection<'p, 'a: 'p, S: AsRef<str>>(
+        params: &'a [(Cow<str>, S)],
+    ) -> ParamsMapper<'a, 'p, S, String> {
+        params
+            .iter()
+            .map(|(k, v)| [k.as_ref().as_ref(), "=", v.as_ref()].concat())
     }
 
     fn params_to_vec<S: AsRef<str>>(params: &[(Cow<str>, S)]) -> Vec<String> {
@@ -124,15 +127,15 @@ mod tests {
 
     #[bench]
     fn bench_params_to_query(b: &mut Bencher) {
-        let params_str = (1..10).map(|i| {
-            (format!("unakey{}", i), format!("unvalor{}", i))
-        }).collect::<Vec<_>>();
+        let params_str = (1..10)
+            .map(|i| (format!("unakey{}", i), format!("unvalor{}", i)))
+            .collect::<Vec<_>>();
 
-        let params = params_str.iter().map(|(k, v)| (k.as_str().into(), v.as_str()))
+        let params = params_str
+            .iter()
+            .map(|(k, v)| (k.as_str().into(), v.as_str()))
             .collect::<Vec<(Cow<str>, &str)>>();
 
-        b.iter(||
-            Parameters::params_to_query(&params)
-        );
+        b.iter(|| Parameters::params_to_query(&params));
     }
 }
