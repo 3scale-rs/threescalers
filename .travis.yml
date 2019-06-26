@@ -79,7 +79,10 @@ before_script:
         ( ( cargo install clippy && export CLIPPY=true ) || export CLIPPY=false );
       fi
 
+  - rustup component add rustfmt
+
 script:
+  - cargo fmt --all -- --check
   - bash ci/script.sh
   - |
       if [[ "$TRAVIS_RUST_VERSION" == "nightly" && $CLIPPY ]]; then

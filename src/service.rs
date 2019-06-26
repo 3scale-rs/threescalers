@@ -1,5 +1,5 @@
-use crate::ToParams;
 use crate::credentials::{Credentials, ServiceId};
+use crate::ToParams;
 
 #[derive(Debug)]
 pub struct Service {
@@ -20,14 +20,25 @@ impl Service {
     /// let service = Service::new("my_service_id", creds);
     /// ```
     pub fn new<T: Into<ServiceId>>(service_id: T, creds: Credentials) -> Self {
-        Self { service_id: service_id.into(), creds }
+        Self {
+            service_id: service_id.into(),
+            creds,
+        }
     }
 }
 
 use std::borrow::Cow;
 
-impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Service where 'this: 'k + 'v, E: Extend<(Cow<'k, str>, &'v str)> {
-    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(&'this self, extendable: &mut E, key_mangling: &mut F) {
+impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Service
+where
+    'this: 'k + 'v,
+    E: Extend<(Cow<'k, str>, &'v str)>,
+{
+    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(
+        &'this self,
+        extendable: &mut E,
+        key_mangling: &mut F,
+    ) {
         let key = key_mangling("service_id".into());
 
         extendable.extend([(key, self.service_id.as_ref())].iter().cloned());
@@ -50,8 +61,10 @@ mod service_tests {
         let mut result = Vec::new();
         service.to_params(&mut result);
 
-        let expected: Vec<(Cow<str>, &str)> = vec![("service_id".into(), service_id),
-                            ("provider_key".into(), provider_key)];
+        let expected: Vec<(Cow<str>, &str)> = vec![
+            ("service_id".into(), service_id),
+            ("provider_key".into(), provider_key),
+        ];
         assert_eq!(expected, result);
     }
 
@@ -65,8 +78,10 @@ mod service_tests {
         let mut result = Vec::new();
         service.to_params(&mut result);
 
-        let expected: Vec<(Cow<str>, &str)> = vec![("service_id".into(), service_id),
-                            ("service_token".into(), token)];
+        let expected: Vec<(Cow<str>, &str)> = vec![
+            ("service_id".into(), service_id),
+            ("service_token".into(), token),
+        ];
         assert_eq!(expected, result);
     }
 }

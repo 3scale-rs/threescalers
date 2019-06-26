@@ -1,5 +1,5 @@
+use std::collections::hash_map::{IntoIter, Iter, IterMut};
 use std::collections::HashMap;
-use std::collections::hash_map::{Iter, IterMut, IntoIter};
 use std::iter::FromIterator;
 
 #[derive(Debug, Clone)]
@@ -29,12 +29,13 @@ impl Extensions {
 
 impl ToString for Extensions {
     fn to_string(&self) -> String {
-        use std::borrow::Cow;
         use crate::encoding::encode;
+        use std::borrow::Cow;
 
-        self.iter().map(|(k, v)| {
-            [encode(k), Cow::Borrowed("="), encode(v)].concat()
-        }).collect::<Vec<_>>().join("&")
+        self.iter()
+            .map(|(k, v)| [encode(k), Cow::Borrowed("="), encode(v)].concat())
+            .collect::<Vec<_>>()
+            .join("&")
     }
 }
 
