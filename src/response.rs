@@ -24,7 +24,7 @@ enum URWrapper {
 #[derive(Debug, Deserialize, PartialEq)]
 #[serde(rename = "status")]
 pub struct Authorization {
-    authorized: String,
+    authorized: bool,
     plan: String,
     usage_reports: Vec<URWrapper>,
 }
@@ -87,6 +87,19 @@ mod tests {
 
         let parsed_auth = Authorization::from_str(s).unwrap();
 
-        println!("Parsed: {:#?}", parsed_auth);
+        let expected_auth = Authorization {
+            authorized: true,
+            plan: String::from("App Plan"),
+            usage_reports: vec![URWrapper::UsageReport(UsageReport {
+                metric: String::from("products"),
+                period: String::from("minute"),
+                period_start: String::from("2019-06-05 16:24:00 +0000"),
+                period_end: String::from("2019-06-05 16:25:00 +0000"),
+                max_value: 5,
+                current_value: 0,
+            })],
+        };
+
+        assert_eq!(parsed_auth, expected_auth);
     }
 }
