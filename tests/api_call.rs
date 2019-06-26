@@ -586,7 +586,6 @@ fn returns_auth_request_from_service_id_token_oauth_token_and_oauth_user() {
 mod helpers {
     use std::borrow::Cow;
     use std::collections::HashMap;
-    use std::hash::Hash;
 
     pub fn vec_to_hash<'a, V: Copy>(vec: &'a Vec<(Cow<str>, V)>) -> HashMap<&'a str, V> {
         let mut h: HashMap<&str, V> = HashMap::new();
