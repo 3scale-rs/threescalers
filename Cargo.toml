@@ -16,7 +16,7 @@ reqwest-sync = ["reqwest"]
 reqwest-all = ["reqwest-async", "reqwest-sync"]
 
 [dependencies]
-error-chain = "*"
-percent-encoding = "*"
-http_types = { version = "*", package = "http" }
-reqwest = { version = "*", optional = true }
+error-chain = "^0.12"
+percent-encoding = "^1"
+http_types = { version = "^0.1", package = "http" }
+reqwest = { version = "^0.9", optional = true }
