@@ -14,6 +14,8 @@ http-request = []
 reqwest-async = ["reqwest"]
 reqwest-sync = ["reqwest"]
 reqwest-all = ["reqwest-async", "reqwest-sync"]
+# Internal feature, auto-enabled via build.rs when using nightly
+nightly = []
 
 [dependencies]
 error-chain = "^0.12"
