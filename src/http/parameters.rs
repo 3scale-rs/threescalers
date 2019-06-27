@@ -120,8 +120,8 @@ impl Parameters {
     }
 }
 
-#[cfg(test)]
-mod tests {
+#[cfg(all(test, feature = "nightly"))]
+mod benches {
     use super::*;
     use test::Bencher;
 

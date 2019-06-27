@@ -51,7 +51,7 @@ matrix:
     #- env: TARGET=powerpc64-unknown-linux-gnu
     #- env: TARGET=powerpc64le-unknown-linux-gnu
     #- env: TARGET=s390x-unknown-linux-gnu DISABLE_TESTS=1
-    #- env: TARGET=x86_64-unknown-linux-gnu
+    - env: TARGET=x86_64-unknown-linux-gnu
     #- env: TARGET=x86_64-unknown-linux-musl
 
     # OSX
@@ -106,18 +106,30 @@ install:
 before_script:
   - |
       if [[ "$TRAVIS_RUST_VERSION" == "nightly" ]]; then
+        echo "--== [RUSTUP] Adding clippy & rustfmt ==--";
         ( ( rustup component add clippy && export CLIPPY=true ) || export CLIPPY=false );
         ( ( rustup component add rustfmt && export RUSTFMT=true ) || export RUSTFMT=false );
       fi
 
 script:
   - |
+      /bin/echo -e "--== [INFO] Build Environment ==--\n\n" \
+        "TRAVIS_OS_NAME       = ${TRAVIS_OS_NAME}\n" \
+        "TRAVIS_RUST_VERSION  = ${TRAVIS_RUST_VERSION}\n" \
+        "TRAVIS_REPO_SLUG     = ${TRAVIS_REPO_SLUG}\n" \
+        "TRAVIS_PULL_REQUEST  = ${TRAVIS_PULL_REQUEST}\n" \
+        "TRAVIS_BRANCH        = ${TRAVIS_BRANCH}\n" \
+        "CLIPPY               = ${CLIPPY}\n" \
+        "RUSTFMT              = ${RUSTFMT}\n"
+  - |
       if [[ "$TRAVIS_RUST_VERSION" == "nightly" && "${RUSTFMT}" == "true" ]]; then
+        echo "--== [FMT] cargo fmt check ==--" &&
         cargo fmt --all -- --check
       fi
   - bash ci/script.sh
   - |
       if [[ "$TRAVIS_RUST_VERSION" == "nightly" && "${CLIPPY}" == "true" ]]; then
+        echo "--== [CLIPPY] Running ==--" &&
         cargo clippy
       fi
 
@@ -129,10 +141,12 @@ after_script: set +e
 after_success:
   - |
       if [[ "$TRAVIS_OS_NAME" == "linux" && "$TRAVIS_RUST_VERSION" == "stable" && "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_BRANCH" == "master" ]]; then
+        echo "--== [DOCS] Generating ==--" &&
         cargo doc && echo '<meta http-equiv=refresh content="0; url=threescalers/index.html">' > target/doc/index.html && git clone https://github.com/davisp/ghp-import.git && ghp-import/ghp_import.py -n -p -f -m "Documentation upload" -r https://"$GH_TOKEN"@github.com/"$TRAVIS_REPO_SLUG.git" target/doc && echo "Uploaded documentation"
       fi
   - |
       if [[ "$TRAVIS_OS_NAME" == "linux" && "$TRAVIS_RUST_VERSION" == "stable" ]]; then
+        echo "--== [KCOV] Building ==--" &&
         wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz &&
         tar xzf master.tar.gz &&
         cd kcov-master &&
@@ -144,7 +158,9 @@ after_success:
         cd ../.. &&
         rm -rf kcov-master &&
         cargo test &&
+        echo "--== [KCOV] Running ==--" &&
         for file in $(find target/debug -maxdepth 1 -type f -perm /111); do mkdir -p "target/cov/$(basename $file)"; kcov --exclude-pattern=/.cargo,/usr/lib --verify "target/cov/$(basename $file)" "$file"; done &&
+        echo "--== [KCOV] Uploading ==--" &&
         bash <(curl -s https://codecov.io/bash) &&
         echo "Uploaded code coverage"
       fi
