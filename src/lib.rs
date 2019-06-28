@@ -1,3 +1,4 @@
+#![warn(clippy::all)]
 #![cfg_attr(feature = "nightly", feature(never_type))]
 #![cfg_attr(all(test, feature = "nightly"), feature(test))]
 #[cfg(all(test, feature = "nightly"))]
