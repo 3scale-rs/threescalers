@@ -9,6 +9,12 @@ repository = "https://github.com/3scale-rs/threescalers"
 readme = "README.md"
 keywords = ["3scale", "api-management", "api", "apisonator"]
 categories = ["api-bindings"]
+exclude = [
+    "bors.toml",
+    ".appveyor.yml",
+    ".travis.yml",
+    "ci",
+]
 
 [badges]
 appveyor = { repository = "3scale-rs/threescalers" }
