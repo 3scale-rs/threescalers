@@ -1,7 +1,13 @@
+#![cfg_attr(feature = "nightly", feature(never_type))]
 #![cfg_attr(all(test, feature = "nightly"), feature(test))]
-
 #[cfg(all(test, feature = "nightly"))]
 extern crate test;
+
+// Define a never type useful for some traits (ie. FromRequest)
+#[cfg(feature = "nightly")]
+pub type Never = !;
+#[cfg(not(feature = "nightly"))]
+pub type Never = core::convert::Infallible;
 
 pub mod api_call;
 pub mod application;
