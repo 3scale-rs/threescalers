@@ -24,9 +24,10 @@ impl From<&ApiCall<'_, '_, '_, '_, '_, '_>> for HTTPRequest<String> {
 }
 
 use super::FromRequest;
+use crate::Never;
 
-impl FromRequest<!> for HTTPRequest<String> {
-    fn from_request(r: Request, _params: !) -> Self {
+impl FromRequest<Never> for HTTPRequest<String> {
+    fn from_request(r: Request, _params: Never) -> Self {
         Self::from(r)
     }
 }
