@@ -1,7 +1,7 @@
 use super::Request;
 use crate::api_call::ApiCall;
 use crate::version::*;
-use ::http::Request as HTTPRequest;
+use http_types::Request as HTTPRequest;
 
 impl From<Request> for HTTPRequest<String> {
     fn from(r: Request) -> Self {
@@ -17,7 +17,7 @@ impl From<Request> for HTTPRequest<String> {
     }
 }
 
-impl From<&ApiCall<'_, '_, '_, '_, '_>> for HTTPRequest<String> {
+impl From<&ApiCall<'_, '_, '_, '_, '_, '_>> for HTTPRequest<String> {
     fn from(i: &ApiCall) -> Self {
         Request::from(i).into()
     }
