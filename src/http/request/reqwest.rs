@@ -1,14 +1,15 @@
+use super::{Request, FromRequest};
+
 macro_rules! reqwest_impl {
     { $C:ty, $B:ty } => {
         // By default reqwest won't allow us to build a request without a base URI, ie:
         //
         // https://a_host
         //
-        use crate::version::USER_AGENT;
-        use super::{Request, FromRequest};
-
         impl<URI: ToString> FromRequest<(&$C, URI)> for $B {
             fn from_request(r: Request, params: (&$C, URI)) -> Self {
+                use crate::version::USER_AGENT;
+
                 let (uri, body) = r.parameters.uri_and_body(r.path);
                 let (client, uri_base) = params;
                 let uri = uri_base.to_string() + uri.as_ref();

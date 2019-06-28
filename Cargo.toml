@@ -6,14 +6,17 @@ authors = ["Alejandro Martinez Ruiz <alex@flawedcode.org>", "David Ortiz Lopez <
 license = "Apache-2.0"
 
 [features]
-default = ["http-request", "reqwest-all"]
+default = ["http-types"]
 
 # Add in conversions for http's crate types
-http-request = []
+http-types = []
 # Add in conversions for reqwest's crate types
-reqwest-async = ["reqwest"]
-reqwest-sync = ["reqwest"]
+reqwest-types = ["reqwest"]
+reqwest-async = ["reqwest-types"]
+reqwest-sync = ["reqwest-types"]
 reqwest-all = ["reqwest-async", "reqwest-sync"]
+# Include all supported clients types
+all-types = ["http-types", "reqwest-all"]
 # Internal feature, auto-enabled via build.rs when using nightly
 nightly = []
 
