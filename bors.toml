@@ -1,0 +1,4 @@
+status = ["continuous-integration/travis-ci/push"]
+pr_status = ["continuous-integration/travis-ci/pr"]
+block_labels = ["wip"]
+delete_merged_branches = true
