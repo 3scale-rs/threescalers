@@ -16,9 +16,9 @@ pub struct UsageReport {
 // Unfortunately the XML output from Apisonator includes a rather useless "usage_reports" tag that
 // is then followed by a "usage_report" tag in each UsageReport, so we need to wrap that up.
 #[derive(Debug, Deserialize, PartialEq)]
-enum URWrapper {
+pub enum UsageReports {
     #[serde(rename = "usage_report")]
-    UsageReport(UsageReport),
+    UsageReports(Vec<UsageReport>),
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
@@ -26,7 +26,7 @@ enum URWrapper {
 pub struct Authorization {
     authorized: bool,
     plan: String,
-    usage_reports: Vec<URWrapper>,
+    usage_reports: UsageReports,
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
@@ -81,6 +81,12 @@ mod tests {
                     <max_value>5</max_value>
                     <current_value>0</current_value>
                 </usage_report>
+                <usage_report metric="products" period="month">
+                    <period_start>2019-06-01 00:00:00 +0000</period_start>
+                    <period_end>2019-07-01 00:00:00 +0000</period_end>
+                    <max_value>50</max_value>
+                    <current_value>0</current_value>
+                </usage_report>
             </usage_reports>
         </status>
         "##;
@@ -90,14 +96,24 @@ mod tests {
         let expected_auth = Authorization {
             authorized: true,
             plan: String::from("App Plan"),
-            usage_reports: vec![URWrapper::UsageReport(UsageReport {
-                metric: String::from("products"),
-                period: String::from("minute"),
-                period_start: String::from("2019-06-05 16:24:00 +0000"),
-                period_end: String::from("2019-06-05 16:25:00 +0000"),
-                max_value: 5,
-                current_value: 0,
-            })],
+            usage_reports: UsageReports::UsageReports(vec![
+                UsageReport {
+                    metric: String::from("products"),
+                    period: String::from("minute"),
+                    period_start: String::from("2019-06-05 16:24:00 +0000"),
+                    period_end: String::from("2019-06-05 16:25:00 +0000"),
+                    max_value: 5,
+                    current_value: 0,
+                },
+                UsageReport {
+                    metric: String::from("products"),
+                    period: String::from("month"),
+                    period_start: String::from("2019-06-01 00:00:00 +0000"),
+                    period_end: String::from("2019-07-01 00:00:00 +0000"),
+                    max_value: 50,
+                    current_value: 0,
+                },
+            ]),
         };
 
         assert_eq!(parsed_auth, expected_auth);
