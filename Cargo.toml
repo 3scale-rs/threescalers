@@ -13,7 +13,7 @@ exclude = [
     "bors.toml",
     ".appveyor.yml",
     ".travis.yml",
-    "ci",
+    "/ci/**",
 ]
 
 [badges]
