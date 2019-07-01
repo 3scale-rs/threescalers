@@ -1,4 +1,6 @@
+use serde::de::{self, Deserializer, Visitor};
 use serde::Deserialize;
+use std::fmt;
 use std::str::FromStr;
 use std::time::SystemTime;
 
@@ -6,7 +8,7 @@ use std::time::SystemTime;
 #[serde(rename = "usage_report")]
 pub struct UsageReport {
     pub metric: String,
-    pub period: String,
+    pub period: Period,
     pub period_start: String,
     pub period_end: String,
     pub max_value: u64,
@@ -35,15 +37,50 @@ pub struct PeriodInstance {
     end: SystemTime,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum Period {
-    Minute(PeriodInstance),
-    Hour(PeriodInstance),
-    Day(PeriodInstance),
-    Week(PeriodInstance),
-    Month(PeriodInstance),
-    Year(PeriodInstance),
+    Minute,
+    Hour,
+    Day,
+    Week,
+    Month,
+    Year,
     Eternity,
+}
+
+struct PeriodStringVisitor;
+
+impl<'de> Visitor<'de> for PeriodStringVisitor {
+    type Value = Period;
+
+    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        formatter.write_str("a string that represents a period")
+    }
+
+    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+    where
+        E: de::Error,
+    {
+        match v {
+            "minute" => Ok(Period::Minute),
+            "hour" => Ok(Period::Hour),
+            "day" => Ok(Period::Day),
+            "week" => Ok(Period::Week),
+            "month" => Ok(Period::Month),
+            "year" => Ok(Period::Year),
+            "eternity" => Ok(Period::Eternity),
+            _ => Err(E::custom("Invalid period")),
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for Period {
+    fn deserialize<D>(deserializer: D) -> Result<Period, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        deserializer.deserialize_any(PeriodStringVisitor)
+    }
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
@@ -99,7 +136,7 @@ mod tests {
             usage_reports: UsageReports::UsageReports(vec![
                 UsageReport {
                     metric: String::from("products"),
-                    period: String::from("minute"),
+                    period: Period::Minute,
                     period_start: String::from("2019-06-05 16:24:00 +0000"),
                     period_end: String::from("2019-06-05 16:25:00 +0000"),
                     max_value: 5,
@@ -107,7 +144,7 @@ mod tests {
                 },
                 UsageReport {
                     metric: String::from("products"),
-                    period: String::from("month"),
+                    period: Period::Month,
                     period_start: String::from("2019-06-01 00:00:00 +0000"),
                     period_end: String::from("2019-07-01 00:00:00 +0000"),
                     max_value: 50,
