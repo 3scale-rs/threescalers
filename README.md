@@ -2,8 +2,8 @@
 
 ## Rust library crate for the 3scale Service Management API
 
-[![Build Status](https://travis-ci.org/unleashed/threescalers.svg?branch=master)](https://travis-ci.org/unleashed/threescalers)
-[![Build status](https://ci.appveyor.com/api/projects/status/gt8jxqp9n21f3qhe/branch/master?svg=true)](https://ci.appveyor.com/project/unleashed/threescalers/branch/master)
-[![codecov.io](https://codecov.io/gh/unleashed/threescalers/coverage.svg?branch=master)](https://codecov.io/gh/unleashed/threescalers/branch/master)
+[![Build Status](https://travis-ci.org/3scale-rs/threescalers.svg?branch=master)](https://travis-ci.org/3scale-rs/threescalers)
+[![Build status](https://ci.appveyor.com/api/projects/status/gf7okt6bbiqf2l1d/branch/master?svg=true)](https://ci.appveyor.com/project/3scale-rs/threescalers/branch/master)
+[![codecov.io](https://codecov.io/gh/3scale-rs/threescalers/coverage.svg?branch=master)](https://codecov.io/gh/3scale-rs/threescalers/branch/master)
 
-[Documentation](https://unleashed.github.io/threescalers/)
+[Documentation](https://3scale-rs.github.io/threescalers/)
