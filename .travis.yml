@@ -195,6 +195,10 @@ before_cache:
 
 branches:
   only:
+    # This is where pull requests from "bors r+" are built.
+    - staging
+    # This is where pull requests from "bors try" are built.
+    - trying
     # release tags
     - /^v\d+\.\d+\.\d+.*$/
     - master
