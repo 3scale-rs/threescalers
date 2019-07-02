@@ -45,3 +45,10 @@ reqwest = { version = "^0.9", optional = true }
 
 [build-dependencies]
 rustc_version = "^0.2"
+
+[[example]]
+name = "reqwest-report"
+required-features = ["reqwest-sync"]
+
+[dev-dependencies]
+serde_json = "^1.0"
