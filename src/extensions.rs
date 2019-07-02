@@ -6,12 +6,16 @@ use std::iter::FromIterator;
 pub struct Extensions(HashMap<String, String>);
 
 impl Extensions {
-    pub fn insert(&mut self, param: String, value: String) -> Option<String> {
-        self.0.insert(param, value)
+    pub fn new() -> Self {
+        Extensions(HashMap::new())
     }
 
-    pub fn remove(&mut self, param: String) -> Option<String> {
-        self.0.remove(param.as_str())
+    pub fn insert<S: Into<String>>(&mut self, param: S, value: S) -> Option<String> {
+        self.0.insert(param.into(), value.into())
+    }
+
+    pub fn remove<R: AsRef<String>, S: Into<R>>(&mut self, param: S) -> Option<String> {
+        self.0.remove(param.into().as_ref())
     }
 
     pub fn iter(&self) -> Iter<String, String> {
