@@ -8,6 +8,18 @@ use std::time::SystemTime;
 #[derive(Debug, PartialEq)]
 pub struct PeriodTime(SystemTime);
 
+impl From<SystemTime> for PeriodTime {
+    fn from(st: SystemTime) -> Self {
+        PeriodTime(st)
+    }
+}
+
+impl From<PeriodTime> for SystemTime {
+    fn from(pt: PeriodTime) -> Self {
+        pt.0
+    }
+}
+
 #[derive(Debug, Deserialize, PartialEq)]
 #[serde(rename = "usage_report")]
 pub struct UsageReport {
