@@ -35,7 +35,7 @@ reqwest-all = ["reqwest-async", "reqwest-sync"]
 # Include all supported clients types
 all-types = ["http-types", "reqwest-all"]
 # Response parsing
-xml-response = ["serde-xml-rs", "serde"]
+xml-response = ["serde-xml-rs", "serde", "chrono"]
 # Internal feature, auto-enabled via build.rs when using nightly
 nightly = []
 
@@ -46,6 +46,7 @@ http_types = { version = "^0.1", package = "http" }
 reqwest = { version = "^0.9", optional = true }
 serde = { version = "*", optional = true, features = ["derive"] }
 serde-xml-rs = { version = "*", optional = true }
+chrono = { version = "^0.4", optional = true }
 
 [build-dependencies]
 rustc_version = "^0.2"
