@@ -1,16 +1,20 @@
-use serde::de::{self, Deserializer, Visitor};
+use chrono::prelude::*;
+use serde::de::{self, Deserializer, MapAccess, Visitor};
 use serde::Deserialize;
 use std::fmt;
 use std::str::FromStr;
 use std::time::SystemTime;
+
+#[derive(Debug, PartialEq)]
+pub struct PeriodTime(SystemTime);
 
 #[derive(Debug, Deserialize, PartialEq)]
 #[serde(rename = "usage_report")]
 pub struct UsageReport {
     pub metric: String,
     pub period: Period,
-    pub period_start: String,
-    pub period_end: String,
+    pub period_start: PeriodTime,
+    pub period_end: PeriodTime,
     pub max_value: u64,
     pub current_value: u64,
 }
@@ -83,6 +87,38 @@ impl<'de> Deserialize<'de> for Period {
     }
 }
 
+struct TimestampVisitor;
+
+impl<'de> Visitor<'de> for TimestampVisitor {
+    type Value = PeriodTime;
+
+    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        formatter.write_str("a string that represents a timestamp")
+    }
+
+    fn visit_map<V>(self, mut map: V) -> Result<PeriodTime, V::Error>
+    where
+        V: MapAccess<'de>,
+    {
+        // We know there's only one key with one value - Note: probably safe to skip
+        let _key: Option<String> = map.next_key()?;
+        let timestamp: String = map.next_value()?;
+
+        let dt = DateTime::parse_from_str(timestamp.as_str(), "%Y-%m-%d %H:%M:%S %z").unwrap();
+
+        Ok(PeriodTime(dt.into()))
+    }
+}
+
+impl<'de> Deserialize<'de> for PeriodTime {
+    fn deserialize<D>(deserializer: D) -> Result<PeriodTime, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        deserializer.deserialize_any(TimestampVisitor)
+    }
+}
+
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct UsageData {
     max_value: u64,
@@ -137,16 +173,16 @@ mod tests {
                 UsageReport {
                     metric: String::from("products"),
                     period: Period::Minute,
-                    period_start: String::from("2019-06-05 16:24:00 +0000"),
-                    period_end: String::from("2019-06-05 16:25:00 +0000"),
+                    period_start: PeriodTime(Utc.ymd(2019, 6, 5).and_hms(16, 24, 0).into()),
+                    period_end: PeriodTime(Utc.ymd(2019, 6, 5).and_hms(16, 25, 0).into()),
                     max_value: 5,
                     current_value: 0,
                 },
                 UsageReport {
                     metric: String::from("products"),
                     period: Period::Month,
-                    period_start: String::from("2019-06-01 00:00:00 +0000"),
-                    period_end: String::from("2019-07-01 00:00:00 +0000"),
+                    period_start: PeriodTime(Utc.ymd(2019, 6, 1).and_hms(0, 0, 0).into()),
+                    period_end: PeriodTime(Utc.ymd(2019, 7, 1).and_hms(0, 0, 0).into()),
                     max_value: 50,
                     current_value: 0,
                 },
