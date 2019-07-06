@@ -112,7 +112,10 @@ impl<'de> Visitor<'de> for TimestampVisitor {
     where
         V: MapAccess<'de>,
     {
-        // We know there's only one key with one value - Note: probably safe to skip
+        // We know there's only one key with one value.
+        // The key is not used, but we need to call "next_key()". From the
+        // docs: "Calling `next_value` before `next_key` is incorrect and is
+        // allowed to panic or return bogus results.".
         let _key: Option<String> = map.next_key()?;
         let timestamp: String = map.next_value()?;
 
