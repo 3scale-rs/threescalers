@@ -32,8 +32,12 @@ reqwest-types = ["reqwest"]
 reqwest-async = ["reqwest-types"]
 reqwest-sync = ["reqwest-types"]
 reqwest-all = ["reqwest-async", "reqwest-sync"]
+# Add in conversions for curl's crate types
+curl-types = ["curl"]
+curl-easy = ["curl-types"]
+curl-all = ["curl-easy"]
 # Include all supported clients types
-all-types = ["http-types", "reqwest-all"]
+all-types = ["http-types", "reqwest-all", "curl-all"]
 # Response parsing
 xml-response = ["serde-xml-rs", "serde", "chrono"]
 # Internal feature, auto-enabled via build.rs when using nightly
@@ -44,6 +48,7 @@ error-chain = "^0.12"
 percent-encoding = "^1"
 http_types = { version = "^0.1", package = "http" }
 reqwest = { version = "^0.9", optional = true }
+curl = { version = "^0.4", optional = true }
 serde = { version = "^1", optional = true, features = ["derive"] }
 serde-xml-rs = { version = "^0.3", optional = true }
 chrono = { version = "^0.4", optional = true }
