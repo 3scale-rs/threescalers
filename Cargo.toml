@@ -60,5 +60,9 @@ rustc_version = "^0.2"
 name = "reqwest-report"
 required-features = ["reqwest-sync"]
 
+[[example]]
+name = "curl-report"
+required-features = ["curl-easy"]
+
 [dev-dependencies]
 serde_json = "^1.0"
