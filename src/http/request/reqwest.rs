@@ -15,7 +15,9 @@ macro_rules! reqwest_impl {
                 let rb = client.request(r.method, uri.as_str()).headers(r.headers);
 
                 match body {
-                    Some(body) => rb.body(body.to_owned()),
+                    // when there is a body just consume it from the request's
+                    // parameters to avoid cloning it unnecessarily.
+                    Some(_) => rb.body(r.parameters.into_inner()),
                     _ => rb
                 }
             }
