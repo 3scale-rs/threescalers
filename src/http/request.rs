@@ -6,6 +6,8 @@ use crate::ToParams;
 
 use super::Parameters;
 
+#[cfg(feature = "curl-types")]
+pub mod curl;
 #[cfg(feature = "http-types")]
 mod http;
 #[cfg(feature = "reqwest-types")]
