@@ -4,8 +4,8 @@ pub use easy::CurlEasyClient;
 #[cfg(feature = "curl-easy")]
 mod easy {
     use super::super::{
-        FromRequest,
         Request,
+        SetupRequest,
     };
     use curl::easy::{
         Easy,
@@ -76,21 +76,21 @@ mod easy {
         }
     }
 
-    impl<'easy, 'data, URI: ToString> FromRequest<(&'easy mut Easy, URI)> for CurlEasyClient<'easy, 'data> {
-        fn from_request(r: Request, params: (&'easy mut Easy, URI)) -> Self {
+    impl<'easy, 'data, URI: ToString> SetupRequest<'easy, URI, CurlEasyClient<'easy, 'data>> for Easy {
+        fn setup_request(&'easy mut self, r: Request, params: URI) -> CurlEasyClient<'easy, 'data> {
             let (uri, body) = r.parameters.uri_and_body(r.path);
-            let (client, uri_base) = params;
+            let uri_base = params;
             let uri = uri_base.to_string() + uri.as_ref();
 
             match r.method {
-                Method::GET => client.get(true),
-                Method::POST => client.post(true),
-                Method::PUT => client.put(true),
+                Method::GET => self.get(true),
+                Method::POST => self.post(true),
+                Method::PUT => self.put(true),
                 // any other verb needs to use custom_request()
-                m => client.custom_request(m.as_str()),
+                m => self.custom_request(m.as_str()),
             }.expect("failed to set up the request's method");
 
-            client.url(uri.as_str()).expect("error setting up url for curl");
+            self.url(uri.as_str()).expect("error setting up url for curl");
             let mut headerlist = headermap_to_curl_list(&r.headers);
             // libcurl by default adds "Expect: 100-continue" to send bodies, which would break us
             headerlist.append("Expect:")
@@ -98,8 +98,8 @@ mod easy {
             // don't specify Content-Type for this request (similar to other clients)
             headerlist.append("Content-Type:")
                       .expect("failed to allocate node for curl list of headers");
-            client.http_headers(headerlist)
-                  .expect("error setting up headers for curl");
+            self.http_headers(headerlist)
+                .expect("error setting up headers for curl");
 
             match body {
                 Some(_) => {
@@ -107,9 +107,9 @@ mod easy {
 
                     let body = r.parameters.into_inner();
                     // this sets the Content-Length - some servers will misbehave without this
-                    client.post_field_size(body.len() as u64)
-                          .expect("failed to set post size");
-                    let mut transfer = client.transfer();
+                    self.post_field_size(body.len() as u64)
+                        .expect("failed to set post size");
+                    let mut transfer = self.transfer();
 
                     let mut count = 0usize;
                     transfer.read_function(move |buf| {
@@ -123,7 +123,7 @@ mod easy {
 
                     transfer.into()
                 }
-                None => (client as &Easy).into(),
+                None => (self as &Easy).into(),
             }
         }
     }
