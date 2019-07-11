@@ -65,5 +65,9 @@ required-features = ["reqwest-sync"]
 name = "curl-easy-report"
 required-features = ["curl-easy"]
 
+[[example]]
+name = "curl-easy2-report"
+required-features = ["curl-easy2"]
+
 [dev-dependencies]
 serde_json = "^1.0"

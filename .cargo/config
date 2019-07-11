@@ -3,3 +3,4 @@
 # cargo ex-reqwest-report
 ex-reqwest-report = "run --example reqwest-report --features reqwest-sync"
 ex-curl-easy-report = "run --example curl-easy-report --features curl-easy"
+ex-curl-easy2-report = "run --example curl-easy2-report --features curl-easy2"
