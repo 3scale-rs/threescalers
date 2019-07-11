@@ -4,15 +4,16 @@ use threescalers::{
     credentials::*,
     extensions::Extensions,
     http::{
-        request::FromRequest,
+        request::{
+            curl::CurlEasyClient,
+            SetupRequest,
+        },
         Request,
     },
     service::*,
     transaction::Transaction,
     usage::Usage,
 };
-
-use threescalers::http::request::curl::CurlEasyClient;
 
 use curl::easy::Easy;
 
@@ -69,7 +70,7 @@ fn main() -> Result<(), threescalers::errors::Error> {
 fn run_request(request: Request) -> Result<(), curl::Error> {
     let mut client = Easy::new();
     let _ = client.verbose(true).unwrap();
-    let curlclient = CurlEasyClient::from_request(request, (&mut client, "https://echo-api.3scale.net"));
+    let curlclient = client.setup_request(request, "https://echo-api.3scale.net");
     let result = exec_request(&curlclient);
     show_response(curlclient, result)
 }
