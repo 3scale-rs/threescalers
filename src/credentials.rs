@@ -1,5 +1,7 @@
-use crate::errors::*;
-use crate::ToParams;
+use crate::{
+    errors::*,
+    ToParams,
+};
 
 use std::str::FromStr;
 
@@ -45,18 +47,14 @@ impl FromStr for ServiceToken {
 }
 
 // These trait impls are similar to FromStr (but are infallible)
-impl From<&str> for ProviderKey
-where
-    Self: FromStr,
+impl From<&str> for ProviderKey where Self: FromStr
 {
     fn from(s: &str) -> ProviderKey {
         s.parse().unwrap()
     }
 }
 
-impl From<&str> for ServiceToken
-where
-    Self: FromStr,
+impl From<&str> for ServiceToken where Self: FromStr
 {
     fn from(s: &str) -> ServiceToken {
         s.parse().unwrap()
@@ -119,15 +117,12 @@ impl Credentials {
 use std::borrow::Cow;
 
 impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Credentials
-where
-    'this: 'k + 'v,
-    E: Extend<(Cow<'k, str>, &'v str)>,
+    where 'this: 'k + 'v,
+          E: Extend<(Cow<'k, str>, &'v str)>
 {
-    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(
-        &'this self,
-        extendable: &mut E,
-        key_mangling: &mut F,
-    ) {
+    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(&'this self,
+                                                                       extendable: &mut E,
+                                                                       key_mangling: &mut F) {
         use self::Credentials::*;
 
         let (field, value) = match self {
@@ -156,9 +151,7 @@ impl FromStr for ServiceId {
     }
 }
 
-impl From<&str> for ServiceId
-where
-    Self: FromStr,
+impl From<&str> for ServiceId where Self: FromStr
 {
     fn from(s: &str) -> ServiceId {
         s.parse().unwrap()

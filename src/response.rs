@@ -1,10 +1,19 @@
 use chrono::prelude::*;
-use serde::de::{self, Deserializer, MapAccess, Visitor};
-use serde::Deserialize;
-use std::collections::HashMap;
-use std::fmt;
-use std::str::FromStr;
-use std::time::SystemTime;
+use serde::{
+    de::{
+        self,
+        Deserializer,
+        MapAccess,
+        Visitor,
+    },
+    Deserialize,
+};
+use std::{
+    collections::HashMap,
+    fmt,
+    str::FromStr,
+    time::SystemTime,
+};
 
 #[derive(Debug, PartialEq)]
 pub struct PeriodTime(SystemTime);
@@ -37,11 +46,11 @@ impl MetricsHierarchy {
 #[derive(Debug, Deserialize, PartialEq)]
 #[serde(rename = "usage_report")]
 pub struct UsageReport {
-    pub metric: String,
-    pub period: Period,
-    pub period_start: PeriodTime,
-    pub period_end: PeriodTime,
-    pub max_value: u64,
+    pub metric:        String,
+    pub period:        Period,
+    pub period_start:  PeriodTime,
+    pub period_end:    PeriodTime,
+    pub max_value:     u64,
     pub current_value: u64,
 }
 
@@ -56,8 +65,8 @@ pub enum UsageReports {
 #[derive(Debug, Deserialize, PartialEq)]
 #[serde(rename = "status")]
 pub struct Authorization {
-    authorized: bool,
-    plan: String,
+    authorized:    bool,
+    plan:          String,
     usage_reports: UsageReports,
 
     #[serde(rename = "hierarchy")]
@@ -67,7 +76,7 @@ pub struct Authorization {
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct PeriodInstance {
     start: SystemTime,
-    end: SystemTime,
+    end:   SystemTime,
 }
 
 #[derive(Debug, PartialEq)]
@@ -91,8 +100,7 @@ impl<'de> Visitor<'de> for PeriodStringVisitor {
     }
 
     fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-    where
-        E: de::Error,
+        where E: de::Error
     {
         match v {
             "minute" => Ok(Period::Minute),
@@ -109,8 +117,7 @@ impl<'de> Visitor<'de> for PeriodStringVisitor {
 
 impl<'de> Deserialize<'de> for Period {
     fn deserialize<D>(deserializer: D) -> Result<Period, D::Error>
-    where
-        D: Deserializer<'de>,
+        where D: Deserializer<'de>
     {
         deserializer.deserialize_any(PeriodStringVisitor)
     }
@@ -126,8 +133,7 @@ impl<'de> Visitor<'de> for TimestampVisitor {
     }
 
     fn visit_map<V>(self, mut map: V) -> Result<PeriodTime, V::Error>
-    where
-        V: MapAccess<'de>,
+        where V: MapAccess<'de>
     {
         // We know there's only one key with one value.
         // The key is not used, but we need to call "next_key()". From the
@@ -144,8 +150,7 @@ impl<'de> Visitor<'de> for TimestampVisitor {
 
 impl<'de> Deserialize<'de> for PeriodTime {
     fn deserialize<D>(deserializer: D) -> Result<PeriodTime, D::Error>
-    where
-        D: Deserializer<'de>,
+        where D: Deserializer<'de>
     {
         deserializer.deserialize_any(TimestampVisitor)
     }
@@ -161,8 +166,7 @@ impl<'de> Visitor<'de> for MetricsHierarchyVisitor {
     }
 
     fn visit_map<V>(self, mut map: V) -> Result<Self::Value, V::Error>
-    where
-        V: MapAccess<'de>,
+        where V: MapAccess<'de>
     {
         let mut hierarchy = MetricsHierarchy::new();
 
@@ -183,8 +187,7 @@ impl<'de> Visitor<'de> for MetricsHierarchyVisitor {
 
 impl<'de> Deserialize<'de> for MetricsHierarchy {
     fn deserialize<D>(deserializer: D) -> Result<MetricsHierarchy, D::Error>
-    where
-        D: Deserializer<'de>,
+        where D: Deserializer<'de>
     {
         deserializer.deserialize_any(MetricsHierarchyVisitor)
     }
@@ -192,7 +195,7 @@ impl<'de> Deserialize<'de> for MetricsHierarchy {
 
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct UsageData {
-    max_value: u64,
+    max_value:     u64,
     current_value: u64,
 }
 
@@ -237,11 +240,10 @@ mod tests {
 
         let parsed_auth = Authorization::from_str(s).unwrap();
 
-        let expected_auth = Authorization {
-            authorized: true,
-            plan: String::from("App Plan"),
-            metrics_hierarchy: None,
-            usage_reports: UsageReports::UsageReports(vec![
+        let expected_auth = Authorization { authorized:        true,
+                                            plan:              String::from("App Plan"),
+                                            metrics_hierarchy: None,
+                                            usage_reports:     UsageReports::UsageReports(vec![
                 UsageReport {
                     metric: String::from("products"),
                     period: Period::Minute,
@@ -258,8 +260,7 @@ mod tests {
                     max_value: 50,
                     current_value: 0,
                 },
-            ]),
-        };
+            ]), };
 
         assert_eq!(parsed_auth, expected_auth);
     }
@@ -313,17 +314,14 @@ mod tests {
         let parsed_auth = Authorization::from_str(xml_response).unwrap();
 
         let mut expected_hierarchy = MetricsHierarchy::new();
-        expected_hierarchy.insert(
-            String::from("parent1"),
-            vec![String::from("child1"), String::from("child2")],
-        );
+        expected_hierarchy.insert(String::from("parent1"), vec![String::from("child1"),
+                                                                String::from("child2")]);
         expected_hierarchy.insert(String::from("parent2"), vec![String::from("child3")]);
 
-        let expected_auth = Authorization {
-            authorized: true,
-            plan: String::from("Basic"),
-            metrics_hierarchy: Some(expected_hierarchy),
-            usage_reports: UsageReports::UsageReports(vec![
+        let expected_auth = Authorization { authorized:        true,
+                                            plan:              String::from("Basic"),
+                                            metrics_hierarchy: Some(expected_hierarchy),
+                                            usage_reports:     UsageReports::UsageReports(vec![
                 UsageReport {
                     metric: String::from("parent1"),
                     period: Period::Day,
@@ -364,8 +362,7 @@ mod tests {
                     max_value: 100,
                     current_value: 10,
                 },
-            ]),
-        };
+            ]), };
 
         assert_eq!(parsed_auth, expected_auth);
     }

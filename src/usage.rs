@@ -30,33 +30,27 @@ impl Usage {
     /// let usage = Usage::new(&metrics);
     /// ```
     pub fn new<T1: ToString, T2: ToString>(metrics: &[(T1, T2)]) -> Self {
-        let string_metrics = metrics
-            .iter()
-            .map(|&(ref metric, ref value)| (metric.to_string(), value.to_string()))
-            .collect();
+        let string_metrics = metrics.iter()
+                                    .map(|&(ref metric, ref value)| (metric.to_string(), value.to_string()))
+                                    .collect();
 
-        Self {
-            metrics: string_metrics,
-        }
+        Self { metrics: string_metrics, }
     }
 }
 
 use std::borrow::Cow;
 
 impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Usage
-where
-    'this: 'k + 'v,
-    E: Extend<(Cow<'k, str>, &'v str)>,
+    where 'this: 'k + 'v,
+          E: Extend<(Cow<'k, str>, &'v str)>
 {
-    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(
-        &'this self,
-        extendable: &mut E,
-        key_mangling: &mut F,
-    ) {
+    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(&'this self,
+                                                                       extendable: &mut E,
+                                                                       key_mangling: &mut F) {
         extendable.extend(self.metrics.iter().map(|&(ref metric, ref value)| {
-            let m = format!("usage[{}]", metric.as_str());
-            (key_mangling(m.into()), value.as_str())
-        }))
+                                                 let m = format!("usage[{}]", metric.as_str());
+                                                 (key_mangling(m.into()), value.as_str())
+                                             }))
     }
 }
 
@@ -78,10 +72,8 @@ mod tests {
         let mut result = Vec::new();
         usage.to_params(&mut result);
 
-        let expected: Vec<(Cow<str>, &str)> = vec![
-            ("usage[metric1]".into(), metric1_val),
-            ("usage[metric2]".into(), metric2_val),
-        ];
+        let expected: Vec<(Cow<str>, &str)> = vec![("usage[metric1]".into(), metric1_val),
+                                                   ("usage[metric2]".into(), metric2_val),];
         assert_eq!(expected, result);
     }
 }
