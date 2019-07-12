@@ -4,7 +4,7 @@
 #[cfg(all(test, feature = "nightly"))]
 extern crate test;
 
-// Define a never type useful for some traits (ie. FromRequest)
+// Define a never type useful for some traits (ie. SetupRequest)
 #[cfg(feature = "nightly")]
 pub type Never = !;
 #[cfg(not(feature = "nightly"))]
