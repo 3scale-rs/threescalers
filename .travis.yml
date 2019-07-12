@@ -107,8 +107,12 @@ before_script:
   - |
       if [[ "$TRAVIS_RUST_VERSION" == "nightly" ]]; then
         echo "--== [RUSTUP] Adding clippy & rustfmt ==--";
-        ( ( rustup component add clippy && export CLIPPY=true ) || export CLIPPY=false );
-        ( ( rustup component add rustfmt && export RUSTFMT=true ) || export RUSTFMT=false );
+        if rustup component add clippy; then
+          export CLIPPY=true;
+        fi
+        if rustup component add rustfmt; then
+          export RUSTFMT=true;
+        fi
       fi
 
 script:
