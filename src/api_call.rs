@@ -1,10 +1,12 @@
-use crate::application::Application;
-use crate::errors::*;
-use crate::extensions::Extensions;
-use crate::service::Service;
-use crate::transaction::Transaction;
-use crate::usage::Usage;
-use crate::user::User;
+use crate::{
+    application::Application,
+    errors::*,
+    extensions::Extensions,
+    service::Service,
+    transaction::Transaction,
+    usage::Usage,
+    user::User,
+};
 
 use crate::ToParams;
 
@@ -28,18 +30,18 @@ impl Kind {
 
 #[derive(Copy, Clone, Debug)]
 pub struct ApiCall<'service, 'tx, 'app, 'user, 'usage, 'extensions> {
-    kind: Kind,
-    service: &'service Service,
+    kind:         Kind,
+    service:      &'service Service,
     transactions: &'tx [Transaction<'app, 'user, 'usage, 'tx>],
-    extensions: Option<&'extensions Extensions>,
+    extensions:   Option<&'extensions Extensions>,
 }
 
 #[derive(Copy, Clone, Debug)]
 pub struct Builder<'service, 'tx, 'app, 'user, 'usage, 'extensions> {
-    service: &'service Service,
-    kind: Option<Kind>,
+    service:      &'service Service,
+    kind:         Option<Kind>,
     transactions: &'tx [Transaction<'app, 'user, 'usage, 'tx>],
-    extensions: Option<&'extensions Extensions>,
+    extensions:   Option<&'extensions Extensions>,
 }
 
 // TODO: we can improve this with a state machine of types so that we are required to set svc, app,
@@ -48,12 +50,10 @@ impl<'service, 'tx, 'app, 'user, 'usage, 'extensions>
     Builder<'service, 'tx, 'app, 'user, 'usage, 'extensions>
 {
     pub fn new(service: &'service Service) -> Self {
-        Builder {
-            service,
-            kind: Default::default(),
-            transactions: Default::default(),
-            extensions: Default::default(),
-        }
+        Builder { service,
+                  kind: Default::default(),
+                  transactions: Default::default(),
+                  extensions: Default::default() }
     }
 
     pub fn service(&mut self, s: &'service Service) -> &mut Self {
@@ -66,10 +66,7 @@ impl<'service, 'tx, 'app, 'user, 'usage, 'extensions>
         self
     }
 
-    pub fn transactions(
-        &mut self,
-        txns: &'tx [Transaction<'app, 'user, 'usage, 'tx>],
-    ) -> &mut Self {
+    pub fn transactions(&mut self, txns: &'tx [Transaction<'app, 'user, 'usage, 'tx>]) -> &mut Self {
         self.transactions = txns;
         self
     }
@@ -81,12 +78,10 @@ impl<'service, 'tx, 'app, 'user, 'usage, 'extensions>
 
     pub fn build(&self) -> Result<ApiCall> {
         let kind = self.kind.ok_or_else(|| "kind error".to_string())?;
-        Ok(ApiCall::new(
-            kind,
-            self.service,
-            self.transactions,
-            self.extensions,
-        ))
+        Ok(ApiCall::new(kind,
+                        self.service,
+                        self.transactions,
+                        self.extensions))
     }
 }
 
@@ -99,18 +94,15 @@ impl<'service, 'tx: 'app + 'user + 'usage, 'app, 'user, 'usage, 'extensions>
         Builder::new(service)
     }
 
-    pub fn new(
-        kind: Kind,
-        service: &'service Service,
-        transactions: &'tx [Transaction<'app, 'user, 'usage, 'tx>],
-        extensions: Option<&'extensions Extensions>,
-    ) -> Self {
-        Self {
-            kind,
-            service,
-            transactions,
-            extensions,
-        }
+    pub fn new(kind: Kind,
+               service: &'service Service,
+               transactions: &'tx [Transaction<'app, 'user, 'usage, 'tx>],
+               extensions: Option<&'extensions Extensions>)
+               -> Self {
+        Self { kind,
+               service,
+               transactions,
+               extensions }
     }
 
     pub fn kind(&self) -> Kind {
@@ -130,11 +122,7 @@ impl<'service, 'tx: 'app + 'user + 'usage, 'app, 'user, 'usage, 'extensions>
     pub fn transaction(&self) -> Option<&'tx Transaction<'app, 'user, 'usage, 'tx>> {
         let txns = self.transactions();
 
-        if txns.len() == 1 {
-            Some(&txns[0])
-        } else {
-            None
-        }
+        if txns.len() == 1 { Some(&txns[0]) } else { None }
     }
 
     pub fn application(&self) -> Option<&'app Application> {
@@ -162,33 +150,28 @@ impl<'service, 'tx: 'app + 'user + 'usage, 'app, 'user, 'usage, 'extensions>
 }
 
 impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for ApiCall<'_, '_, '_, '_, '_, '_>
-where
-    'this: 'k + 'v,
-    E: Extend<(Cow<'k, str>, &'v str)>,
+    where 'this: 'k + 'v,
+          E: Extend<(Cow<'k, str>, &'v str)>
 {
-    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(
-        &'this self,
-        extendable: &mut E,
-        key_mangling: &mut F,
-    ) {
-        self.service
-            .to_params_with_mangling(extendable, key_mangling);
+    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(&'this self,
+                                                                       extendable: &mut E,
+                                                                       key_mangling: &mut F) {
+        self.service.to_params_with_mangling(extendable, key_mangling);
 
         // keep the borrowck happy about stack closures living long enough
         let mut txfn_storage_report;
         let mut txfn_storage_rest;
 
-        let key_mangling: &mut dyn FnMut(usize, Cow<'k, str>) -> Cow<'k, str> =
-            if self.kind().is_report() {
-                txfn_storage_report = |n, c: Cow<'k, str>| {
-                    // 3scale Apisonator takes arguments using the Rack format
-                    key_mangling(format!("transactions[{}]{}", n, c).into())
-                };
-                &mut txfn_storage_report
-            } else {
-                txfn_storage_rest = |_n, c: Cow<'k, str>| key_mangling(c);
-                &mut txfn_storage_rest
+        let key_mangling: &mut dyn FnMut(usize, Cow<'k, str>) -> Cow<'k, str> = if self.kind().is_report() {
+            txfn_storage_report = |n, c: Cow<'k, str>| {
+                // 3scale Apisonator takes arguments using the Rack format
+                key_mangling(format!("transactions[{}]{}", n, c).into())
             };
+            &mut txfn_storage_report
+        } else {
+            txfn_storage_rest = |_n, c: Cow<'k, str>| key_mangling(c);
+            &mut txfn_storage_rest
+        };
 
         // having multiple transactions with non-report endpoints
         // is not allowed, but we can't fail in this trait impl

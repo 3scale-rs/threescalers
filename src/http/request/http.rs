@@ -1,6 +1,8 @@
 use super::Request;
-use crate::api_call::ApiCall;
-use crate::version::*;
+use crate::{
+    api_call::ApiCall,
+    version::*,
+};
 use http_types::Request as HTTPRequest;
 
 impl From<Request> for HTTPRequest<String> {
@@ -10,10 +12,10 @@ impl From<Request> for HTTPRequest<String> {
         let mut rb = HTTPRequest::builder();
 
         rb.header("User-Agent", USER_AGENT)
-            .method(r.method)
-            .uri(uri.as_ref())
-            .body(body)
-            .unwrap()
+          .method(r.method)
+          .uri(uri.as_ref())
+          .body(body)
+          .unwrap()
     }
 }
 

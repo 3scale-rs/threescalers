@@ -1,6 +1,14 @@
-use std::collections::hash_map::{IntoIter, Iter, IterMut};
-use std::collections::HashMap;
-use std::iter::FromIterator;
+use std::{
+    collections::{
+        hash_map::{
+            IntoIter,
+            Iter,
+            IterMut,
+        },
+        HashMap,
+    },
+    iter::FromIterator,
+};
 
 #[derive(Debug, Clone)]
 pub struct Extensions(HashMap<String, String>);
@@ -62,8 +70,8 @@ impl FromIterator<(String, String)> for Extensions {
 }
 
 impl<'a> IntoIterator for &'a Extensions {
-    type Item = (&'a String, &'a String);
     type IntoIter = Iter<'a, String, String>;
+    type Item = (&'a String, &'a String);
 
     fn into_iter(self) -> Self::IntoIter {
         self.0.iter()
@@ -71,8 +79,8 @@ impl<'a> IntoIterator for &'a Extensions {
 }
 
 impl<'a> IntoIterator for &'a mut Extensions {
-    type Item = (&'a String, &'a mut String);
     type IntoIter = IterMut<'a, String, String>;
+    type Item = (&'a String, &'a mut String);
 
     fn into_iter(self) -> Self::IntoIter {
         self.0.iter_mut()
@@ -80,8 +88,8 @@ impl<'a> IntoIterator for &'a mut Extensions {
 }
 
 impl IntoIterator for Extensions {
-    type Item = (String, String);
     type IntoIter = IntoIter<String, String>;
+    type Item = (String, String);
 
     fn into_iter(self) -> Self::IntoIter {
         self.0.into_iter()

@@ -1,4 +1,8 @@
-use percent_encoding::{define_encode_set, utf8_percent_encode, PATH_SEGMENT_ENCODE_SET};
+use percent_encoding::{
+    define_encode_set,
+    utf8_percent_encode,
+    PATH_SEGMENT_ENCODE_SET,
+};
 use std::borrow::Cow;
 
 define_encode_set! {

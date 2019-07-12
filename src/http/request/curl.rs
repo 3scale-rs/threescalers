@@ -3,22 +3,30 @@ pub use easy::CurlEasyClient;
 
 #[cfg(feature = "curl-easy")]
 mod easy {
-    use super::super::{FromRequest, Request};
-    use curl::easy::{Easy, List, Transfer};
-    use http_types::header::HeaderValue;
-    use http_types::Method;
+    use super::super::{
+        FromRequest,
+        Request,
+    };
+    use curl::easy::{
+        Easy,
+        List,
+        Transfer,
+    };
+    use http_types::{
+        header::HeaderValue,
+        Method,
+    };
 
     fn headermap_to_curl_list(headermap: &http_types::HeaderMap<HeaderValue>) -> List {
         let mut list = List::new();
         headermap.iter().for_each(|(k, v)| {
-            // this will scan for printable US-ASCII only bytes
-            let header = v
-                .to_str()
-                .map(|hval| [k.as_str(), ": ", hval].concat())
-                .expect("found header value without a displayable US-ASCII string");
-            list.append(header.as_str())
-                .expect("failed to allocate node for curl list of headers");
-        });
+                            // this will scan for printable US-ASCII only bytes
+                            let header = v.to_str()
+                                          .map(|hval| [k.as_str(), ": ", hval].concat())
+                                          .expect("found header value without a displayable US-ASCII string");
+                            list.append(header.as_str())
+                                .expect("failed to allocate node for curl list of headers");
+                        });
         list
     }
 
@@ -68,9 +76,7 @@ mod easy {
         }
     }
 
-    impl<'easy, 'data, URI: ToString> FromRequest<(&'easy mut Easy, URI)>
-        for CurlEasyClient<'easy, 'data>
-    {
+    impl<'easy, 'data, URI: ToString> FromRequest<(&'easy mut Easy, URI)> for CurlEasyClient<'easy, 'data> {
         fn from_request(r: Request, params: (&'easy mut Easy, URI)) -> Self {
             let (uri, body) = r.parameters.uri_and_body(r.path);
             let (client, uri_base) = params;
@@ -82,24 +88,18 @@ mod easy {
                 Method::PUT => client.put(true),
                 // any other verb needs to use custom_request()
                 m => client.custom_request(m.as_str()),
-            }
-            .expect("failed to set up the request's method");
+            }.expect("failed to set up the request's method");
 
-            client
-                .url(uri.as_str())
-                .expect("error setting up url for curl");
+            client.url(uri.as_str()).expect("error setting up url for curl");
             let mut headerlist = headermap_to_curl_list(&r.headers);
             // libcurl by default adds "Expect: 100-continue" to send bodies, which would break us
-            headerlist
-                .append("Expect:")
-                .expect("failed to allocate node for curl list of headers");
+            headerlist.append("Expect:")
+                      .expect("failed to allocate node for curl list of headers");
             // don't specify Content-Type for this request (similar to other clients)
-            headerlist
-                .append("Content-Type:")
-                .expect("failed to allocate node for curl list of headers");
-            client
-                .http_headers(headerlist)
-                .expect("error setting up headers for curl");
+            headerlist.append("Content-Type:")
+                      .expect("failed to allocate node for curl list of headers");
+            client.http_headers(headerlist)
+                  .expect("error setting up headers for curl");
 
             match body {
                 Some(_) => {
@@ -107,22 +107,19 @@ mod easy {
 
                     let body = r.parameters.into_inner();
                     // this sets the Content-Length - some servers will misbehave without this
-                    client
-                        .post_field_size(body.len() as u64)
-                        .expect("failed to set post size");
+                    client.post_field_size(body.len() as u64)
+                          .expect("failed to set post size");
                     let mut transfer = client.transfer();
 
                     let mut count = 0usize;
-                    transfer
-                        .read_function(move |buf| {
-                            let mut bytes = &body.as_bytes()[count..];
-                            let newcount = bytes
-                                .read(buf)
-                                .expect("error while copying body data to buffer");
-                            count += newcount;
-                            Ok(newcount)
-                        })
-                        .expect("failed to set up read function for curl");
+                    transfer.read_function(move |buf| {
+                                let mut bytes = &body.as_bytes()[count..];
+                                let newcount =
+                                    bytes.read(buf).expect("error while copying body data to buffer");
+                                count += newcount;
+                                Ok(newcount)
+                            })
+                            .expect("failed to set up read function for curl");
 
                     transfer.into()
                 }

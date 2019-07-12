@@ -1,4 +1,7 @@
-use super::{FromRequest, Request};
+use super::{
+    FromRequest,
+    Request,
+};
 
 macro_rules! reqwest_impl {
     { $C:ty, $B:ty } => {
