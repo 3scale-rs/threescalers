@@ -1,3 +1,29 @@
+use curl::easy::List;
+use http_types::header::HeaderValue;
+
+// Common functions for curl clients
+fn headermap_to_curl_list(headermap: &http_types::HeaderMap<HeaderValue>) -> List {
+    let mut list = List::new();
+    headermap.iter().for_each(|(k, v)| {
+                        // this will scan for printable US-ASCII only bytes
+                        let header = v.to_str()
+                                      .map(|hval| [k.as_str(), ": ", hval].concat())
+                                      .expect("found header value without a displayable US-ASCII string");
+                        list.append(header.as_str())
+                            .expect("failed to allocate node for curl list of headers");
+                    });
+    list
+}
+
+pub fn copy_data(offset: &mut usize, source: &[u8], dst: &mut [u8]) -> usize {
+    use std::io::Read;
+
+    let mut bytes = &source[*offset..];
+    let newcount = bytes.read(dst).expect("error while copying body data to buffer");
+    *offset += newcount;
+    newcount
+}
+
 #[cfg(feature = "curl-easy")]
 pub use easy::CurlEasyClient;
 
@@ -9,26 +35,9 @@ mod easy {
     };
     use curl::easy::{
         Easy,
-        List,
         Transfer,
     };
-    use http_types::{
-        header::HeaderValue,
-        Method,
-    };
-
-    fn headermap_to_curl_list(headermap: &http_types::HeaderMap<HeaderValue>) -> List {
-        let mut list = List::new();
-        headermap.iter().for_each(|(k, v)| {
-                            // this will scan for printable US-ASCII only bytes
-                            let header = v.to_str()
-                                          .map(|hval| [k.as_str(), ": ", hval].concat())
-                                          .expect("found header value without a displayable US-ASCII string");
-                            list.append(header.as_str())
-                                .expect("failed to allocate node for curl list of headers");
-                        });
-        list
-    }
+    use http_types::Method;
 
     #[derive(Debug)]
     pub enum CurlEasyClient<'easy, 'data> {
@@ -91,7 +100,7 @@ mod easy {
             }.expect("failed to set up the request's method");
 
             self.url(uri.as_str()).expect("error setting up url for curl");
-            let mut headerlist = headermap_to_curl_list(&r.headers);
+            let mut headerlist = super::headermap_to_curl_list(&r.headers);
             // libcurl by default adds "Expect: 100-continue" to send bodies, which would break us
             headerlist.append("Expect:")
                       .expect("failed to allocate node for curl list of headers");
@@ -103,8 +112,6 @@ mod easy {
 
             match body {
                 Some(_) => {
-                    use std::io::Read;
-
                     let body = r.parameters.into_inner();
                     // this sets the Content-Length - some servers will misbehave without this
                     self.post_field_size(body.len() as u64)
@@ -113,11 +120,7 @@ mod easy {
 
                     let mut count = 0usize;
                     transfer.read_function(move |buf| {
-                                let mut bytes = &body.as_bytes()[count..];
-                                let newcount =
-                                    bytes.read(buf).expect("error while copying body data to buffer");
-                                count += newcount;
-                                Ok(newcount)
+                                Ok(super::copy_data(&mut count, &body.as_bytes(), buf))
                             })
                             .expect("failed to set up read function for curl");
 
