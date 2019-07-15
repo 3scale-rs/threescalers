@@ -26,6 +26,13 @@ pub fn copy_data(offset: &mut usize, source: &[u8], dst: &mut [u8]) -> usize {
 
 #[cfg(feature = "curl-easy")]
 mod easy;
+#[cfg(feature = "curl-easy2")]
+mod easy2;
 
 #[cfg(feature = "curl-easy")]
 pub use easy::CurlEasyClient;
+#[cfg(feature = "curl-easy2")]
+pub use easy2::{
+    BodyHandle,
+    SetBody,
+};
