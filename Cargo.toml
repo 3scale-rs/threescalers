@@ -62,7 +62,7 @@ name = "reqwest-report"
 required-features = ["reqwest-sync"]
 
 [[example]]
-name = "curl-report"
+name = "curl-easy-report"
 required-features = ["curl-easy"]
 
 [dev-dependencies]

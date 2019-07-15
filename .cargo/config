@@ -2,4 +2,4 @@
 # run examples in cargo by prefixing the example name with "ex-":
 # cargo ex-reqwest-report
 ex-reqwest-report = "run --example reqwest-report --features reqwest-sync"
-ex-curl-report = "run --example curl-report --features curl-easy"
+ex-curl-easy-report = "run --example curl-easy-report --features curl-easy"
