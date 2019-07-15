@@ -10,7 +10,7 @@ use std::{
     iter::FromIterator,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Extensions(HashMap<String, String>);
 
 impl Extensions {
@@ -22,8 +22,8 @@ impl Extensions {
         self.0.insert(param.into(), value.into())
     }
 
-    pub fn remove<R: AsRef<String>, S: Into<R>>(&mut self, param: S) -> Option<String> {
-        self.0.remove(param.into().as_ref())
+    pub fn remove<S: AsRef<str>>(&mut self, param: S) -> Option<String> {
+        self.0.remove(param.as_ref())
     }
 
     pub fn iter(&self) -> Iter<String, String> {
