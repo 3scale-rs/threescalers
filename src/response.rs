@@ -30,7 +30,7 @@ impl From<PeriodTime> for SystemTime {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Default)]
 pub struct MetricsHierarchy(HashMap<String, Vec<String>>);
 
 impl MetricsHierarchy {
