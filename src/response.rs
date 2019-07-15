@@ -9,7 +9,13 @@ use serde::{
     Deserialize,
 };
 use std::{
-    collections::HashMap,
+    collections::{
+        hash_map::{
+            Iter,
+            IterMut,
+        },
+        HashMap,
+    },
     fmt,
     str::FromStr,
     time::SystemTime,
@@ -30,7 +36,9 @@ impl From<PeriodTime> for SystemTime {
     }
 }
 
-#[derive(Debug, PartialEq, Default)]
+// We might want to consider moving from a HashMap to a Vec, as most of the time this hashmap will
+// contain a (very) small number of entries.
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct MetricsHierarchy(HashMap<String, Vec<String>>);
 
 impl MetricsHierarchy {
@@ -38,8 +46,39 @@ impl MetricsHierarchy {
         Self(HashMap::new())
     }
 
-    pub fn insert(&mut self, parent_metric: String, children_metrics: Vec<String>) {
-        self.0.insert(parent_metric, children_metrics);
+    pub fn insert<S: Into<String>, V: Into<Vec<String>>>(&mut self,
+                                                         parent_metric: S,
+                                                         children_metrics: V)
+                                                         -> Option<Vec<String>> {
+        self.0.insert(parent_metric.into(), children_metrics.into())
+    }
+
+    pub fn remove<S: AsRef<str>>(&mut self, parent_metric: S) -> Option<Vec<String>> {
+        self.0.remove(parent_metric.as_ref())
+    }
+
+    pub fn iter(&self) -> Iter<String, Vec<String>> {
+        self.0.iter()
+    }
+
+    pub fn iter_mut(&mut self) -> IterMut<String, Vec<String>> {
+        self.0.iter_mut()
+    }
+
+    pub fn into_inner(self) -> HashMap<String, Vec<String>> {
+        self.0
+    }
+
+    /// Retrieves the parent metric of a given metric. Note that Apisonator metrics have 0 or
+    /// 1 parent metrics, not multiple.
+    pub fn parent_of(&self, metric_name: &str) -> Option<&str> {
+        self.iter().find_map(|(parent, v)| {
+                       if v.iter().any(|child| metric_name == child) {
+                           Some(parent.as_str())
+                       } else {
+                           None
+                       }
+                   })
     }
 }
 
@@ -176,7 +215,9 @@ impl<'de> Visitor<'de> for MetricsHierarchyVisitor {
             let val: HashMap<String, String> = map.next_value()?;
 
             let parent_metric = val["name"].to_owned();
-            let children_metrics = val["children"].split(' ').map(|s| s.to_owned()).collect();
+            let children_metrics = val["children"].split(' ')
+                                                  .map(|s| s.to_owned())
+                                                  .collect::<Vec<_>>();
 
             hierarchy.insert(parent_metric, children_metrics);
         }
@@ -314,9 +355,8 @@ mod tests {
         let parsed_auth = Authorization::from_str(xml_response).unwrap();
 
         let mut expected_hierarchy = MetricsHierarchy::new();
-        expected_hierarchy.insert(String::from("parent1"), vec![String::from("child1"),
-                                                                String::from("child2")]);
-        expected_hierarchy.insert(String::from("parent2"), vec![String::from("child3")]);
+        expected_hierarchy.insert("parent1", vec![String::from("child1"), String::from("child2")]);
+        expected_hierarchy.insert("parent2", vec![String::from("child3")]);
 
         let expected_auth = Authorization { authorized:        true,
                                             plan:              String::from("Basic"),
@@ -365,5 +405,35 @@ mod tests {
             ]), };
 
         assert_eq!(parsed_auth, expected_auth);
+    }
+
+    #[test]
+    fn metrics_hierarchy_remove() {
+        let mut hierarchy = MetricsHierarchy::new();
+
+        hierarchy.insert("parent1", vec![String::from("child1"), String::from("child2")]);
+        hierarchy.insert("parent2", vec![String::from("child3")]);
+
+        hierarchy.remove("parent1");
+
+        let mut expected_hierarchy = MetricsHierarchy::new();
+
+        expected_hierarchy.insert("parent2", vec![String::from("child3")]);
+
+        assert_eq!(hierarchy, expected_hierarchy);
+    }
+
+    #[test]
+    fn metrics_hierarchy_parent_of() {
+        let a_parent = "a_parent";
+        let mut hierarchy = MetricsHierarchy::new();
+
+        hierarchy.insert(a_parent, vec![String::from("child1"), String::from("child2")]);
+        hierarchy.insert("parent2", vec![String::from("child3")]);
+
+        assert_eq!(hierarchy.parent_of("child2"), Some(a_parent));
+        assert_eq!(hierarchy.parent_of("child3"), Some("parent2"));
+        assert_eq!(hierarchy.parent_of("nonchild"), None);
+        assert_eq!(hierarchy.parent_of(a_parent), None);
     }
 }
