@@ -9,25 +9,25 @@ use curl::easy::{
 };
 use http_types::Method;
 
-// This trait has to be implemented by the Easy2<H>'s H generic type, as well as curl's Handler.
-// This is because the body of POST requests needs to be pushed from the storage associated to
-// that type, so this trait provides a method to store the body String and a method to copy data
-// by providing just an offset as multiple calls to push the data happen.
+/// This trait has to be implemented by the Easy2<H>'s H generic type, as well as curl's Handler.
+/// This is because the body of POST requests needs to be pushed from the storage associated to
+/// that type, so this trait provides a method to store the body String and a method to copy data
+/// by providing just an offset as multiple calls to push the data happen.
 pub trait SetBody: Handler {
-    // Static method to copy data over starting from an offset, return the number of bytes that
-    // were copied and updating the offset.
+    /// Static method to copy data over starting from an offset, return the number of bytes that
+    /// were copied and updating the offset.
     #[inline]
     fn copy_data(offset: &mut usize, source: &[u8], dest: &mut [u8]) -> usize {
         super::copy_data(offset, source, dest)
     }
 
-    // This method should store the body data to be pushed by this request.
+    /// This method should store the body data to be pushed by this request.
     fn set_body(&mut self, body: String);
 }
 
-// A default type that works with the requirements of conversion between a Request and a set up
-// Easy2 client by implementing the SetBody trait.
-#[derive(Debug)]
+/// A default type that works with the requirements of conversion between a Request and a set up
+/// Easy2 client by implementing the SetBody trait.
+#[derive(Debug, Clone)]
 pub struct BodyHandle {
     count: usize,
     body:  Option<String>,
@@ -39,6 +39,7 @@ impl BodyHandle {
                body:  None, }
     }
 
+    /// A method to set/unset the body. To be used from a SetBody trait impl.
     pub fn with_body(&mut self, body: Option<String>) {
         self.body = body;
     }
