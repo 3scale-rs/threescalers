@@ -29,13 +29,13 @@ pub mod timestamp;
 
 use std::borrow::Cow;
 
-// This is the trait to be implemented by structures that can set parameters to API calls.
-//
-// Note that the 'this lifetime requires a lifetime long enough to keep keys and values.
-// The keys can potentially be modified to adapt them to the specific call circumstances,
-// so in order to take advantage of single allocations when modifications are not needed,
-// a copy-on-write type is used. Values are always kept as is, so just references are ok.
-pub trait ToParams<'k, 'v, 'this, E>
+/// This is the trait to be implemented by structures that can set parameters to API calls.
+///
+/// Note that the 'this lifetime requires a lifetime long enough to keep keys and values.
+/// The keys can potentially be modified to adapt them to the specific call circumstances,
+/// so in order to take advantage of single allocations when modifications are not needed,
+/// a copy-on-write type is used. Values are always kept as is, so just references are ok.
+pub(crate) trait ToParams<'k, 'v, 'this, E>
     where 'this: 'k + 'v,
           E: Extend<(Cow<'k, str>, &'v str)>
 {
