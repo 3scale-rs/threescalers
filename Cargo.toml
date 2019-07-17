@@ -35,7 +35,8 @@ reqwest-all = ["reqwest-async", "reqwest-sync"]
 # Add in conversions for curl's crate types
 curl-types = ["curl"]
 curl-easy = ["curl-types"]
-curl-all = ["curl-easy"]
+curl-easy2 = ["curl-types"]
+curl-all = ["curl-easy", "curl-easy2"]
 # Include all supported clients types
 all-types = ["http-types", "reqwest-all", "curl-all"]
 # Response parsing
@@ -61,8 +62,12 @@ name = "reqwest-report"
 required-features = ["reqwest-sync"]
 
 [[example]]
-name = "curl-report"
+name = "curl-easy-report"
 required-features = ["curl-easy"]
+
+[[example]]
+name = "curl-easy2-report"
+required-features = ["curl-easy2"]
 
 [dev-dependencies]
 serde_json = "^1.0"
