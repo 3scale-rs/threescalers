@@ -3,7 +3,10 @@ use crate::{
     api_call::ApiCall,
     version::*,
 };
-use http_types::Request as HTTPRequest;
+use http_types::{
+    request::Builder,
+    Request as HTTPRequest,
+};
 
 impl From<Request> for HTTPRequest<String> {
     fn from(r: Request) -> Self {
@@ -25,11 +28,11 @@ impl From<&ApiCall<'_, '_, '_, '_, '_, '_>> for HTTPRequest<String> {
     }
 }
 
-use super::FromRequest;
+use super::SetupRequest;
 use crate::Never;
 
-impl FromRequest<Never> for HTTPRequest<String> {
-    fn from_request(r: Request, _params: Never) -> Self {
-        Self::from(r)
+impl SetupRequest<'_, Never, HTTPRequest<String>> for Builder {
+    fn setup_request(&mut self, r: Request, _params: Never) -> HTTPRequest<String> {
+        HTTPRequest::from(r)
     }
 }

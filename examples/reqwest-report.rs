@@ -4,7 +4,7 @@ use threescalers::{
     credentials::*,
     extensions::Extensions,
     http::{
-        request::FromRequest,
+        request::SetupRequest,
         Request,
     },
     service::*,
@@ -69,8 +69,8 @@ fn main() -> Result<(), threescalers::errors::Error> {
 }
 
 fn run_request(request: Request) -> Result<Response, reqwest::Error> {
-    let client = Client::new();
-    let reqbuilder = RequestBuilder::from_request(request, (&client, "https://echo-api.3scale.net"));
+    let mut client = Client::new();
+    let reqbuilder = client.setup_request(request, "https://echo-api.3scale.net");
     let result = exec_request(reqbuilder);
     show_response(result)
 }

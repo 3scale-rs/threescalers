@@ -52,8 +52,13 @@ impl Request {
     }
 }
 
-pub trait FromRequest<P> {
-    fn from_request(r: Request, params: P) -> Self;
+/// This trait needs to be implemented by each client to set up a specific request.
+///
+/// The 'client lifetime will be useful if your Output return value needs to get hold of it. Such
+/// is the case of curl's Easy client when sending POST requests via their Transfer<'client, 'data>
+/// type, but for other clients which don't need to wrap the original client it's simply elided.
+pub trait SetupRequest<'client, P, Output> {
+    fn setup_request(&'client mut self, r: Request, params: P) -> Output;
 }
 
 impl From<&ApiCall<'_, '_, '_, '_, '_, '_>> for Request {

@@ -1,6 +1,6 @@
 use super::{
-    FromRequest,
     Request,
+    SetupRequest,
 };
 
 macro_rules! reqwest_impl {
@@ -9,13 +9,13 @@ macro_rules! reqwest_impl {
         //
         // https://a_host
         //
-        impl<URI: ToString> FromRequest<(&$C, URI)> for $B {
-            fn from_request(r: Request, params: (&$C, URI)) -> Self {
+        impl<URI: ToString> SetupRequest<'_, URI, $B> for $C {
+            fn setup_request(&mut self, r: Request, params: URI) -> $B {
                 let (uri, body) = r.parameters.uri_and_body(r.path);
-                let (client, uri_base) = params;
+                let uri_base = params;
                 let uri = uri_base.to_string() + uri.as_ref();
 
-                let rb = client.request(r.method, uri.as_str()).headers(r.headers);
+                let rb = self.request(r.method, uri.as_str()).headers(r.headers);
 
                 match body {
                     // when there is a body just consume it from the request's
