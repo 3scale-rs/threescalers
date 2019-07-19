@@ -102,14 +102,26 @@ pub enum UsageReports {
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
-#[serde(rename = "status")]
-pub struct Authorization {
-    authorized:    bool,
+pub enum Authorization {
+    #[serde(rename = "status")]
+    Ok(OkAuthorization),
+
+    #[serde(rename = "error")]
+    Denied(DeniedAuthorization),
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
+pub struct OkAuthorization {
     plan:          String,
     usage_reports: UsageReports,
 
     #[serde(rename = "hierarchy")]
     metrics_hierarchy: Option<MetricsHierarchy>,
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
+pub struct DeniedAuthorization {
+    code: String,
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
@@ -253,7 +265,10 @@ impl FromStr for Authorization {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::{
+        UsageReports::*,
+        *,
+    };
 
     #[test]
     fn parse() {
@@ -281,10 +296,9 @@ mod tests {
 
         let parsed_auth = Authorization::from_str(s).unwrap();
 
-        let expected_auth = Authorization { authorized:        true,
-                                            plan:              String::from("App Plan"),
-                                            metrics_hierarchy: None,
-                                            usage_reports:     UsageReports::UsageReports(vec![
+        let expected_auth = Authorization::Ok(OkAuthorization { plan:              String::from("App Plan"),
+                                                                metrics_hierarchy: None,
+                                                                usage_reports:     UsageReports(vec![
                 UsageReport {
                     metric: String::from("products"),
                     period: Period::Minute,
@@ -301,8 +315,22 @@ mod tests {
                     max_value: 50,
                     current_value: 0,
                 },
-            ]), };
+            ]), });
 
+        assert_eq!(parsed_auth, expected_auth);
+    }
+
+    #[test]
+    fn parse_denied_authorization() {
+        let xml_response = r##"
+        <?xml version="1.0" encoding="UTF-8"?>
+        <error code="user_key_invalid">user key "some_user_key" is invalid</error>
+        "##;
+
+        let parsed_auth = Authorization::from_str(xml_response).unwrap();
+
+        let expected_auth =
+            Authorization::Denied(DeniedAuthorization { code: String::from("user_key_invalid"), });
         assert_eq!(parsed_auth, expected_auth);
     }
 
@@ -358,10 +386,9 @@ mod tests {
         expected_hierarchy.insert("parent1", vec![String::from("child1"), String::from("child2")]);
         expected_hierarchy.insert("parent2", vec![String::from("child3")]);
 
-        let expected_auth = Authorization { authorized:        true,
-                                            plan:              String::from("Basic"),
-                                            metrics_hierarchy: Some(expected_hierarchy),
-                                            usage_reports:     UsageReports::UsageReports(vec![
+        let expected_auth = Authorization::Ok(OkAuthorization { plan:              String::from("Basic"),
+                                                                metrics_hierarchy: Some(expected_hierarchy),
+                                                                usage_reports:     UsageReports(vec![
                 UsageReport {
                     metric: String::from("parent1"),
                     period: Period::Day,
@@ -402,7 +429,7 @@ mod tests {
                     max_value: 100,
                     current_value: 10,
                 },
-            ]), };
+            ]), });
 
         assert_eq!(parsed_auth, expected_auth);
     }
