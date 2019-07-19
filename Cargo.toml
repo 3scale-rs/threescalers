@@ -2,7 +2,7 @@
 edition = "2018"
 name = "threescalers"
 description = "3scale API client library for Rust"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Alejandro Martinez Ruiz <alex@flawedcode.org>", "David Ortiz Lopez <z.david.ortiz@gmail.com>"]
 license = "Apache-2.0"
 repository = "https://github.com/3scale-rs/threescalers"
