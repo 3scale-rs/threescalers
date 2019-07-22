@@ -1,5 +1,5 @@
 #![warn(clippy::all)]
-#![cfg_attr(feature = "nightly", feature(never_type))]
+#![cfg_attr(feature = "nightly", feature(never_type), feature(non_exhaustive))]
 #![cfg_attr(all(test, feature = "nightly"), feature(test))]
 #[cfg(all(test, feature = "nightly"))]
 extern crate test;
@@ -10,11 +10,13 @@ pub type Never = !;
 #[cfg(not(feature = "nightly"))]
 pub type Never = core::convert::Infallible;
 
+// Must come in first as it exposes macros and they are only available _after_ definition
+pub mod errors;
+
 pub mod api_call;
 pub mod application;
 pub mod credentials;
 pub mod encoding;
-pub mod errors;
 pub mod extensions;
 pub mod http;
 pub mod service;
