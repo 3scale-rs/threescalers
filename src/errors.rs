@@ -1,7 +1,10 @@
-use error_chain::error_chain;
+use snafu::{Snafu};
 
-error_chain! {
-    errors {
-        // TODO: fill with our own stuff
-    }
+pub(crate) type Result<T, E = Error> = std::result::Result<T, E>;
+
+#[derive(Debug, Snafu)]
+#[snafu(visibility = "pub")]
+pub enum Error {
+    #[snafu(display("Error calling build function for builder"))]
+    BuilderPatternBuildErr,
 }

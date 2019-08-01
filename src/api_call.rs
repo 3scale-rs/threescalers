@@ -77,7 +77,7 @@ impl<'service, 'tx, 'app, 'user, 'usage, 'extensions>
     }
 
     pub fn build(&self) -> Result<ApiCall> {
-        let kind = self.kind.ok_or_else(|| "kind error".to_string())?;
+        let kind = self.kind.ok_or_else(|| BuilderPatternBuildErr)?;
         Ok(ApiCall::new(kind,
                         self.service,
                         self.transactions,
@@ -86,6 +86,7 @@ impl<'service, 'tx, 'app, 'user, 'usage, 'extensions>
 }
 
 use std::borrow::Cow;
+use crate::errors::Error::BuilderPatternBuildErr;
 
 impl<'service, 'tx: 'app + 'user + 'usage, 'app, 'user, 'usage, 'extensions>
     ApiCall<'service, 'tx, 'app, 'user, 'usage, 'extensions>
