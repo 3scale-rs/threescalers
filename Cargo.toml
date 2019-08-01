@@ -45,7 +45,6 @@ xml-response = ["serde-xml-rs", "serde", "chrono"]
 nightly = []
 
 [dependencies]
-error-chain = "^0.12"
 percent-encoding = "^1"
 snafu = "^0.4.3"
 http_types = { version = "^0.1", package = "http" }

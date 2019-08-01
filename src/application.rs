@@ -80,6 +80,33 @@ impl<'a> From<&'a str> for AppId where Self: FromStr
     }
 }
 
+
+// The commented code below wont compile with the following error:
+
+//conflicting implementations of trait `std::convert::TryFrom<&str>` for type `application::AppId`:
+//--> src/application.rs:84:1
+//|
+//84 | impl<'a> TryFrom<&'a str> for AppId
+//| ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//|
+//= note: conflicting implementation in crate `core`:
+//- impl<T, U> std::convert::TryFrom<U> for T
+//    where U: std::convert::Into<T>;
+//
+//error: aborting due to previous error
+//
+//For more information about this error, try `rustc --explain E0119`.
+//error: Could not compile `threescalers`.
+
+//impl<'a> TryFrom<&'a str> for AppId where Self: FromStr
+//{
+//    type Error = Error;
+//
+//    fn try_from(s: &'a str) -> Result<AppId> {
+//        s.parse()?
+//    }
+//}
+
 impl<'a> From<&'a str> for AppKey where Self: FromStr
 {
     fn from(s: &'a str) -> AppKey {
@@ -213,6 +240,7 @@ impl Application {
 }
 
 use std::borrow::Cow;
+use std::convert::TryFrom;
 
 impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Application
     where 'this: 'k + 'v,
