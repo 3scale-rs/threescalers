@@ -8,6 +8,23 @@ use crate::{
     user::User,
 };
 
+#[derive(Debug, Snafu)]
+#[cfg_attr(feature = "nightly", non_exhaustive)]
+pub enum ApiCallError {
+    #[snafu(display("Error building API call: {}", msg))]
+    ApiCallBuilder { msg: String },
+    #[snafu(display("Kind {} is invalid", kind))]
+    KindError { kind: i32, backtrace: Backtrace },
+    #[snafu(display("Unknown threescalers error: {}", msg))]
+    Unknown { msg: String },
+    #[cfg(not(feature = "nightly"))]
+    #[doc(hidden)]
+    __Nonexhaustive,
+}
+
+// redefining here for our own module-local error type
+pub type Result<T, E = ApiCallError> = std::result::Result<T, E>;
+
 use crate::ToParams;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -77,7 +94,7 @@ impl<'service, 'tx, 'app, 'user, 'usage, 'extensions>
     }
 
     pub fn build(&self) -> Result<ApiCall> {
-        let kind = self.kind.ok_or_else(|| "kind error".to_string())?;
+        let kind = self.kind.ok_or_else(|| err_val!(KindError { kind: 255 }))?;
         Ok(ApiCall::new(kind,
                         self.service,
                         self.transactions,
