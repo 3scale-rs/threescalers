@@ -67,7 +67,7 @@ impl<'a> TryFrom<&'a str> for AppId
 {
     type Error = ThreescalersError;
 
-    fn try_from(s: &'a str) -> Result<AppId> {
+    fn try_from(s: &'a str) -> Result<AppId, Self::Error> {
         Ok(AppId::new(s))
     }
 }
@@ -76,7 +76,7 @@ impl<'a> TryFrom<&'a str> for AppKey
 {
     type Error = ThreescalersError;
 
-    fn try_from(s: &'a str) -> Result<AppKey> {
+    fn try_from(s: &'a str) -> Result<AppKey, Self::Error> {
         Ok(AppKey::new(s))
     }
 }
@@ -179,7 +179,7 @@ impl Application {
     ///
     /// let app = Application::from_app_id_and_key("my_app_id", "my_app_key");
     /// ```
-    pub fn from_app_id_and_key<T: Into<AppId>, U: Into<AppKey>>(app_id: T, app_key: U) -> Result<Self> {
+    pub fn from_app_id_and_key<T: TryInto<AppId>, U: TryInto<AppKey>>(app_id: T, app_key: U) -> Result<Self> {
         let id = match app_id.try_into() {
             Ok(id) => id,
             Err(e) => return Err(e)
