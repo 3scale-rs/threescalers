@@ -3,7 +3,7 @@ use crate::{
     ToParams,
 };
 
-use std::str::FromStr;
+use std::convert::{TryFrom, TryInto};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct AppId(String);
@@ -13,6 +13,30 @@ pub struct AppKey(String);
 pub struct UserKey(String);
 #[derive(Debug, Clone, PartialEq)]
 pub struct OAuthToken(String);
+
+impl AppId {
+    fn new(s: &str) -> AppId {
+        AppId(String::from(s))
+    }
+}
+
+impl AppKey {
+    fn new(s: &str) -> AppKey {
+        AppKey(String::from(s))
+    }
+}
+
+impl UserKey {
+    fn new(s: &str) -> UserKey {
+        UserKey(String::from(s))
+    }
+}
+
+impl OAuthToken {
+    fn new(s: &str) -> OAuthToken {
+        OAuthToken(String::from(s))
+    }
+}
 
 // These trait impls provide a way to reference our types as &str
 impl AsRef<str> for AppId {
@@ -39,65 +63,39 @@ impl AsRef<str> for OAuthToken {
     }
 }
 
-// These trait impls provide a way to &str#parse() our Application type
-impl FromStr for AppId {
-    type Err = ThreescalersError;
-
-    fn from_str(s: &str) -> Result<AppId> {
-        Ok(AppId(s.into()))
-    }
-}
-
-impl FromStr for AppKey {
-    type Err = ThreescalersError;
-
-    fn from_str(s: &str) -> Result<AppKey> {
-        Ok(AppKey(s.into()))
-    }
-}
-
-impl FromStr for UserKey {
-    type Err = ThreescalersError;
-
-    fn from_str(s: &str) -> Result<UserKey> {
-        Ok(UserKey(s.into()))
-    }
-}
-
-impl FromStr for OAuthToken {
-    type Err = ThreescalersError;
-
-    fn from_str(s: &str) -> Result<OAuthToken> {
-        Ok(OAuthToken(s.into()))
-    }
-}
-
-// These trait impls are similar to FromStr (but are infallible)
-impl<'a> From<&'a str> for AppId where Self: FromStr
+impl<'a> TryFrom<&'a str> for AppId
 {
-    fn from(s: &'a str) -> AppId {
-        s.parse().unwrap()
+    type Error = ThreescalersError;
+
+    fn try_from(s: &'a str) -> Result<AppId> {
+        Ok(AppId::new(s))
     }
 }
 
-impl<'a> From<&'a str> for AppKey where Self: FromStr
+impl<'a> TryFrom<&'a str> for AppKey
 {
-    fn from(s: &'a str) -> AppKey {
-        s.parse().unwrap()
+    type Error = ThreescalersError;
+
+    fn try_from(s: &'a str) -> Result<AppKey> {
+        Ok(AppKey::new(s))
     }
 }
 
-impl<'a> From<&'a str> for UserKey where Self: FromStr
+impl<'a> TryFrom<&'a str> for UserKey
 {
-    fn from(s: &'a str) -> UserKey {
-        s.parse().unwrap()
+    type Error = ThreescalersError;
+
+    fn try_from(s: &'a str) -> Result<UserKey> {
+        Ok(UserKey::new(s))
     }
 }
 
-impl<'a> From<&'a str> for OAuthToken where Self: FromStr
+impl<'a> TryFrom<&'a str> for OAuthToken
 {
-    fn from(s: &'a str) -> OAuthToken {
-        s.parse().unwrap()
+    type Error = ThreescalersError;
+
+    fn try_from(s: &'a str) -> Result<OAuthToken> {
+        Ok(OAuthToken::new(s))
     }
 }
 
@@ -181,8 +179,18 @@ impl Application {
     ///
     /// let app = Application::from_app_id_and_key("my_app_id", "my_app_key");
     /// ```
-    pub fn from_app_id_and_key<T: Into<AppId>, U: Into<AppKey>>(app_id: T, app_key: U) -> Self {
-        Application::AppId(app_id.into(), Some(app_key.into()))
+    pub fn from_app_id_and_key<T: Into<AppId>, U: Into<AppKey>>(app_id: T, app_key: U) -> Result<Self> {
+        let id = match app_id.try_into() {
+            Ok(id) => id,
+            Err(e) => return Err(e)
+        };
+
+        let key = match app_key.try_into() {
+            Ok(key) => key,
+            Err(e) => return Err(e)
+        };
+
+        Ok(Application::AppId(id, Some(key)))
     }
 
     /// Creates a new `Application` from a `UserKey`.
