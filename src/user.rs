@@ -25,7 +25,7 @@ impl AsRef<str> for OAuthToken {
 
 // These trait impls provide a way to &str#parse()
 impl FromStr for UserId {
-    type Err = Error;
+    type Err = ThreescalersError;
 
     fn from_str(s: &str) -> Result<UserId> {
         Ok(UserId(s.to_owned()))
@@ -33,7 +33,7 @@ impl FromStr for UserId {
 }
 
 impl FromStr for OAuthToken {
-    type Err = Error;
+    type Err = ThreescalersError;
 
     fn from_str(s: &str) -> Result<OAuthToken> {
         Ok(OAuthToken(s.to_owned()))

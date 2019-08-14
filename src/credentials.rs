@@ -31,7 +31,7 @@ impl AsRef<str> for ServiceToken {
 
 // These trait impls provide a way to &str#parse()
 impl FromStr for ProviderKey {
-    type Err = Error;
+    type Err = ThreescalersError;
 
     fn from_str(s: &str) -> Result<ProviderKey> {
         Ok(ProviderKey(s.into()))
@@ -39,7 +39,7 @@ impl FromStr for ProviderKey {
 }
 
 impl FromStr for ServiceToken {
-    type Err = Error;
+    type Err = ThreescalersError;
 
     fn from_str(s: &str) -> Result<ServiceToken> {
         Ok(ServiceToken(s.into()))
@@ -144,7 +144,7 @@ impl AsRef<str> for ServiceId {
 }
 
 impl FromStr for ServiceId {
-    type Err = Error;
+    type Err = ThreescalersError;
 
     fn from_str(s: &str) -> Result<ServiceId> {
         Ok(ServiceId(s.into()))

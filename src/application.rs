@@ -41,7 +41,7 @@ impl AsRef<str> for OAuthToken {
 
 // These trait impls provide a way to &str#parse() our Application type
 impl FromStr for AppId {
-    type Err = Error;
+    type Err = ThreescalersError;
 
     fn from_str(s: &str) -> Result<AppId> {
         Ok(AppId(s.into()))
@@ -49,7 +49,7 @@ impl FromStr for AppId {
 }
 
 impl FromStr for AppKey {
-    type Err = Error;
+    type Err = ThreescalersError;
 
     fn from_str(s: &str) -> Result<AppKey> {
         Ok(AppKey(s.into()))
@@ -57,7 +57,7 @@ impl FromStr for AppKey {
 }
 
 impl FromStr for UserKey {
-    type Err = Error;
+    type Err = ThreescalersError;
 
     fn from_str(s: &str) -> Result<UserKey> {
         Ok(UserKey(s.into()))
@@ -65,7 +65,7 @@ impl FromStr for UserKey {
 }
 
 impl FromStr for OAuthToken {
-    type Err = Error;
+    type Err = ThreescalersError;
 
     fn from_str(s: &str) -> Result<OAuthToken> {
         Ok(OAuthToken(s.into()))
