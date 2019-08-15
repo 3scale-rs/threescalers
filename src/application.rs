@@ -14,6 +14,30 @@ pub struct UserKey(String);
 #[derive(Debug, Clone, PartialEq)]
 pub struct OAuthToken(String);
 
+impl AppId {
+    fn new(s: &str) -> AppId {
+        AppId(String::from(s))
+    }
+}
+
+impl AppKey {
+    fn new(s: &str) -> AppKey {
+        AppKey(String::from(s))
+    }
+}
+
+impl UserKey {
+    fn new(s: &str) -> UserKey {
+        UserKey(String::from(s))
+    }
+}
+
+impl OAuthToken {
+    fn new(s: &str) -> OAuthToken {
+        OAuthToken(String::from(s))
+    }
+}
+
 // These trait impls provide a way to reference our types as &str
 impl AsRef<str> for AppId {
     fn as_ref(&self) -> &str {
@@ -76,28 +100,28 @@ impl FromStr for OAuthToken {
 impl<'a> From<&'a str> for AppId where Self: FromStr
 {
     fn from(s: &'a str) -> AppId {
-        s.parse().unwrap()
+        AppId::new(s)
     }
 }
 
 impl<'a> From<&'a str> for AppKey where Self: FromStr
 {
     fn from(s: &'a str) -> AppKey {
-        s.parse().unwrap()
+        AppKey::new(s)
     }
 }
 
 impl<'a> From<&'a str> for UserKey where Self: FromStr
 {
     fn from(s: &'a str) -> UserKey {
-        s.parse().unwrap()
+        UserKey::new(s)
     }
 }
 
 impl<'a> From<&'a str> for OAuthToken where Self: FromStr
 {
     fn from(s: &'a str) -> OAuthToken {
-        s.parse().unwrap()
+        OAuthToken::new(s)
     }
 }
 
