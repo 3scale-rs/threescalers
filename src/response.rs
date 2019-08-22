@@ -193,7 +193,12 @@ impl<'de> Visitor<'de> for TimestampVisitor {
         let _key: Option<String> = map.next_key()?;
         let timestamp: String = map.next_value()?;
 
-        let dt = DateTime::parse_from_str(timestamp.as_str(), "%Y-%m-%d %H:%M:%S %z").unwrap();
+        let ts_str = timestamp.as_str();
+        let dt =
+            DateTime::parse_from_str(ts_str, "%Y-%m-%d %H:%M:%S %z").map_err(|e| {
+                de::Error::custom(format_args!("invalid timestamp {}, expected %Y-%m-%d %H:%M:%S %z: {:?}",
+                                               ts_str, e))
+            })?;
 
         Ok(PeriodTime(dt.into()))
     }
@@ -318,6 +323,38 @@ mod tests {
             ]), });
 
         assert_eq!(parsed_auth, expected_auth);
+    }
+
+    #[test]
+    fn parse_invalid_date_format() {
+        let s = r##"
+        <?xml version="1.0" encoding="UTF-8"?>
+        <status>
+            <authorized>true</authorized>
+            <plan>App Plan</plan>
+            <usage_reports>
+                <usage_report metric="products" period="minute">
+                    <period_start>05-06-2019 16:24:00 +0000</period_start>
+                    <period_end>05-06-2019 16:25:00 +0000</period_end>
+                    <max_value>5</max_value>
+                    <current_value>0</current_value>
+                </usage_report>
+                <usage_report metric="products" period="month">
+                    <period_start>2019-06-01 00:00:00 +0000</period_start>
+                    <period_end>2019-07-01 00:00:00 +0000</period_end>
+                    <max_value>50</max_value>
+                    <current_value>0</current_value>
+                </usage_report>
+            </usage_reports>
+        </status>
+        "##;
+
+        let parsed_auth = Authorization::from_str(s);
+
+        assert!(parsed_auth.is_err());
+
+        let s = format!("{}", parsed_auth.unwrap_err());
+        assert!(s.contains("invalid timestamp"));
     }
 
     #[test]
