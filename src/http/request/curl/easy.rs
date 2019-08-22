@@ -46,11 +46,7 @@ impl<'easy, 'data> CurlEasyClient<'easy, 'data> {
     }
 
     pub fn easy(&self) -> Option<&'easy Easy> {
-        if let Self::Easy(e) = self {
-            Some(e)
-        } else {
-            None
-        }
+        if let Self::Easy(e) = self { Some(e) } else { None }
     }
 }
 
