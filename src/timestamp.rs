@@ -95,49 +95,79 @@ impl TryFrom<SystemTime> for Timestamp {
 mod tests {
     use super::*;
 
-    const MAX_SECS: isize = isize::max_value();
-    const MIN_SECS: isize = isize::min_value();
+    mod helpers {
+        use super::*;
+        use std::time::{Duration, SystemTime};
 
-    fn test_offset(offset: isize) -> SystemTime {
-        use std::time::Duration;
+        pub(in super) const MAX_SECS: isize = isize::max_value();
+        pub(in super) const MIN_SECS: isize = isize::min_value();
 
-        let offset = TimestampOffsetInt::try_from(offset);
-        // barf if we cannot even represent the offset in a TimestampOffsetInt.
-        assert!(offset.is_ok());
-        let offset = offset.unwrap();
-
-        let st = if offset < 0 {
+        fn get_negative_offset_systemtime(offset: TimestampOffsetInt) -> Option<SystemTime> {
+            println!("Trying offset - {}", offset);
             // Where isize is >= TimestampOffsetInt, there is no valid abs() for the minimum value,
             // so add 1 before computing it and then subtract 1 to the unsigned type, assuming the
-            // unsigned int is at least the same width as TimestampOffsetInt. If it isn't, the test
-            // will panic.
+            // unsigned int is at least the same width as TimestampOffsetInt. If it isn't, this will
+            // panic.
             let duration_secs = AsSecsUnsignedInt::try_from((offset + 1).abs()).unwrap() - 1;
-            SystemTime::UNIX_EPOCH.checked_sub(Duration::from_secs(duration_secs))
-        } else {
+            let st = SystemTime::UNIX_EPOCH.checked_sub(Duration::from_secs(duration_secs));
+            println!("ST is {:#?}", st);
+            st
+        }
+
+        fn get_positive_offset_systemtime(offset: TimestampOffsetInt) -> Option<SystemTime> {
+            println!("Trying offset + {}", offset);
             let duration_secs = AsSecsUnsignedInt::try_from(offset).unwrap();
-            SystemTime::UNIX_EPOCH.checked_add(Duration::from_secs(duration_secs))
-        };
-        // assert we have a SystemTime
-        assert!(st.is_some());
+            let st = SystemTime::UNIX_EPOCH.checked_add(Duration::from_secs(duration_secs));
+            println!("ST is {:#?}", st);
+            st
+        }
 
-        let st = st.unwrap();
-        let ts = Timestamp::try_from(st);
-        // assert we can represent this SystemTime
-        assert!(ts.is_ok());
+        fn get_minmax_systemtime(offset: TimestampOffsetInt) -> Option<SystemTime> {
+            println!("get_min_max with offset {}", offset);
+            //let closure: fn(i64) -> Option<SystemTime>;
+            //let closure: &dyn Fn(i64) -> Option<SystemTime>;
+            //let range: std::ops::Range<i64>;
+            let (closure, mut iter): (fn(i64) -> Option<SystemTime>, Box<dyn Iterator<Item = i64>>) = if offset < 0 {
+                println!("negative");
+                (get_negative_offset_systemtime, Box::new((offset..0).into_iter()))
+            } else {
+                println!("positive {}", offset);
+                (get_positive_offset_systemtime, Box::new((0..offset).into_iter().rev()))
+            };
+            iter.find_map(|o| {
+                println!("trying {}", o);
+                closure(o)
+            })
+        }
 
-        st
+        pub(in super) fn test_offset(offset: isize) -> SystemTime {
+            let offset = TimestampOffsetInt::try_from(offset);
+            // barf if we cannot even represent the offset in a TimestampOffsetInt.
+            assert!(offset.is_ok());
+            let offset = offset.unwrap();
+
+            let st = get_minmax_systemtime(offset);
+            assert!(st.is_some());
+
+            let st = st.unwrap();
+            let ts = Timestamp::try_from(st);
+            // assert we can represent this SystemTime
+            assert!(ts.is_ok());
+
+            st
+        }
     }
 
     #[test]
     fn try_from_unreasonable_future_system_time() {
-        let st = test_offset(MAX_SECS);
+        let st = helpers::test_offset(helpers::MAX_SECS);
         // errors are returned below _only_ if st is strictly later than the Epoch
         assert!(SystemTime::UNIX_EPOCH.duration_since(st).is_err());
     }
 
     #[test]
     fn try_from_unreasonable_past_system_time() {
-        let st = test_offset(MIN_SECS);
+        let st = helpers::test_offset(helpers::MIN_SECS);
         // Ok only if Epoch is >= than st
         assert!(SystemTime::UNIX_EPOCH.duration_since(st).is_ok());
     }
