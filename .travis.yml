@@ -111,6 +111,7 @@ before_script:
           export CLIPPY=true;
         fi
       fi
+  - |
       if [[ "$TRAVIS_RUST_VERSION" == "stable" ]]; then
         echo "--== [RUSTUP] Adding rustfmt ==--";
         if rustup component add rustfmt; then
