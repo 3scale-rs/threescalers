@@ -106,10 +106,13 @@ install:
 before_script:
   - |
       if [[ "$TRAVIS_RUST_VERSION" == "nightly" ]]; then
-        echo "--== [RUSTUP] Adding clippy & rustfmt ==--";
+        echo "--== [RUSTUP] Adding clippy ==--";
         if rustup component add clippy; then
           export CLIPPY=true;
         fi
+      fi
+      if [[ "$TRAVIS_RUST_VERSION" == "stable" ]]; then
+        echo "--== [RUSTUP] Adding rustfmt ==--";
         if rustup component add rustfmt; then
           export RUSTFMT=true;
         fi
