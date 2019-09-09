@@ -1,7 +1,7 @@
 # Based on the "trust" template v0.1.2
 # https://github.com/japaric/trust/tree/v0.1.2
 
-dist: trusty
+dist: xenial
 language: rust
 services: docker
 sudo: required
@@ -51,7 +51,7 @@ matrix:
     #- env: TARGET=powerpc64-unknown-linux-gnu
     #- env: TARGET=powerpc64le-unknown-linux-gnu
     #- env: TARGET=s390x-unknown-linux-gnu DISABLE_TESTS=1
-    - env: TARGET=x86_64-unknown-linux-gnu
+    - env: TARGET=x86_64-unknown-linux-gnu LICENSE_FINDER=true
     #- env: TARGET=x86_64-unknown-linux-musl
 
     # OSX
@@ -87,6 +87,13 @@ before_install:
   - set -e
   - rustup self update
   - sudo apt-get update
+  - |
+      if [[ "${LICENSE_FINDER}" == "true" ]]; then
+        echo "--== [LICENSE_FINDER] Installing ==--" &&
+        gem install license_finder -v "= 5.10.2"
+        echo "--== [LICENSE_FINDER] Running ==--" &&
+        ci/license-check.sh
+      fi
 
 addons:
   apt:
@@ -105,14 +112,14 @@ install:
 
 before_script:
   - |
-      if [[ "$TRAVIS_RUST_VERSION" == "nightly" ]]; then
+      if [[ "${TRAVIS_RUST_VERSION}" == "nightly" ]]; then
         echo "--== [RUSTUP] Adding clippy ==--";
         if rustup component add clippy; then
           export CLIPPY=true;
         fi
       fi
   - |
-      if [[ "$TRAVIS_RUST_VERSION" == "stable" ]]; then
+      if [[ "${TRAVIS_RUST_VERSION}" == "nightly" ]]; then
         echo "--== [RUSTUP] Adding rustfmt ==--";
         if rustup component add rustfmt; then
           export RUSTFMT=true;
@@ -128,15 +135,16 @@ script:
         "TRAVIS_PULL_REQUEST  = ${TRAVIS_PULL_REQUEST}\n" \
         "TRAVIS_BRANCH        = ${TRAVIS_BRANCH}\n" \
         "CLIPPY               = ${CLIPPY}\n" \
-        "RUSTFMT              = ${RUSTFMT}\n"
+        "RUSTFMT              = ${RUSTFMT}\n" \
+        "LICENSE_FINDER       = ${LICENSE_FINDER}\n"
   - |
-      if [[ "$TRAVIS_RUST_VERSION" == "nightly" && "${RUSTFMT}" == "true" ]]; then
+      if [[ "${RUSTFMT}" == "true" ]]; then
         echo "--== [FMT] cargo fmt check ==--" &&
         cargo fmt --all -- --check
       fi
   - bash ci/script.sh
   - |
-      if [[ "$TRAVIS_RUST_VERSION" == "nightly" && "${CLIPPY}" == "true" ]]; then
+      if [[ "${CLIPPY}" == "true" ]]; then
         echo "--== [CLIPPY] Running ==--" &&
         cargo clippy
       fi
