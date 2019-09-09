@@ -1,0 +1,97 @@
+---
+- - :whitelist
+  - MIT
+  - :who: 3scale Engineering
+    :why:
+    :versions: []
+    :when: 2016-08-16 09:25:15.635515271 Z
+- - :whitelist
+  - Apache 2.0
+  - :who: 3scale Engineering
+    :why:
+    :versions: []
+    :when: 2016-08-16 09:26:31.814319646 Z
+- - :whitelist
+  - Apache-2.0
+  - :who: 3scale Engineering
+    :why:
+    :versions: []
+    :when: 2016-08-16 09:26:31.814319646 Z
+- - :whitelist
+  - MIT-LICENSE
+  - :who: 3scale Engineering
+    :why: It's the same as MIT
+    :versions: []
+    :when: 2016-08-16 09:27:49.047135842 Z
+- - :whitelist
+  - BSD
+  - :who: Jeff Kaufmann and Richard Fontana (Red Hat Legal)
+    :why:
+    :versions: []
+    :when: 2016-11-23 11:02:51.564502000 Z
+- - :whitelist
+  - New BSD
+  - :who: Jeff Kaufmann and Richard Fontana (Red Hat Legal)
+    :why:
+    :versions: []
+    :when: 2016-11-23 11:03:04.247155000 Z
+- - :whitelist
+  - Simplified BSD
+  - :who: Jeff Kaufmann and Richard Fontana (Red Hat Legal)
+    :why:
+    :versions: []
+    :when: 2016-11-23 11:03:33.341497000 Z
+- - :whitelist
+  - LGPLv2+
+  - :who: Jeff Kaufmann and Richard Fontana (Red Hat Legal)
+    :why:
+    :versions: []
+    :when: 2016-11-23 11:04:13.584885000 Z
+- - :whitelist
+  - 2-clause BSDL
+  - :who: Jeff Kaufmann and Richard Fontana (Red Hat Legal)
+    :why:
+    :versions: []
+    :when: 2016-11-23 11:04:37.776089000 Z
+- - :whitelist
+  - Unlicense
+  - :who: 3scale Engineering
+    :why: Because it is valid
+    :versions: []
+    :when: 2019-08-27 13:48:47.000488000 Z
+- - :whitelist
+  - BSL-1.0
+  - :who: 3scale Engineering
+    :why: Because it is valid
+    :versions: []
+    :when: 2019-08-27 13:48:47.000488000 Z
+- - :whitelist
+  - Unlicense OR MIT
+  - :who: 3scale Engineering
+    :why: Both license are valid
+    :versions: []
+    :when: 2019-08-27 13:48:47.000488000 Z
+- - :whitelist
+  - Apache-2.0 ,  MIT
+  - :who: 3scale Engineering
+    :why: Both license are valid
+    :versions: []
+    :when: 2019-08-27 13:48:47.000488000 Z
+- - :whitelist
+  - MIT OR Apache-2.0
+  - :who: 3scale Engineering
+    :why: Both license are valid
+    :versions: []
+    :when: 2019-08-27 13:48:47.000488000 Z
+- - :whitelist
+  - Apache-2.0 OR BSL-1.0
+  - :who: 3scale Engineering
+    :why: Both license are valid
+    :versions: []
+    :when: 2019-08-27 13:48:47.000488000 Z
+- - :approve
+  - fnv
+  - :who: 3scale Engineering
+    :why: It includes both MIT and Apache 2.0 licenses but the parsing is resulting in a "Apache-2.0 ,  MIT" match which cannot be whitelisted. Created bug report (https://github.com/pivotal/LicenseFinder/issues/616)
+    :versions: []
+    :when: 2019-08-27 13:48:47.000488000 Z
