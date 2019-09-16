@@ -161,101 +161,120 @@ mod tests {
         #[cfg(not(feature = "nightly"))]
         const MIN_SECS: TimestampOffsetInt = (MIN_HARD / RESOLUTION) + MIN_0_UNIX_EPOCH_DIFFERENTIAL;
 
-        pub const fn resolution() -> TimestampOffsetInt {
-            RESOLUTION
-        }
-
         pub const fn unix_epoch_offset_as_secs() -> TimestampOffsetInt {
             SECONDS_TO_UNIX_EPOCH
         }
 
-        pub const fn min_value() -> TimestampOffsetInt {
+        pub const fn min_secs() -> TimestampOffsetInt {
             MIN_SECS
         }
 
-        pub const fn max_value() -> TimestampOffsetInt {
-            MAX_SECS
-        }
-
         pub const fn max_secs() -> TimestampOffsetInt {
-            max_value() / resolution()
-        }
-
-        pub const fn min_secs() -> TimestampOffsetInt {
-            min_value() / resolution()
+            MAX_SECS
         }
     }
 
-    fn test_offset(offset: TimestampOffsetInt) -> SystemTime {
+    fn test_offset(offset: TimestampOffsetInt) -> Option<SystemTime> {
         use std::time::Duration;
 
         println!("*** Offset {}", offset);
-        let st = if offset < 0 {
+        let maybe_st = if offset < 0 {
             // With TimestampOffsetInt being a signed integer, the minimum value representable is
             // not representable with its unsigned counter-part, so abs() would fail for that value.
             // To avoid that we add 1 before computing it so it is representable, and then add 1 to
             // the unsigned type, assuming the unsigned type is at least the same width as
             // TimestampOffsetInt. If it isn't, the test will panic.
             let duration_secs = AsSecsUnsignedInt::try_from((offset + 1).abs()).unwrap() + 1;
+            println!("Negative offset: {} - Duration: {}", offset, duration_secs);
             SystemTime::UNIX_EPOCH.checked_sub(Duration::from_secs(duration_secs))
         } else {
             let duration_secs = AsSecsUnsignedInt::try_from(offset).unwrap();
+            println!("Positive offset: {} - Duration: {}", offset, duration_secs);
             SystemTime::UNIX_EPOCH.checked_add(Duration::from_secs(duration_secs))
         };
         // assert we have a SystemTime
-        assert!(st.is_some());
+        match maybe_st {
+            Some(st) => {
+                // assert we can represent this SystemTime
+                assert!(Timestamp::try_from(st).is_ok());
+            }
+            None => ()
+        };
 
-        let st = st.unwrap();
-        let ts = Timestamp::try_from(st);
-        // assert we can represent this SystemTime
-        assert!(ts.is_ok());
-
-        st
+        maybe_st
     }
 
     #[test]
     fn try_from_maximum_system_time() {
-        let st = test_offset(systime::max_value());
+        let target_secs = AsSecsUnsignedInt::try_from(systime::max_secs().abs()).unwrap();
+        let st = test_offset(systime::max_secs());
+
+        assert!(st.is_some());
+        let st = st.unwrap();
+
         let since_unix_epoch = st.duration_since(SystemTime::UNIX_EPOCH);
         // We only care about timestamps that can represent values after the UNIX epoch, so let's
         // require it right now and avoid treating the st <= UNIX_EPOCH case.
-        assert!(since_unix_epoch.is_ok());
-        let secs = since_unix_epoch.unwrap().as_secs();
+        let secs = match since_unix_epoch {
+            Ok(duration) => {
+                // UNIX_EPOCH is at or earlier than st
+                assert!(systime::unix_epoch_offset_as_secs() >= 0);
+                duration.as_secs()
+            },
+            Err(st_err) => {
+                assert!(systime::unix_epoch_offset_as_secs() <= 0);
+                st_err.duration().as_secs()
+            }
+        };
+
+        assert_eq!(secs, target_secs);
         assert_eq!(TimestampOffsetInt::try_from(secs).unwrap(), systime::max_secs());
     }
 
     #[test]
     fn try_from_minimum_system_time() {
-        let st = test_offset(systime::min_value());
-        let since_minimum_ts = SystemTime::UNIX_EPOCH.duration_since(st);
+        let target_secs = AsSecsUnsignedInt::try_from((systime::min_secs() + 1).abs()).unwrap() + 1;
+        let st = test_offset(systime::min_secs());
+
+        assert!(st.is_some());
+        let st = st.unwrap();
+
+        let to_unix_epoch = SystemTime::UNIX_EPOCH.duration_since(st);
         // The result will have an Ok variant only if UNIX_EPOCH is >= than st, but that's a detail
         // of the implementation. In the case st _is_ UNIX_EPOCH, it could also return an Err
         // variant with a 0 duration.
-        let duration = match since_minimum_ts {
+        let secs = match to_unix_epoch {
             Ok(duration) => {
-                assert!(systime::unix_epoch_offset_as_secs() >= 0);
-                let diff = TimestampOffsetInt::try_from(duration.as_secs());
-                assert!(diff.is_ok());
                 // The minimum value st is at or earlier than UNIX_EPOCH
-                assert_eq!(diff.unwrap(), systime::unix_epoch_offset_as_secs());
-
-                duration
+                assert!(systime::unix_epoch_offset_as_secs() >= 0);
+                duration.as_secs()
             },
             Err(st_err) => {
                 // The minimum value st is at or later than UNIX_EPOCH.
                 // (it isn't clear from the docs that being exactly UNIX_EPOCH wouldn't return Err)
-                use std::ops::Neg;
                 assert!(systime::unix_epoch_offset_as_secs() <= 0);
-                let duration = st_err.duration();
-
-                let diff = TimestampOffsetInt::try_from(duration.as_secs());
-                assert!(diff.is_ok());
-                assert_eq!(diff.unwrap().neg(), systime::unix_epoch_offset_as_secs());
-
-                duration
+                st_err.duration().as_secs()
             },
         };
 
-        assert_eq!(TimestampOffsetInt::try_from(duration.as_secs()).unwrap(), systime::min_secs());
+        assert_eq!(secs, target_secs);
+    }
+
+    #[test]
+    fn try_from_out_of_range_max_system_time() {
+        let far_in_future = systime::max_secs().saturating_add(1);
+        if far_in_future > systime::max_secs() {
+            let st = test_offset(far_in_future);
+            assert!(st.is_none());
+        }
+    }
+
+    #[test]
+    fn try_from_out_of_range_min_system_time() {
+        let far_in_past = systime::min_secs().saturating_sub(1);
+        if far_in_past < systime::min_secs() {
+            let st = test_offset(far_in_past);
+            assert!(st.is_none());
+        }
     }
 }
