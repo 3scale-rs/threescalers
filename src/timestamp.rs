@@ -3,58 +3,6 @@ use std::{
     time::SystemTime,
 };
 
-// The implementation of SystemTime has different properties according to the underlying platform.
-// This module declares MAX_SECS and MIN_SECS for usable values for an isize value.
-mod systime {
-    // A platform-specific module must define the following attributes of SystemTime:
-    //
-    // RESOLUTION: number of values in the isize type to represent one second.
-    // SECONDS_TO_UNIX_EPOCH: Seconds to add (or subtract if negative) to the timestamp of 0isize.
-    // UNSIGNED_VALUES: Set to 0 if negative values of isize are acceptable, 1 otherwise.
-
-    // SystemTime uses Windows' FILETIME structure as of 1.37.0.
-    // This structure splits time in intervals, which are defined as 100ns, so the i64 space of
-    // usable values is shrunk. Additionally, a value of 0 refers to 1601, so an offset must be
-    // added so it becomes UNIX_EPOCH.
-    #[cfg(windows)]
-    mod internals {
-        const NANOS_PER_SEC: u64 = 1_000_000_000;
-        const INTERVALS_PER_SEC: u64 = NANOS_PER_SEC / 100;
-
-        pub(in super) const RESOLUTION: isize = INTERVALS_PER_SEC as isize;
-        pub(in super) const SECONDS_TO_UNIX_EPOCH: isize = 11_644_473_600; // from 1601 to 1970
-        pub(in super) const UNSIGNED_VALUES: isize = 0;
-    }
-
-    // Most platforms won't allow negative timestamps.
-    #[cfg(not(windows))]
-    mod internals {
-        pub(in super) const RESOLUTION: isize = 1;
-        pub(in super) const SECONDS_TO_UNIX_EPOCH: isize = 0;
-        pub(in super) const UNSIGNED_VALUES: isize = 1;
-    }
-
-    use internals::{RESOLUTION, SECONDS_TO_UNIX_EPOCH, UNSIGNED_VALUES};
-
-    const MAX_0_UNIX_EPOCH_DIFFERENTIAL: isize =
-        [0, SECONDS_TO_UNIX_EPOCH][(SECONDS_TO_UNIX_EPOCH > 0) as usize];
-    const MIN_0_UNIX_EPOCH_DIFFERENTIAL: isize =
-        [0, SECONDS_TO_UNIX_EPOCH][(SECONDS_TO_UNIX_EPOCH < 0) as usize];
-    const MIN_HARD: isize = [isize::min_value(), 0isize][(UNSIGNED_VALUES > 0) as usize];
-
-    #[cfg(feature = "nightly")]
-    pub const MAX_SECS: isize = (isize::max_value() / RESOLUTION)
-        .saturating_sub(MAX_0_UNIX_EPOCH_DIFFERENTIAL);
-    #[cfg(not(feature = "nightly"))]
-    pub const MAX_SECS: isize = (isize::max_value() / RESOLUTION) - MAX_0_UNIX_EPOCH_DIFFERENTIAL;
-
-    #[cfg(feature = "nightly")]
-    pub const MIN_SECS: isize = (MIN_HARD / RESOLUTION)
-        .saturating_add(MIN_0_UNIX_EPOCH_DIFFERENTIAL);
-    #[cfg(not(feature = "nightly"))]
-    pub const MIN_SECS: isize = (MIN_HARD / RESOLUTION) + MIN_0_UNIX_EPOCH_DIFFERENTIAL;
-}
-
 /// A timestamp represented as a String. Meant to be useful just for representation in API calls.
 /// If you need to operate on this, consider using instead SystemTime or DateTime and try_from() it.
 #[derive(Clone, Debug)]
@@ -65,14 +13,6 @@ pub struct Timestamp {
 impl Timestamp {
     pub fn none() -> Option<&'static Timestamp> {
         None
-    }
-
-    pub const fn min_value() -> i64 {
-        systime::MIN_SECS as i64
-    }
-
-    pub const fn max_value() -> i64 {
-        systime::MAX_SECS as i64
     }
 
     pub fn new(ts: i64) -> Self {
@@ -119,8 +59,14 @@ impl Default for Timestamp {
 // with an i64 in practical terms, which gives us more than enough time both before and after the
 // UNIX epoch than what we could care about.
 //
-// This has to be a signed type to be able to represent dates before the UNIX epoch in exchange of
-// not being able to represent dates on or after the year 292_277_026_596.
+// This has to be a signed type to be able to represent SystemTime dates before the UNIX epoch in
+// exchange of not being able to represent dates on or after the year 292_277_026_596.
+//
+// On most platforms, Rust's SystemTime is internally represented as an unsigned int of 64 bits of
+// width, but only 63 bits are actually usable because sign is taken into consideration for checked
+// additions and subtractions. On some other platforms, most notably Windows, Rust's SystemTime can
+// represent dates before the UNIX epoch. Because of this, we can use an i64 to (as of Rust 1.37)
+// have all possible values of SystemTime translated into a (potentially negative) UNIX timestamp.
 //
 // Switch these types below to 128-bit width to avoid the Y292277026K596 problem.
 pub type TimestampOffsetInt = i64;
@@ -153,33 +99,111 @@ impl TryFrom<SystemTime> for Timestamp {
 
 #[cfg(test)]
 mod tests {
+    pub (in self) use super::TimestampOffsetInt;
     use super::*;
 
-    fn test_offset(offset: isize) -> SystemTime {
+    // The implementation of SystemTime has different properties according to the underlying platform.
+    // This module declares a few const fns to help test the SystemTime conversion.
+    mod systime {
+        pub (in self) use super::TimestampOffsetInt;
+
+        // A platform-specific module must define the following attributes of SystemTime:
+        //
+        // RESOLUTION: number of values in the TimestampOffsetInt type to represent one second.
+        // SECONDS_TO_UNIX_EPOCH: Seconds to add (or subtract if negative) to the timestamp of 0.
+        // UNSIGNED_VALUES: Set to 0 if negative values of i64 are acceptable, 1 otherwise.
+
+        // SystemTime uses Windows' FILETIME structure as of 1.37.0.
+        // This structure splits time in intervals, which are defined as 100ns, so the i64 space of
+        // usable values is shrunk. Additionally, a value of 0 refers to 1601, so an offset must be
+        // added so it becomes UNIX_EPOCH.
+        #[cfg(windows)]
+        mod internals {
+            use super::TimestampOffsetInt;
+
+            const NANOS_PER_SEC: u64 = 1_000_000_000;
+            const INTERVALS_PER_SEC: u64 = NANOS_PER_SEC / 100;
+
+            pub(in super) const RESOLUTION: TimestampOffsetInt = INTERVALS_PER_SEC as TimestampOffsetInt;
+            pub(in super) const SECONDS_TO_UNIX_EPOCH: TimestampOffsetInt = 11_644_473_600; // from 1601 to 1970
+            pub(in super) const UNSIGNED_VALUES: bool = false;
+        }
+
+        // Most platforms won't allow negative timestamps.
+        #[cfg(not(windows))]
+        mod internals {
+            use super::TimestampOffsetInt;
+
+            pub(in super) const RESOLUTION: TimestampOffsetInt = 1;
+            pub(in super) const SECONDS_TO_UNIX_EPOCH: TimestampOffsetInt = 0;
+            pub(in super) const UNSIGNED_VALUES: bool = true;
+        }
+
+        use internals::{RESOLUTION, SECONDS_TO_UNIX_EPOCH, UNSIGNED_VALUES};
+
+        const MAX_0_UNIX_EPOCH_DIFFERENTIAL: TimestampOffsetInt =
+            [0, SECONDS_TO_UNIX_EPOCH][(SECONDS_TO_UNIX_EPOCH > 0) as usize];
+        const MIN_0_UNIX_EPOCH_DIFFERENTIAL: TimestampOffsetInt =
+            [0, SECONDS_TO_UNIX_EPOCH][(SECONDS_TO_UNIX_EPOCH < 0) as usize];
+        const MIN_HARD: TimestampOffsetInt =
+            [TimestampOffsetInt::min_value(), 0][UNSIGNED_VALUES as usize];
+
+        #[cfg(feature = "nightly")]
+        const MAX_SECS: TimestampOffsetInt = (TimestampOffsetInt::max_value() / RESOLUTION)
+            .saturating_sub(MAX_0_UNIX_EPOCH_DIFFERENTIAL);
+        #[cfg(not(feature = "nightly"))]
+        const MAX_SECS: TimestampOffsetInt = (TimestampOffsetInt::max_value() / RESOLUTION)
+            - MAX_0_UNIX_EPOCH_DIFFERENTIAL;
+
+        #[cfg(feature = "nightly")]
+        const MIN_SECS: TimestampOffsetInt = (MIN_HARD / RESOLUTION)
+            .saturating_add(MIN_0_UNIX_EPOCH_DIFFERENTIAL);
+        #[cfg(not(feature = "nightly"))]
+        const MIN_SECS: TimestampOffsetInt = (MIN_HARD / RESOLUTION) + MIN_0_UNIX_EPOCH_DIFFERENTIAL;
+
+        pub const fn resolution() -> TimestampOffsetInt {
+            RESOLUTION
+        }
+
+        pub const fn unix_epoch_offset_as_secs() -> TimestampOffsetInt {
+            SECONDS_TO_UNIX_EPOCH
+        }
+
+        pub const fn min_value() -> TimestampOffsetInt {
+            MIN_SECS
+        }
+
+        pub const fn max_value() -> TimestampOffsetInt {
+            MAX_SECS
+        }
+
+        pub const fn max_secs() -> TimestampOffsetInt {
+            max_value() / resolution()
+        }
+
+        pub const fn min_secs() -> TimestampOffsetInt {
+            min_value() / resolution()
+        }
+    }
+
+    fn test_offset(offset: TimestampOffsetInt) -> SystemTime {
         use std::time::Duration;
-        println!("*** TESTING OFFSET {:?}", offset);
 
-        let offset = TimestampOffsetInt::try_from(offset);
-        // barf if we cannot even represent the offset in a TimestampOffsetInt.
-        assert!(offset.is_ok());
-        let offset = offset.unwrap();
-
+        println!("*** Offset {}", offset);
         let st = if offset < 0 {
-            // Where isize is >= TimestampOffsetInt, there is no valid abs() for the minimum value,
-            // so add 1 before computing it and then subtract 1 to the unsigned type, assuming the
-            // unsigned int is at least the same width as TimestampOffsetInt. If it isn't, the test
-            // will panic.
+            // With TimestampOffsetInt being a signed integer, the minimum value representable is
+            // not representable with its unsigned counter-part, so abs() would fail for that value.
+            // To avoid that we add 1 before computing it so it is representable, and then add 1 to
+            // the unsigned type, assuming the unsigned type is at least the same width as
+            // TimestampOffsetInt. If it isn't, the test will panic.
             let duration_secs = AsSecsUnsignedInt::try_from((offset + 1).abs()).unwrap() + 1;
-            println!("*** TESTING SUB DURATION_SECS {:?}", duration_secs);
             SystemTime::UNIX_EPOCH.checked_sub(Duration::from_secs(duration_secs))
         } else {
             let duration_secs = AsSecsUnsignedInt::try_from(offset).unwrap();
-            println!("*** TESTING ADD DURATION_SECS {:?}", duration_secs);
             SystemTime::UNIX_EPOCH.checked_add(Duration::from_secs(duration_secs))
         };
         // assert we have a SystemTime
         assert!(st.is_some());
-        println!("*** SYSTEMTIME created");
 
         let st = st.unwrap();
         let ts = Timestamp::try_from(st);
@@ -191,25 +215,47 @@ mod tests {
 
     #[test]
     fn try_from_maximum_system_time() {
-        let st = test_offset(Timestamp::max_value() as isize);
-        let since = SystemTime::UNIX_EPOCH.duration_since(st);
-        match since {
-            Ok(secs) => println!("[F] Before UNIX: {:#?}", secs.as_secs()),
-            Err(s) => println!("[F] After UNIX: {:#?}", s.duration().as_secs()),
-        };
-        // errors are returned below _only_ if st is strictly later than the Epoch
-        assert!(SystemTime::UNIX_EPOCH.duration_since(st).is_err());
+        let st = test_offset(systime::max_value());
+        let since_unix_epoch = st.duration_since(SystemTime::UNIX_EPOCH);
+        // We only care about timestamps that can represent values after the UNIX epoch, so let's
+        // require it right now and avoid treating the st <= UNIX_EPOCH case.
+        assert!(since_unix_epoch.is_ok());
+        let secs = since_unix_epoch.unwrap().as_secs();
+        assert_eq!(TimestampOffsetInt::try_from(secs).unwrap(), systime::max_secs());
     }
 
     #[test]
     fn try_from_minimum_system_time() {
-        let st = test_offset(Timestamp::min_value() as isize);
-        // Ok only if Epoch is >= than st
-        let since = SystemTime::UNIX_EPOCH.duration_since(st);
-        match since {
-            Ok(secs) => println!("[P] Before UNIX: {:#?}", secs.as_secs()),
-            Err(s) => println!("[P] After UNIX: {:#?}", s.duration().as_secs()),
+        let st = test_offset(systime::min_value());
+        let since_minimum_ts = SystemTime::UNIX_EPOCH.duration_since(st);
+        // The result will have an Ok variant only if UNIX_EPOCH is >= than st, but that's a detail
+        // of the implementation. In the case st _is_ UNIX_EPOCH, it could also return an Err
+        // variant with a 0 duration.
+        let duration = match since_minimum_ts {
+            Ok(duration) => {
+                assert!(systime::unix_epoch_offset_as_secs() >= 0);
+                let diff = TimestampOffsetInt::try_from(duration.as_secs());
+                assert!(diff.is_ok());
+                // The minimum value st is at or earlier than UNIX_EPOCH
+                assert_eq!(diff.unwrap(), systime::unix_epoch_offset_as_secs());
+
+                duration
+            },
+            Err(st_err) => {
+                // The minimum value st is at or later than UNIX_EPOCH.
+                // (it isn't clear from the docs that being exactly UNIX_EPOCH wouldn't return Err)
+                use std::ops::Neg;
+                assert!(systime::unix_epoch_offset_as_secs() <= 0);
+                let duration = st_err.duration();
+
+                let diff = TimestampOffsetInt::try_from(duration.as_secs());
+                assert!(diff.is_ok());
+                assert_eq!(diff.unwrap().neg(), systime::unix_epoch_offset_as_secs());
+
+                duration
+            },
         };
-        //assert!(since.is_ok());
+
+        assert_eq!(TimestampOffsetInt::try_from(duration.as_secs()).unwrap(), systime::min_secs());
     }
 }
