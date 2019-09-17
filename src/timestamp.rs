@@ -97,6 +97,12 @@ impl TryFrom<SystemTime> for Timestamp {
     }
 }
 
+// The tests below are mainly done to ensure any SystemTime can be represented. Since Rust's
+// SystemTime type is opaque and does not provide any guarantee about the values it can take
+// other than runtime tests, we provide some information to these tests of known platforms.
+//
+// A test failure might just mean that the platform this is being compiled for is not well
+// covered by the SystemTime internal features' description made in this module.
 #[cfg(test)]
 mod tests {
     pub (in self) use super::TimestampOffsetInt;
@@ -129,8 +135,17 @@ mod tests {
             pub(in super) const UNSIGNED_VALUES: bool = false;
         }
 
-        // Most platforms won't allow negative timestamps.
-        #[cfg(not(windows))]
+        #[cfg(unix)]
+        mod internals {
+            use super::TimestampOffsetInt;
+
+            pub(in super) const RESOLUTION: TimestampOffsetInt = 1;
+            pub(in super) const SECONDS_TO_UNIX_EPOCH: TimestampOffsetInt = 0;
+            pub(in super) const UNSIGNED_VALUES: bool = false;
+        }
+
+        // Most other platforms won't allow negative timestamps.
+        #[cfg(all(not(unix), not(windows)))]
         mod internals {
             use super::TimestampOffsetInt;
 
@@ -146,7 +161,7 @@ mod tests {
         const MIN_0_UNIX_EPOCH_DIFFERENTIAL: TimestampOffsetInt =
             [0, SECONDS_TO_UNIX_EPOCH][(SECONDS_TO_UNIX_EPOCH < 0) as usize];
         const MIN_HARD: TimestampOffsetInt =
-            [TimestampOffsetInt::min_value(), 0][UNSIGNED_VALUES as usize];
+            [TimestampOffsetInt::min_value() + 1, 0][UNSIGNED_VALUES as usize];
 
         #[cfg(feature = "nightly")]
         const MAX_SECS: TimestampOffsetInt = (TimestampOffsetInt::max_value() / RESOLUTION)
@@ -174,14 +189,23 @@ mod tests {
         }
     }
 
-    // Helper to promote signed integer to unsigned absolute values
-    fn abs_promotion(ts: TimestampOffsetInt) -> AsSecsUnsignedInt {
+    // Helper to promote signed integer to unsigned absolute values for durations as seconds
+    fn as_duration_secs(ts: TimestampOffsetInt) -> AsSecsUnsignedInt {
         // With TimestampOffsetInt being a signed integer, the minimum value representable is
         // not representable as an absolute positive value within that type, so abs() would fail for
-        // that value. To avoid that we add 1 before computing it so it is representable, and then
-        // promote it to an unsigned type, then add 1 to the unsigned value to restore the original
-        // magnitude. This assumes the unsigned type is at least the same width as TimestampOffsetInt.
-        // If it isn't, the function will panic in cases where the values are too big.
+        // that value. To avoid that we can add 1 before computing it so it is representable, and
+        // then promote it to an unsigned type, then add 1 to the unsigned value to restore the
+        // original magnitude.
+        //
+        // This assumes the unsigned type is at least the same width as TimestampOffsetInt. If it
+        // isn't, the function will panic in cases where the values are too big.
+        //
+        // Note that another way to write this in one line is:
+        //
+        // ts.wrapping_abs() as AsSecsUnsignedInt
+        //
+        // However, that would silently shrink the value if the target type width was lower than the
+        // original without us noticing.
         if ts < 0 {
             AsSecsUnsignedInt::try_from((ts + 1).abs()).unwrap() + 1
         } else {
@@ -192,14 +216,11 @@ mod tests {
     fn test_offset(offset: TimestampOffsetInt) -> Option<SystemTime> {
         use std::time::Duration;
 
-        println!("*** Offset {}", offset);
         let maybe_st = if offset < 0 {
-            let duration_secs = abs_promotion(offset);
-            println!("Negative offset: {} - Duration: {}", offset, duration_secs);
+            let duration_secs = as_duration_secs(offset);
             SystemTime::UNIX_EPOCH.checked_sub(Duration::from_secs(duration_secs))
         } else {
             let duration_secs = AsSecsUnsignedInt::try_from(offset).unwrap();
-            println!("Positive offset: {} - Duration: {}", offset, duration_secs);
             SystemTime::UNIX_EPOCH.checked_add(Duration::from_secs(duration_secs))
         };
 
@@ -216,7 +237,7 @@ mod tests {
 
     #[test]
     fn try_from_maximum_system_time() {
-        let target_secs = abs_promotion(systime::max_secs());
+        let target_secs = as_duration_secs(systime::max_secs());
         let st = test_offset(systime::max_secs());
 
         assert!(st.is_some());
@@ -243,7 +264,7 @@ mod tests {
 
     #[test]
     fn try_from_minimum_system_time() {
-        let target_secs = abs_promotion(systime::min_secs());
+        let target_secs = as_duration_secs(systime::min_secs());
         let st = test_offset(systime::min_secs());
 
         assert!(st.is_some());
@@ -273,6 +294,7 @@ mod tests {
     #[test]
     fn try_from_out_of_range_max_system_time() {
         let far_in_future = systime::max_secs().saturating_add(1);
+        // if we could actually get a timestamp integer above the maximum, check it does not work
         if far_in_future > systime::max_secs() {
             let st = test_offset(far_in_future);
             assert!(st.is_none());
@@ -281,8 +303,8 @@ mod tests {
 
     #[test]
     fn try_from_out_of_range_min_system_time() {
-        // TODO apparently I can create negative ts's in Linux?
-        let far_in_past = systime::min_secs().saturating_sub(10000000);
+        let far_in_past = systime::min_secs().saturating_sub(1);
+        // if we could actually get a timestamp integer below the minimum, check it does not work
         if far_in_past < systime::min_secs() {
             let st = test_offset(far_in_past);
             assert!(st.is_none());
