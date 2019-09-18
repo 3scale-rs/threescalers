@@ -138,15 +138,18 @@ script:
         "RUSTFMT              = ${RUSTFMT}\n" \
         "LICENSE_FINDER       = ${LICENSE_FINDER}\n"
   - |
-      if [[ "${RUSTFMT}" == "true" ]]; then
-        echo "--== [FMT] cargo fmt check ==--" &&
-        cargo fmt --all -- --check
-      fi
-  - bash ci/script.sh
-  - |
       if [[ "${CLIPPY}" == "true" ]]; then
         echo "--== [CLIPPY] Running ==--" &&
         cargo clippy
+      fi
+  - bash ci/script.sh
+  - |
+      if [[ "${RUSTFMT}" == "true" ]]; then
+        echo "--== [FMT] cargo fmt check ==--";
+        if ! cargo fmt --all -- --check; then
+          echo "*** WARNING: rustfmt failed! ****";
+          export RUSTFMT_FAILED=true
+        fi
       fi
 
 after_script: set +e
@@ -179,6 +182,10 @@ after_success:
         echo "--== [KCOV] Uploading ==--" &&
         bash <(curl -s https://codecov.io/bash) &&
         echo "Uploaded code coverage"
+      fi
+  - |
+      if [[ "${RUSTFMT_FAILED}" == "true" ]]; then
+        echo "*** WARNING: rustfmt failed!"
       fi
 
 # we don't have a deploy phase
