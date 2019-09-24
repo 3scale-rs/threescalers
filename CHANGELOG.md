@@ -2,6 +2,21 @@
 
 Notable changes to threescalers will be tracked in this document.
 
+## 0.3.0 - 2019-09-24
+
+### Added
+
+- The dependencies for this project are checked by LicenseFinder to be free
+  software licenses compatible with this project (ie. many/most of them, it's
+  a non comprehensive list so far). [#56](https://github.com/3scale-rs/threescalers/pull/56)
+
+### Changed
+
+- The date parsing for XML responses now returns an error to the caller rather
+  than panicking/aborting. [#55](https://github.com/3scale-rs/threescalers/pull/55)
+- [**Breaking change**] The `Timestamp` type now supports `SystemTime` types from
+  before the UNIX epoch on systems that support those. [#55](https://github.com/3scale-rs/threescalers/pull/55)
+
 ## 0.2.0 - 2019-07-19
 
 ### Added
