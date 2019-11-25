@@ -21,7 +21,7 @@ fn main() -> Result<(), threescalers::errors::Error> {
     let creds = Credentials::ServiceToken(ServiceToken::from("12[3]token"));
     let svc = Service::new("svc123", creds);
     let uks = ["userkey_1", "userkey_2", "userkey_3", "userkey 4", "userkey 5"];
-    let apps = uks.into_iter()
+    let apps = uks.iter()
                   .map(|uk| Application::from(UserKey::from(*uk)))
                   .collect::<Vec<_>>();
 
