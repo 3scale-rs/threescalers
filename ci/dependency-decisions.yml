@@ -56,37 +56,43 @@
 - - :permit
   - Unlicense
   - :who: 3scale Engineering
-    :why: Because it is valid
+    :why: License is valid
     :versions: []
     :when: 2019-08-27 13:48:47.000488000 Z
 - - :permit
   - BSL-1.0
   - :who: 3scale Engineering
-    :why: Because it is valid
+    :why: License is valid
     :versions: []
     :when: 2019-08-27 13:48:47.000488000 Z
 - - :permit
   - Unlicense OR MIT
   - :who: 3scale Engineering
-    :why: Both license are valid
+    :why: Both licenses are valid
     :versions: []
     :when: 2019-08-27 13:48:47.000488000 Z
 - - :permit
   - Apache-2.0 ,  MIT
   - :who: 3scale Engineering
-    :why: Both license are valid
+    :why: Both licenses are valid
     :versions: []
     :when: 2019-08-27 13:48:47.000488000 Z
 - - :permit
   - MIT OR Apache-2.0
   - :who: 3scale Engineering
-    :why: Both license are valid
+    :why: Both licenses are valid
+    :versions: []
+    :when: 2019-08-27 13:48:47.000488000 Z
+- - :permit
+  - Apache-2.0 OR MIT
+  - :who: 3scale Engineering
+    :why: Both licenses are valid
     :versions: []
     :when: 2019-08-27 13:48:47.000488000 Z
 - - :permit
   - Apache-2.0 OR BSL-1.0
   - :who: 3scale Engineering
-    :why: Both license are valid
+    :why: Both licenses are valid
     :versions: []
     :when: 2019-08-27 13:48:47.000488000 Z
 - - :approve
