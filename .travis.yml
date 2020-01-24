@@ -90,7 +90,7 @@ before_install:
   - |
       if [[ "${LICENSE_FINDER}" == "true" ]]; then
         echo "--== [LICENSE_FINDER] Installing ==--" &&
-        gem install license_finder -v "= 5.10.2"
+        gem install license_finder -N -v "~> 6"
         echo "--== [LICENSE_FINDER] Running ==--" &&
         ci/license-check.sh
       fi
