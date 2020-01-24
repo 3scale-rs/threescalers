@@ -1,5 +1,6 @@
 #![warn(clippy::all)]
 #![cfg_attr(feature = "nightly",
+            feature(never_type),
             feature(const_saturating_int_methods))]
 #![cfg_attr(all(test, feature = "nightly"), feature(test))]
 #[cfg(all(test, feature = "nightly"))]
