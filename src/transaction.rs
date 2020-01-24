@@ -10,7 +10,7 @@ use super::{
 pub struct Transaction<'app, 'user, 'usage, 'ts> {
     application: &'app Application,
     user:        Option<&'user User>,
-    usage:       Option<&'usage Usage>,
+    usage:       Option<&'usage Usage<'usage>>,
     timestamp:   Option<&'ts Timestamp>,
 }
 
