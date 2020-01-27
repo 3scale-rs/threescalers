@@ -37,9 +37,13 @@ fn main() -> Result<(), threescalers::errors::Error> {
                   ("metric41", 41),
                   ("metric42", 42),
                   ("metric51", 51),
-                  ("metric52", 52)].chunks(2)
-                                   .map(|metrics_and_values| Usage::new(metrics_and_values))
+                  ("metric52", 52)].iter()
+                                   .map(|m| (m.0, format!("{}", m.1)))
                                    .collect::<Vec<_>>();
+
+    let usages = usages.chunks(2)
+                       .map(|metrics_and_values| Usage::from(metrics_and_values))
+                       .collect::<Vec<_>>();
 
     println!("Usages: {:#?}", usages);
 
