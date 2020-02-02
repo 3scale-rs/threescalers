@@ -2,6 +2,20 @@
 
 Notable changes to threescalers will be tracked in this document.
 
+## 0.4.0 - 2020-02-02
+
+### Changed
+
+- The Usage type now tracks string slices rather than cloning them. Currently this
+  means that users will need to pass in usage data already as string slices rather
+  than integer types, though helpers or a Cow type might be added later on. This
+  is internally represented as a vector that the caller can access. [#63](https://github.com/3scale-rs/threescalers/pull/63)
+
+### Fixed
+
+- Replace uses of the method [T]::into_iter() with [T]::iter(). This was deprecated
+  in Rust 1.41.0. [#59](https://github.com/3scale-rs/threescalers/pull/59)
+
 ## 0.3.0 - 2019-09-24
 
 ### Added
