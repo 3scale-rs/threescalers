@@ -46,7 +46,7 @@ nightly = []
 
 [dependencies]
 error-chain = "^0.12"
-percent-encoding = "^1"
+percent-encoding = "^2"
 http_types = { version = "^0.2", package = "http" }
 reqwest = { version = "^0.10", optional = true }
 curl = { version = "^0.4", optional = true }
