@@ -10,6 +10,9 @@ readme = "README.md"
 keywords = ["3scale", "api-management", "api", "apisonator"]
 categories = ["api-bindings"]
 exclude = [
+    ".rls.toml",
+    ".rustfmt.toml",
+    ".gitignore",
     "bors.toml",
     ".appveyor.yml",
     ".travis.yml",
