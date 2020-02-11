@@ -12,7 +12,7 @@ impl From<Request> for HTTPRequest<String> {
     fn from(r: Request) -> Self {
         let (uri, body) = r.parameters.uri_and_body(r.path);
         let body = body.unwrap_or("").to_owned();
-        let mut rb = HTTPRequest::builder();
+        let rb = HTTPRequest::builder();
 
         rb.header("User-Agent", USER_AGENT)
           .method(r.method)
