@@ -2,6 +2,18 @@
 
 Notable changes to threescalers will be tracked in this document.
 
+## 0.5.0 - 2020-02-11
+
+### Changed
+
+- [__BREAKING__] Support for http 0.1 and reqwest 0.9 series has been dropped in favor
+  of the http 0.2 and reqwest 0.10 series. ([#66](https://github.com/3scale-rs/threescalers/pull/66))
+- Depend internally on percent_encoding 0.2. ([#65](https://github.com/3scale-rs/threescalers/pull/65))
+
+### Compatibility
+
+- This release is a breaking change from the 0.4 series.
+
 ## 0.4.0 - 2020-02-02
 
 ### Changed
