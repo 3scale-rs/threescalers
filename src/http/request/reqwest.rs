@@ -29,6 +29,6 @@ macro_rules! reqwest_impl {
 }
 
 #[cfg(feature = "reqwest-async")]
-reqwest_impl!(reqwest::r#async::Client, reqwest::r#async::RequestBuilder);
-#[cfg(feature = "reqwest-sync")]
 reqwest_impl!(reqwest::Client, reqwest::RequestBuilder);
+#[cfg(feature = "reqwest-sync")]
+reqwest_impl!(reqwest::blocking::Client, reqwest::blocking::RequestBuilder);

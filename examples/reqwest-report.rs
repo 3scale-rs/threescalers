@@ -12,7 +12,7 @@ use threescalers::{
     usage::Usage,
 };
 
-use reqwest::{
+use reqwest::blocking::{
     Client,
     RequestBuilder,
     Response,
@@ -88,7 +88,8 @@ fn show_response(res: Result<Response, reqwest::Error>) -> Result<Response, reqw
     match res {
         Ok(mut response) => {
             println!("*** SUCCESS ***\n{:#?}", response);
-            let jsonval = response.json::<serde_json::Value>().unwrap();
+            // Response#json consumes the response in reqwest 0.10+, so use serde_json directly
+            let jsonval = serde_json::from_reader::<&mut Response, serde_json::Value>(&mut response).unwrap();
             println!("*** BODY ***\n{}",
                      serde_json::to_string_pretty(&jsonval).unwrap());
             Ok(response)
