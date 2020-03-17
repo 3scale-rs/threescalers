@@ -33,7 +33,7 @@ pub struct ApiCall<'service, 'tx, 'app, 'user, 'usage, 'extensions> {
     kind:         Kind,
     service:      &'service Service,
     transactions: &'tx [Transaction<'app, 'user, 'usage, 'tx>],
-    extensions:   Option<&'extensions Extensions>,
+    extensions:   Option<&'extensions Extensions<'extensions>>,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -41,7 +41,7 @@ pub struct Builder<'service, 'tx, 'app, 'user, 'usage, 'extensions> {
     service:      &'service Service,
     kind:         Option<Kind>,
     transactions: &'tx [Transaction<'app, 'user, 'usage, 'tx>],
-    extensions:   Option<&'extensions Extensions>,
+    extensions:   Option<&'extensions Extensions<'extensions>>,
 }
 
 // TODO: we can improve this with a state machine of types so that we are required to set svc, app,
