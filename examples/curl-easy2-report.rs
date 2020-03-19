@@ -2,7 +2,7 @@ use threescalers::{
     api_call::*,
     application::*,
     credentials::*,
-    extensions::Extensions,
+    extensions::*,
     http::{
         request::SetupRequest,
         Request,
@@ -52,9 +52,9 @@ fn main() -> Result<(), threescalers::errors::Error> {
                    .map(|(a, u)| Transaction::new(a, None, Some(u), Some(&ts)))
                    .collect::<Vec<_>>();
 
-    let mut extensions = Extensions::new();
-    extensions.insert("no_body", "1");
-    extensions.insert("testing[=]", "0[=:=]0");
+    let extensions = Extensions::new().no_body()
+                                      .push(Extension::Hierarchy)
+                                      .push_other("testing[=]".into(), "0[=:=]0".into());
     let mut apicall = ApiCall::builder(&svc);
     let apicall = apicall.transactions(&txns)
                          .extensions(&extensions)
