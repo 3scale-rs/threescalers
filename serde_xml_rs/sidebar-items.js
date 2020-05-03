@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["ErrorKind","The kind of an error."]],"mod":[["de",""],["ser",""]],"struct":[["Error","The Error type."],["EventReader","A wrapper around an `std::io::Read` instance which provides pull-based XML parsing."],["ParserConfig","Parser configuration structure."]]});

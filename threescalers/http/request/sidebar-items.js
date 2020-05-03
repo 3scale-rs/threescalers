@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Request",""]],"trait":[["SetupRequest","This trait needs to be implemented by each client to set up a specific request."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Timestamp","A timestamp represented as a String. Meant to be useful just for representation in API calls. If you need to operate on this, consider using instead SystemTime or DateTime and try_from() it."]],"type":[["AsSecsUnsignedInt",""],["TimestampOffsetInt",""]]});
