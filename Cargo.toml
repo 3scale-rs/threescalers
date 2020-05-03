@@ -44,8 +44,6 @@ curl-all = ["curl-easy", "curl-easy2"]
 all-types = ["http-types", "reqwest-all", "curl-all"]
 # Response parsing
 xml-response = ["serde-xml-rs", "serde", "chrono"]
-# Internal feature, auto-enabled via build.rs when using nightly
-nightly = []
 
 [dependencies]
 error-chain = "^0.12"
