@@ -2,6 +2,16 @@
 
 Notable changes to threescalers will be tracked in this document.
 
+## 0.6.0 - 2020-05-03
+
+### Changed
+
+- [__BREAKING__] Introduce typed extensions. ([#67](https://github.com/3scale-rs/threescalers/pull/67))
+
+### Compatibility
+
+- This release is a breaking change from the 0.5 series if you use extensions.
+
 ## 0.5.0 - 2020-02-11
 
 ### Changed
