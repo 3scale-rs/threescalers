@@ -1,9 +1,9 @@
+use alloc::borrow::Cow;
 use percent_encoding::{
     utf8_percent_encode,
     AsciiSet,
     CONTROLS,
 };
-use std::borrow::Cow;
 
 const QUERY_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>');
 const DEFAULT_ENCODE_SET: &AsciiSet = &QUERY_ENCODE_SET.add(b'`').add(b'?').add(b'{').add(b'}');

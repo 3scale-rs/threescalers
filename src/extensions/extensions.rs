@@ -1,7 +1,17 @@
-use std::{
+use alloc::{
     borrow::Cow,
-    iter::FromIterator,
-    vec::IntoIter,
+    string::{
+        String,
+        ToString,
+    },
+    vec::{
+        IntoIter,
+        Vec,
+    },
+};
+use core::iter::{
+    FromIterator,
+    IntoIterator,
 };
 
 use super::Extension;

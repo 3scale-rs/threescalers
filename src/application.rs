@@ -2,8 +2,8 @@ use crate::{
     errors::*,
     ToParams,
 };
-
-use std::str::FromStr;
+use alloc::string::String;
+use core::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct AppId(String);
@@ -212,7 +212,7 @@ impl Application {
     }
 }
 
-use std::borrow::Cow;
+use alloc::borrow::Cow;
 
 impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Application
     where 'this: 'k + 'v,
@@ -238,6 +238,7 @@ impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Application
 #[cfg(test)]
 mod tests {
     use super::*;
+    use alloc::vec::Vec;
 
     #[test]
     fn convert_application_from_app_id() {

@@ -10,6 +10,8 @@ use crate::{
 
 use crate::ToParams;
 
+use alloc::vec::Vec;
+
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Kind {
     Authorize,
@@ -85,7 +87,7 @@ impl<'service, 'tx, 'app, 'user, 'usage, 'extensions>
     }
 }
 
-use std::borrow::Cow;
+use alloc::borrow::Cow;
 
 impl<'service, 'tx: 'app + 'user + 'usage, 'app, 'user, 'usage, 'extensions>
     ApiCall<'service, 'tx, 'app, 'user, 'usage, 'extensions>

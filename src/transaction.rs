@@ -43,7 +43,7 @@ impl<'app, 'user, 'usage, 'ts> Transaction<'app, 'user, 'usage, 'ts> {
     }
 }
 
-use std::borrow::Cow;
+use alloc::borrow::Cow;
 
 impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Timestamp
     where 'this: 'k + 'v,

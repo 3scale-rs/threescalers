@@ -1,16 +1,19 @@
+use alloc::{
+    borrow::Cow,
+    string::String,
+    vec::Vec,
+};
+use core::{
+    iter::Map,
+    slice::Iter,
+};
 use http_types::Method;
-use std::borrow::Cow;
 
 #[derive(Clone, Debug)]
 pub enum Parameters {
     Query(String),
     Body(String),
 }
-
-use std::{
-    iter::Map,
-    slice::Iter,
-};
 
 // This newtype is currently only used internally here, but we might want to move it elsewhere where
 // it could be more useful because of genericity. We could also aim at reducing the amount of

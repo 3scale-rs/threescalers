@@ -2,8 +2,11 @@ use crate::{
     errors::*,
     ToParams,
 };
-
-use std::str::FromStr;
+use alloc::{
+    borrow::Cow,
+    string::String,
+};
+use core::str::FromStr;
 
 #[derive(Debug)]
 pub struct UserId(String);
@@ -114,8 +117,6 @@ impl User {
     }
 }
 
-use std::borrow::Cow;
-
 impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for User
     where 'this: 'k + 'v,
           E: Extend<(Cow<'k, str>, &'v str)>
@@ -135,6 +136,7 @@ impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for User
 #[cfg(test)]
 mod tests {
     use super::*;
+    use alloc::vec::Vec;
 
     #[test]
     fn transforms_user_id_into_params() {

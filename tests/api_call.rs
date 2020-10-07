@@ -6,7 +6,8 @@ use threescalers::{
     user::*,
 };
 
-use std::collections::HashMap;
+// TODO move to no_std
+use alloc::collections::BTreeMap;
 
 use crate::helpers::*;
 use threescalers::transaction::Transaction;
@@ -22,7 +23,7 @@ fn returns_auth_request_from_service_id_pkey_and_app_id() {
     let txn = [Transaction::new(&app, None, None, None)];
     let call = ApiCall::new(Kind::Authorize, &service, &txn, None);
 
-    let mut expected_params = HashMap::new();
+    let mut expected_params = BTreeMap::new();
     expected_params.insert("provider_key", provider_key);
     expected_params.insert("service_id", service_id);
     expected_params.insert("app_id", app_id);
@@ -31,7 +32,7 @@ fn returns_auth_request_from_service_id_pkey_and_app_id() {
 
     //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(&call.params()));
+    assert_eq!(expected_params, vec_to_map(&call.params()));
 }
 
 #[test]
@@ -47,7 +48,7 @@ fn returns_auth_request_from_service_id_pkey_app_id_and_user_id() {
     let txn = [Transaction::new(&app, Some(&user), None, None)];
     let call = ApiCall::new(Kind::Authorize, &service, &txn, None);
 
-    let mut expected_params = HashMap::new();
+    let mut expected_params = BTreeMap::new();
     expected_params.insert("provider_key", provider_key);
     expected_params.insert("service_id", service_id);
     expected_params.insert("app_id", app_id);
@@ -57,7 +58,7 @@ fn returns_auth_request_from_service_id_pkey_app_id_and_user_id() {
 
     //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(&call.params()));
+    assert_eq!(expected_params, vec_to_map(&call.params()));
 }
 
 #[test]
@@ -73,7 +74,7 @@ fn returns_auth_request_from_service_id_pkey_app_id_and_oauth_user() {
     let txn = [Transaction::new(&app, Some(&user), None, None)];
     let call = ApiCall::new(Kind::Authorize, &service, &txn, None);
 
-    let mut expected_params = HashMap::new();
+    let mut expected_params = BTreeMap::new();
     expected_params.insert("provider_key", provider_key);
     expected_params.insert("service_id", service_id);
     expected_params.insert("app_id", app_id);
@@ -83,7 +84,7 @@ fn returns_auth_request_from_service_id_pkey_app_id_and_oauth_user() {
 
     //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/oauth_authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(&call.params()));
+    assert_eq!(expected_params, vec_to_map(&call.params()));
 }
 
 #[test]
@@ -98,7 +99,7 @@ fn returns_auth_request_from_service_id_pkey_app_id_and_app_key() {
     let txn = [Transaction::new(&app, None, None, None)];
     let call = ApiCall::new(Kind::Authorize, &service, &txn, None);
 
-    let mut expected_params = HashMap::new();
+    let mut expected_params = BTreeMap::new();
     expected_params.insert("provider_key", provider_key);
     expected_params.insert("service_id", service_id);
     expected_params.insert("app_id", app_id);
@@ -108,7 +109,7 @@ fn returns_auth_request_from_service_id_pkey_app_id_and_app_key() {
 
     //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(&call.params()));
+    assert_eq!(expected_params, vec_to_map(&call.params()));
 }
 
 #[test]
@@ -125,7 +126,7 @@ fn returns_auth_request_from_service_id_pkey_app_id_app_key_and_user_id() {
     let txn = [Transaction::new(&app, Some(&user), None, None)];
     let call = ApiCall::new(Kind::Authorize, &service, &txn, None);
 
-    let mut expected_params = HashMap::new();
+    let mut expected_params = BTreeMap::new();
     expected_params.insert("provider_key", provider_key);
     expected_params.insert("service_id", service_id);
     expected_params.insert("app_id", app_id);
@@ -136,7 +137,7 @@ fn returns_auth_request_from_service_id_pkey_app_id_app_key_and_user_id() {
 
     //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(&call.params()));
+    assert_eq!(expected_params, vec_to_map(&call.params()));
 }
 
 #[test]
@@ -153,7 +154,7 @@ fn returns_auth_request_from_service_id_pkey_app_id_app_key_and_oauth_user() {
     let txn = [Transaction::new(&app, Some(&user), None, None)];
     let call = ApiCall::new(Kind::Authorize, &service, &txn, None);
 
-    let mut expected_params = HashMap::new();
+    let mut expected_params = BTreeMap::new();
     expected_params.insert("provider_key", provider_key);
     expected_params.insert("service_id", service_id);
     expected_params.insert("app_id", app_id);
@@ -164,7 +165,7 @@ fn returns_auth_request_from_service_id_pkey_app_id_app_key_and_oauth_user() {
 
     //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/oauth_authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(&call.params()));
+    assert_eq!(expected_params, vec_to_map(&call.params()));
 }
 
 #[test]
@@ -178,7 +179,7 @@ fn returns_auth_request_from_service_id_pkey_and_user_key() {
     let txn = [Transaction::new(&app, None, None, None)];
     let call = ApiCall::new(Kind::Authorize, &service, &txn, None);
 
-    let mut expected_params = HashMap::new();
+    let mut expected_params = BTreeMap::new();
     expected_params.insert("provider_key", provider_key);
     expected_params.insert("service_id", service_id);
     expected_params.insert("user_key", user_key);
@@ -187,7 +188,7 @@ fn returns_auth_request_from_service_id_pkey_and_user_key() {
 
     //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(&call.params()));
+    assert_eq!(expected_params, vec_to_map(&call.params()));
 }
 
 #[test]
@@ -203,7 +204,7 @@ fn returns_auth_request_from_service_id_pkey_user_key_and_user_id() {
     let txn = [Transaction::new(&app, Some(&user), None, None)];
     let call = ApiCall::new(Kind::Authorize, &service, &txn, None);
 
-    let mut expected_params = HashMap::new();
+    let mut expected_params = BTreeMap::new();
     expected_params.insert("provider_key", provider_key);
     expected_params.insert("service_id", service_id);
     expected_params.insert("user_key", user_key);
@@ -213,7 +214,7 @@ fn returns_auth_request_from_service_id_pkey_user_key_and_user_id() {
 
     //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(&call.params()));
+    assert_eq!(expected_params, vec_to_map(&call.params()));
 }
 
 #[test]
@@ -229,7 +230,7 @@ fn returns_auth_request_from_service_id_pkey_user_key_and_oauth_user() {
     let txn = [Transaction::new(&app, Some(&user), None, None)];
     let call = ApiCall::new(Kind::Authorize, &service, &txn, None);
 
-    let mut expected_params = HashMap::new();
+    let mut expected_params = BTreeMap::new();
     expected_params.insert("provider_key", provider_key);
     expected_params.insert("service_id", service_id);
     expected_params.insert("user_key", user_key);
@@ -239,7 +240,7 @@ fn returns_auth_request_from_service_id_pkey_user_key_and_oauth_user() {
 
     //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/oauth_authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(&call.params()));
+    assert_eq!(expected_params, vec_to_map(&call.params()));
 }
 
 #[test]
@@ -253,7 +254,7 @@ fn returns_auth_request_from_service_id_pkey_and_oauth_token() {
     let txn = [Transaction::new(&app, None, None, None)];
     let call = ApiCall::new(Kind::Authorize, &service, &txn, None);
 
-    let mut expected_params = HashMap::new();
+    let mut expected_params = BTreeMap::new();
     expected_params.insert("provider_key", provider_key);
     expected_params.insert("service_id", service_id);
     expected_params.insert("access_token", oauth_token);
@@ -262,7 +263,7 @@ fn returns_auth_request_from_service_id_pkey_and_oauth_token() {
 
     //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/oauth_authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(&call.params()));
+    assert_eq!(expected_params, vec_to_map(&call.params()));
 }
 
 #[test]
@@ -278,7 +279,7 @@ fn returns_auth_request_from_service_id_pkey_oauth_token_and_user_id() {
     let txn = [Transaction::new(&app, Some(&user), None, None)];
     let call = ApiCall::new(Kind::Authorize, &service, &txn, None);
 
-    let mut expected_params = HashMap::new();
+    let mut expected_params = BTreeMap::new();
     expected_params.insert("provider_key", provider_key);
     expected_params.insert("service_id", service_id);
     expected_params.insert("access_token", oauth_token);
@@ -288,7 +289,7 @@ fn returns_auth_request_from_service_id_pkey_oauth_token_and_user_id() {
 
     //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/oauth_authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(&call.params()));
+    assert_eq!(expected_params, vec_to_map(&call.params()));
 }
 
 #[test]
@@ -309,7 +310,7 @@ fn returns_auth_request_from_service_id_token_and_app_id() {
     let txn = [Transaction::new(&app, None, None, None)];
     let call = ApiCall::new(Kind::Authorize, &service, &txn, None);
 
-    let mut expected_params = HashMap::new();
+    let mut expected_params = BTreeMap::new();
     expected_params.insert("service_token", service_token);
     expected_params.insert("service_id", service_id);
     expected_params.insert("app_id", app_id);
@@ -318,7 +319,7 @@ fn returns_auth_request_from_service_id_token_and_app_id() {
 
     //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(&call.params()));
+    assert_eq!(expected_params, vec_to_map(&call.params()));
 }
 
 #[test]
@@ -334,7 +335,7 @@ fn returns_auth_request_from_service_id_token_app_id_and_user_id() {
     let txn = [Transaction::new(&app, Some(&user), None, None)];
     let call = ApiCall::new(Kind::Authorize, &service, &txn, None);
 
-    let mut expected_params = HashMap::new();
+    let mut expected_params = BTreeMap::new();
     expected_params.insert("service_token", service_token);
     expected_params.insert("service_id", service_id);
     expected_params.insert("app_id", app_id);
@@ -344,7 +345,7 @@ fn returns_auth_request_from_service_id_token_app_id_and_user_id() {
 
     //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(&call.params()));
+    assert_eq!(expected_params, vec_to_map(&call.params()));
 }
 
 #[test]
@@ -360,7 +361,7 @@ fn returns_auth_request_from_service_id_token_app_id_and_oauth_user() {
     let txn = [Transaction::new(&app, Some(&user), None, None)];
     let call = ApiCall::new(Kind::Authorize, &service, &txn, None);
 
-    let mut expected_params = HashMap::new();
+    let mut expected_params = BTreeMap::new();
     expected_params.insert("service_token", service_token);
     expected_params.insert("service_id", service_id);
     expected_params.insert("app_id", app_id);
@@ -370,7 +371,7 @@ fn returns_auth_request_from_service_id_token_app_id_and_oauth_user() {
 
     //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/oauth_authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(&call.params()));
+    assert_eq!(expected_params, vec_to_map(&call.params()));
 }
 
 #[test]
@@ -385,7 +386,7 @@ fn returns_auth_request_from_service_id_token_app_id_and_app_key() {
     let txn = [Transaction::new(&app, None, None, None)];
     let call = ApiCall::new(Kind::Authorize, &service, &txn, None);
 
-    let mut expected_params = HashMap::new();
+    let mut expected_params = BTreeMap::new();
     expected_params.insert("service_token", service_token);
     expected_params.insert("service_id", service_id);
     expected_params.insert("app_id", app_id);
@@ -395,7 +396,7 @@ fn returns_auth_request_from_service_id_token_app_id_and_app_key() {
 
     //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(&call.params()));
+    assert_eq!(expected_params, vec_to_map(&call.params()));
 }
 
 #[test]
@@ -412,7 +413,7 @@ fn returns_auth_request_from_service_id_token_app_id_app_key_and_user_id() {
     let txn = [Transaction::new(&app, Some(&user), None, None)];
     let call = ApiCall::new(Kind::Authorize, &service, &txn, None);
 
-    let mut expected_params = HashMap::new();
+    let mut expected_params = BTreeMap::new();
     expected_params.insert("service_token", service_token);
     expected_params.insert("service_id", service_id);
     expected_params.insert("app_id", app_id);
@@ -423,7 +424,7 @@ fn returns_auth_request_from_service_id_token_app_id_app_key_and_user_id() {
 
     //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(&call.params()));
+    assert_eq!(expected_params, vec_to_map(&call.params()));
 }
 
 #[test]
@@ -440,7 +441,7 @@ fn returns_auth_request_from_service_id_token_app_id_app_key_and_oauth_user() {
     let txn = [Transaction::new(&app, Some(&user), None, None)];
     let call = ApiCall::new(Kind::Authorize, &service, &txn, None);
 
-    let mut expected_params = HashMap::new();
+    let mut expected_params = BTreeMap::new();
     expected_params.insert("service_token", service_token);
     expected_params.insert("service_id", service_id);
     expected_params.insert("app_id", app_id);
@@ -451,7 +452,7 @@ fn returns_auth_request_from_service_id_token_app_id_app_key_and_oauth_user() {
 
     //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/oauth_authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(&call.params()));
+    assert_eq!(expected_params, vec_to_map(&call.params()));
 }
 
 #[test]
@@ -465,7 +466,7 @@ fn returns_auth_request_from_service_id_token_and_user_key() {
     let txn = [Transaction::new(&app, None, None, None)];
     let call = ApiCall::new(Kind::Authorize, &service, &txn, None);
 
-    let mut expected_params = HashMap::new();
+    let mut expected_params = BTreeMap::new();
     expected_params.insert("service_token", service_token);
     expected_params.insert("service_id", service_id);
     expected_params.insert("user_key", user_key);
@@ -474,7 +475,7 @@ fn returns_auth_request_from_service_id_token_and_user_key() {
 
     //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(&call.params()));
+    assert_eq!(expected_params, vec_to_map(&call.params()));
 }
 
 #[test]
@@ -490,7 +491,7 @@ fn returns_auth_request_from_service_id_token_user_key_and_user_id() {
     let txn = [Transaction::new(&app, Some(&user), None, None)];
     let call = ApiCall::new(Kind::Authorize, &service, &txn, None);
 
-    let mut expected_params = HashMap::new();
+    let mut expected_params = BTreeMap::new();
     expected_params.insert("service_token", service_token);
     expected_params.insert("service_id", service_id);
     expected_params.insert("user_key", user_key);
@@ -500,7 +501,7 @@ fn returns_auth_request_from_service_id_token_user_key_and_user_id() {
 
     //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(&call.params()));
+    assert_eq!(expected_params, vec_to_map(&call.params()));
 }
 
 #[test]
@@ -516,7 +517,7 @@ fn returns_auth_request_from_service_id_token_user_key_and_oauth_user() {
     let txn = [Transaction::new(&app, Some(&user), None, None)];
     let call = ApiCall::new(Kind::Authorize, &service, &txn, None);
 
-    let mut expected_params = HashMap::new();
+    let mut expected_params = BTreeMap::new();
     expected_params.insert("service_token", service_token);
     expected_params.insert("service_id", service_id);
     expected_params.insert("user_key", user_key);
@@ -526,7 +527,7 @@ fn returns_auth_request_from_service_id_token_user_key_and_oauth_user() {
 
     //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/oauth_authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(&call.params()));
+    assert_eq!(expected_params, vec_to_map(&call.params()));
 }
 
 #[test]
@@ -540,7 +541,7 @@ fn returns_auth_request_from_service_id_token_and_oauth_token() {
     let txn = [Transaction::new(&app, None, None, None)];
     let call = ApiCall::new(Kind::Authorize, &service, &txn, None);
 
-    let mut expected_params = HashMap::new();
+    let mut expected_params = BTreeMap::new();
     expected_params.insert("service_token", service_token);
     expected_params.insert("service_id", service_id);
     expected_params.insert("access_token", oauth_token);
@@ -549,7 +550,7 @@ fn returns_auth_request_from_service_id_token_and_oauth_token() {
 
     //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/oauth_authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(&call.params()));
+    assert_eq!(expected_params, vec_to_map(&call.params()));
 }
 
 #[test]
@@ -565,7 +566,7 @@ fn returns_auth_request_from_service_id_token_oauth_token_and_user_id() {
     let txn = [Transaction::new(&app, Some(&user), None, None)];
     let call = ApiCall::new(Kind::Authorize, &service, &txn, None);
 
-    let mut expected_params = HashMap::new();
+    let mut expected_params = BTreeMap::new();
     expected_params.insert("service_token", service_token);
     expected_params.insert("service_id", service_id);
     expected_params.insert("access_token", oauth_token);
@@ -575,7 +576,7 @@ fn returns_auth_request_from_service_id_token_oauth_token_and_user_id() {
 
     //assert_eq!("GET", request.method());
     //assert_eq!("/transactions/oauth_authorize.xml", request.endpoint());
-    assert_eq!(expected_params, vec_to_hash(&call.params()));
+    assert_eq!(expected_params, vec_to_map(&call.params()));
 }
 
 #[test]
@@ -586,13 +587,13 @@ fn returns_auth_request_from_service_id_token_oauth_token_and_oauth_user() {
 }
 
 mod helpers {
-    use std::{
+    use alloc::{
         borrow::Cow,
-        collections::HashMap,
+        collections::BTreeMap,
     };
 
-    pub fn vec_to_hash<'a, V: Copy>(vec: &'a Vec<(Cow<str>, V)>) -> HashMap<&'a str, V> {
-        let mut h: HashMap<&str, V> = HashMap::new();
+    pub fn vec_to_map<'a, V: Copy>(vec: &'a Vec<(Cow<str>, V)>) -> BTreeMap<&'a str, V> {
+        let mut h: BTreeMap<&str, V> = BTreeMap::new();
         for (k, v) in vec.iter() {
             h.insert(k.as_ref(), *v);
         }

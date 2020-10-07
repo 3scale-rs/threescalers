@@ -5,6 +5,7 @@ use crate::{
     },
     ToParams,
 };
+use alloc::borrow::Cow;
 
 #[derive(Debug)]
 pub struct Service {
@@ -30,8 +31,6 @@ impl Service {
     }
 }
 
-use std::borrow::Cow;
-
 impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Service
     where 'this: 'k + 'v,
           E: Extend<(Cow<'k, str>, &'v str)>
@@ -50,6 +49,7 @@ impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Service
 #[cfg(test)]
 mod service_tests {
     use super::*;
+    use alloc::vec::Vec;
 
     #[test]
     fn transforms_service_id_and_key_into_params() {
@@ -77,7 +77,7 @@ mod service_tests {
         service.to_params(&mut result);
 
         let expected: Vec<(Cow<str>, &str)> =
-            vec![("service_id".into(), service_id), ("service_token".into(), token),];
+            vec![("service_id".into(), service_id), ("service_token".into(), token)];
         assert_eq!(expected, result);
     }
 }

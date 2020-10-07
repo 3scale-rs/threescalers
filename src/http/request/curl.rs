@@ -16,6 +16,7 @@ fn headermap_to_curl_list(headermap: &http_types::HeaderMap<HeaderValue>) -> Lis
 }
 
 pub fn copy_data(offset: &mut usize, source: &[u8], dst: &mut [u8]) -> usize {
+    // TODO move to no_std
     use std::io::Read;
 
     let mut bytes = &source[*offset..];

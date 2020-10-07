@@ -1,4 +1,5 @@
 use crate::ToParams;
+use alloc::vec::Vec;
 
 #[derive(Debug, Clone)]
 pub struct MetricUsage<'m>(&'m str, &'m str);
@@ -52,7 +53,7 @@ impl<'m> Usage<'m> {
     }
 }
 
-use std::borrow::Cow;
+use alloc::borrow::Cow;
 
 impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Usage<'this>
     where 'this: 'k + 'v,

@@ -78,15 +78,15 @@ fn run_request(request: Request) -> Result<(), curl::Error> {
     show_response(client, result)
 }
 
-fn exec_request<H: std::fmt::Debug>(curlc: &Easy2<H>) -> Result<(), curl::Error> {
+fn exec_request<H: core::fmt::Debug>(curlc: &Easy2<H>) -> Result<(), curl::Error> {
     println!("Client Easy2: {:#?}", curlc);
     curlc.perform()
 }
 
 // Not looking directly at the response but using the verbose mode.
-fn show_response<H: std::fmt::Debug>(curlc: Easy2<H>,
-                                     res: Result<(), curl::Error>)
-                                     -> Result<(), curl::Error> {
+fn show_response<H: core::fmt::Debug>(curlc: Easy2<H>,
+                                      res: Result<(), curl::Error>)
+                                      -> Result<(), curl::Error> {
     match res {
         Ok(_) => {
             println!("*** SUCCESS ***\n{:#?}", curlc);

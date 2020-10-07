@@ -1,7 +1,7 @@
-use std::{
-    convert::TryFrom,
-    time::SystemTime,
-};
+use alloc::string::String;
+use core::convert::TryFrom;
+// TODO: move to non_std?
+use std::time::SystemTime;
 
 /// A timestamp represented as a String. Meant to be useful just for representation in API calls.
 /// If you need to operate on this, consider using instead SystemTime or DateTime and try_from() it.
@@ -88,7 +88,7 @@ impl TryFrom<SystemTime> for Timestamp {
             // internal integer type (ie. signed ints can always represent all their positive values
             // as negative ones).
             Err(e) => {
-                use std::ops::Neg;
+                use core::ops::Neg;
                 TimestampOffsetInt::try_from(e.duration().as_secs())?.neg()
             }
         };
@@ -218,7 +218,7 @@ mod tests {
     }
 
     fn test_offset(offset: TimestampOffsetInt) -> Option<SystemTime> {
-        use std::time::Duration;
+        use core::time::Duration;
 
         let maybe_st = if offset < 0 {
             let duration_secs = as_duration_secs(offset);

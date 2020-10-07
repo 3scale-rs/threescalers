@@ -1,3 +1,9 @@
+use alloc::{
+    borrow::Cow,
+    vec::Vec,
+};
+use http_types::Method;
+
 use crate::{
     api_call::{
         Kind::*,
@@ -25,9 +31,6 @@ pub struct Request {
     pub parameters: Parameters,
     pub headers:    http_types::HeaderMap,
 }
-
-use http_types::Method;
-use std::borrow::Cow;
 
 impl Request {
     pub fn endpoint(kind: Kind,

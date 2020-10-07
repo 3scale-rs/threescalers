@@ -3,7 +3,8 @@ use crate::{
     ToParams,
 };
 
-use std::str::FromStr;
+use alloc::string::String;
+use core::str::FromStr;
 
 #[derive(Debug)]
 pub struct ProviderKey(String);
@@ -114,7 +115,7 @@ impl Credentials {
     }
 }
 
-use std::borrow::Cow;
+use alloc::borrow::Cow;
 
 impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Credentials
     where 'this: 'k + 'v,

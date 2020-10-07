@@ -1,10 +1,14 @@
 #![warn(clippy::all)]
+#![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(feature = "nightly",
             feature(never_type),
             feature(const_saturating_int_methods))]
 #![cfg_attr(all(test, feature = "nightly"), feature(test))]
 #[cfg(all(test, feature = "nightly"))]
 extern crate test;
+
+#[macro_use]
+extern crate alloc;
 
 // Define a never type useful for some traits (ie. SetupRequest)
 #[cfg(feature = "nightly")]
@@ -29,7 +33,7 @@ pub mod version;
 pub mod response;
 pub mod timestamp;
 
-use std::borrow::Cow;
+use alloc::borrow::Cow;
 
 /// This is the trait to be implemented by structures that can set parameters to API calls.
 ///

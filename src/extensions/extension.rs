@@ -1,4 +1,10 @@
-use std::borrow::Cow;
+use alloc::{
+    borrow::Cow,
+    string::{
+        String,
+        ToString,
+    },
+};
 
 #[non_exhaustive]
 #[derive(Debug, Clone, PartialEq)]
