@@ -26,8 +26,10 @@ codecov = { repository = "3scale-rs/threescalers" }
 maintenance = { status = "actively-developed" }
 
 [features]
-default = ["http-types", "xml-response"]
+default = ["std", "http-types", "xml-response"]
 
+# std
+std = []
 # Add in conversions for http's crate types
 http-types = []
 # Add in conversions for reqwest's crate types
