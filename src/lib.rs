@@ -1,15 +1,14 @@
 #![warn(clippy::all)]
-#![cfg_attr(feature = "nightly",
-            feature(never_type),
-            feature(const_saturating_int_methods))]
-#![cfg_attr(all(test, feature = "nightly"), feature(test))]
-#[cfg(all(test, feature = "nightly"))]
+#![cfg_attr(feature_gate_never_type, feature(never_type))]
+#![cfg_attr(feature_gate_const_saturating_int_methods, feature(const_saturating_int_methods))]
+#![cfg_attr(feature_gate_test, feature(test))]
+#[cfg(all(test, has_test))]
 extern crate test;
 
 // Define a never type useful for some traits (ie. SetupRequest)
-#[cfg(feature = "nightly")]
+#[cfg(feature_gate_never_type)]
 pub type Never = !;
-#[cfg(not(feature = "nightly"))]
+#[cfg(not(has_never_type))]
 pub type Never = core::convert::Infallible;
 
 pub mod api_call;

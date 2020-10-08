@@ -118,7 +118,7 @@ impl Parameters {
     }
 }
 
-#[cfg(all(test, feature = "nightly"))]
+#[cfg(all(test, has_nightly))]
 mod benches {
     use super::*;
     use test::Bencher;
