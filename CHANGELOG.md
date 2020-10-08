@@ -2,6 +2,13 @@
 
 Notable changes to threescalers will be tracked in this document.
 
+## 0.6.1 - 2020-10-08
+
+### Compatibility
+
+- This release is again usable with newer (and hopefully older) nightlies and makes
+  use of new facilities on 1.47.0. ([#70](https://github.com/3scale-rs/threescalers/pull/70))
+
 ## 0.6.0 - 2020-05-03
 
 ### Changed
