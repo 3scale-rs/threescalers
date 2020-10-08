@@ -167,18 +167,30 @@ mod tests {
         const MIN_HARD: TimestampOffsetInt =
             [TimestampOffsetInt::min_value() + 1, 0][UNSIGNED_VALUES as usize];
 
-        #[cfg(feature = "nightly")]
-        const MAX_SECS: TimestampOffsetInt =
-            (TimestampOffsetInt::max_value() / RESOLUTION).saturating_sub(MAX_0_UNIX_EPOCH_DIFFERENTIAL);
-        #[cfg(not(feature = "nightly"))]
-        const MAX_SECS: TimestampOffsetInt =
-            (TimestampOffsetInt::max_value() / RESOLUTION) - MAX_0_UNIX_EPOCH_DIFFERENTIAL;
+        #[cfg(has_const_saturating_int_methods)]
+        mod maxmin_secs {
+            use super::*;
 
-        #[cfg(feature = "nightly")]
-        const MIN_SECS: TimestampOffsetInt =
-            (MIN_HARD / RESOLUTION).saturating_add(MIN_0_UNIX_EPOCH_DIFFERENTIAL);
-        #[cfg(not(feature = "nightly"))]
-        const MIN_SECS: TimestampOffsetInt = (MIN_HARD / RESOLUTION) + MIN_0_UNIX_EPOCH_DIFFERENTIAL;
+            pub const MAX_SECS: TimestampOffsetInt =
+                (TimestampOffsetInt::max_value() / RESOLUTION).saturating_sub(MAX_0_UNIX_EPOCH_DIFFERENTIAL);
+            pub const MIN_SECS: TimestampOffsetInt =
+                (MIN_HARD / RESOLUTION).saturating_add(MIN_0_UNIX_EPOCH_DIFFERENTIAL);
+        }
+
+        #[cfg(not(has_const_saturating_int_methods))]
+        mod maxmin_secs {
+            use super::*;
+
+            pub const MAX_SECS: TimestampOffsetInt =
+                (TimestampOffsetInt::max_value() / RESOLUTION) - MAX_0_UNIX_EPOCH_DIFFERENTIAL;
+
+            pub const MIN_SECS: TimestampOffsetInt = (MIN_HARD / RESOLUTION) + MIN_0_UNIX_EPOCH_DIFFERENTIAL;
+        }
+
+        pub use maxmin_secs::{
+            MAX_SECS,
+            MIN_SECS,
+        };
 
         pub const fn unix_epoch_offset_as_secs() -> TimestampOffsetInt {
             SECONDS_TO_UNIX_EPOCH
