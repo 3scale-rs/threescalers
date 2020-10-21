@@ -1,29 +1,28 @@
 use super::{
     application::Application,
-    timestamp::Timestamp,
     usage::Usage,
     user::User,
     ToParams,
 };
 
-#[derive(Copy, Clone, Debug)]
-pub struct Transaction<'app, 'user, 'usage, 'ts> {
+#[derive(Clone, Debug)]
+pub struct Transaction<'app, 'user, 'usage> {
     application: &'app Application,
     user:        Option<&'user User>,
     usage:       Option<&'usage Usage<'usage>>,
-    timestamp:   Option<&'ts Timestamp>,
+    timestamp:   Option<String>,
 }
 
-impl<'app, 'user, 'usage, 'ts> Transaction<'app, 'user, 'usage, 'ts> {
+impl<'app, 'user, 'usage> Transaction<'app, 'user, 'usage> {
     pub fn new(application: &'app Application,
                user: Option<&'user User>,
                usage: Option<&'usage Usage>,
-               timestamp: Option<&'ts Timestamp>)
+               timestamp: Option<i64>)
                -> Self {
         Self { application,
                user,
                usage,
-               timestamp }
+               timestamp: timestamp.map(|tsi64| tsi64.to_string()) }
     }
 
     pub fn application(&self) -> &Application {
@@ -38,34 +37,23 @@ impl<'app, 'user, 'usage, 'ts> Transaction<'app, 'user, 'usage, 'ts> {
         self.usage
     }
 
-    pub fn timestamp(&self) -> Option<&Timestamp> {
-        self.timestamp
+    pub fn timestamp(&self) -> Option<&str> {
+        self.timestamp.as_ref().map(|s| s.as_str())
     }
 }
 
 use std::borrow::Cow;
 
-impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Timestamp
+impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Transaction<'_, '_, '_>
     where 'this: 'k + 'v,
           E: Extend<(Cow<'k, str>, &'v str)>
 {
     fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(&'this self,
                                                                        extendable: &mut E,
                                                                        key_mangling: &mut F) {
-        let field = key_mangling("timestamp".into());
-        extendable.extend([(field, self.as_str())].iter().cloned());
-    }
-}
-
-impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Transaction<'_, '_, '_, '_>
-    where 'this: 'k + 'v,
-          E: Extend<(Cow<'k, str>, &'v str)>
-{
-    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(&'this self,
-                                                                       extendable: &mut E,
-                                                                       key_mangling: &mut F) {
-        if let Some(ts) = self.timestamp {
-            ts.to_params_with_mangling(extendable, key_mangling);
+        if let Some(ts) = self.timestamp() {
+            let field = key_mangling("timestamp".into());
+            extendable.extend([(field, ts)].iter().cloned());
         }
 
         self.application.to_params_with_mangling(extendable, key_mangling);
