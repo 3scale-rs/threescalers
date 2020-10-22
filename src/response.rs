@@ -18,25 +18,25 @@ use std::{
     },
     fmt,
     str::FromStr,
-    time::SystemTime,
 };
 
-#[derive(Debug, PartialEq)]
-pub struct PeriodTime(SystemTime);
+mod systemtime {
+    use chrono::DateTime;
 
-impl From<SystemTime> for PeriodTime {
-    fn from(st: SystemTime) -> Self {
-        PeriodTime(st)
+    #[repr(transparent)]
+    #[derive(Debug, PartialEq)]
+    pub struct PeriodTime(pub i64);
+
+    impl<Tz: chrono::TimeZone> From<DateTime<Tz>> for PeriodTime {
+        fn from(dt: DateTime<Tz>) -> PeriodTime {
+            PeriodTime(dt.timestamp())
+        }
     }
 }
 
-impl From<PeriodTime> for SystemTime {
-    fn from(pt: PeriodTime) -> Self {
-        pt.0
-    }
-}
+pub use systemtime::PeriodTime;
 
-// We might want to consider moving from a HashMap to a Vec, as most of the time this hashmap will
+// We might want to consider moving from a BTreeMap to a Vec, as most of the time this hashmap will
 // contain a (very) small number of entries.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct MetricsHierarchy(HashMap<String, Vec<String>>);
@@ -124,12 +124,6 @@ pub struct DeniedAuthorization {
     code: String,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
-pub struct PeriodInstance {
-    start: SystemTime,
-    end:   SystemTime,
-}
-
 #[derive(Debug, PartialEq)]
 pub enum Period {
     Minute,
@@ -200,7 +194,7 @@ impl<'de> Visitor<'de> for TimestampVisitor {
                                                ts_str, e))
             })?;
 
-        Ok(PeriodTime(dt.into()))
+        Ok(PeriodTime::from(dt))
     }
 }
 
@@ -307,16 +301,16 @@ mod tests {
                 UsageReport {
                     metric: String::from("products"),
                     period: Period::Minute,
-                    period_start: PeriodTime(Utc.ymd(2019, 6, 5).and_hms(16, 24, 0).into()),
-                    period_end: PeriodTime(Utc.ymd(2019, 6, 5).and_hms(16, 25, 0).into()),
+                    period_start: DateTime::<Utc>::from(Utc.ymd(2019, 6, 5).and_hms(16, 24, 0)).into(),
+                    period_end: DateTime::<Utc>::from(Utc.ymd(2019, 6, 5).and_hms(16, 25, 0)).into(),
                     max_value: 5,
                     current_value: 0,
                 },
                 UsageReport {
                     metric: String::from("products"),
                     period: Period::Month,
-                    period_start: PeriodTime(Utc.ymd(2019, 6, 1).and_hms(0, 0, 0).into()),
-                    period_end: PeriodTime(Utc.ymd(2019, 7, 1).and_hms(0, 0, 0).into()),
+                    period_start: DateTime::<Utc>::from(Utc.ymd(2019, 6, 1).and_hms(0, 0, 0)).into(),
+                    period_end: DateTime::<Utc>::from(Utc.ymd(2019, 7, 1).and_hms(0, 0, 0)).into(),
                     max_value: 50,
                     current_value: 0,
                 },
@@ -429,40 +423,40 @@ mod tests {
                 UsageReport {
                     metric: String::from("parent1"),
                     period: Period::Day,
-                    period_start: PeriodTime(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0).into()),
-                    period_end: PeriodTime(Utc.ymd(2016, 1, 2).and_hms(0, 0, 0).into()),
+                    period_start: DateTime::<Utc>::from(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0)).into(),
+                    period_end: DateTime::<Utc>::from(Utc.ymd(2016, 1, 2).and_hms(0, 0, 0)).into(),
                     max_value: 100,
                     current_value: 20,
                 },
                 UsageReport {
                     metric: String::from("parent2"),
                     period: Period::Day,
-                    period_start: PeriodTime(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0).into()),
-                    period_end: PeriodTime(Utc.ymd(2016, 1, 2).and_hms(0, 0, 0).into()),
+                    period_start: DateTime::<Utc>::from(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0)).into(),
+                    period_end: DateTime::<Utc>::from(Utc.ymd(2016, 1, 2).and_hms(0, 0, 0)).into(),
                     max_value: 100,
                     current_value: 10,
                 },
                 UsageReport {
                     metric: String::from("child1"),
                     period: Period::Day,
-                    period_start: PeriodTime(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0).into()),
-                    period_end: PeriodTime(Utc.ymd(2016, 1, 2).and_hms(0, 0, 0).into()),
+                    period_start: DateTime::<Utc>::from(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0)).into(),
+                    period_end: DateTime::<Utc>::from(Utc.ymd(2016, 1, 2).and_hms(0, 0, 0)).into(),
                     max_value: 100,
                     current_value: 10,
                 },
                 UsageReport {
                     metric: String::from("child2"),
                     period: Period::Day,
-                    period_start: PeriodTime(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0).into()),
-                    period_end: PeriodTime(Utc.ymd(2016, 1, 2).and_hms(0, 0, 0).into()),
+                    period_start: DateTime::<Utc>::from(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0)).into(),
+                    period_end: DateTime::<Utc>::from(Utc.ymd(2016, 1, 2).and_hms(0, 0, 0)).into(),
                     max_value: 100,
                     current_value: 10,
                 },
                 UsageReport {
                     metric: String::from("child3"),
                     period: Period::Day,
-                    period_start: PeriodTime(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0).into()),
-                    period_end: PeriodTime(Utc.ymd(2016, 1, 2).and_hms(0, 0, 0).into()),
+                    period_start: DateTime::<Utc>::from(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0)).into(),
+                    period_end: DateTime::<Utc>::from(Utc.ymd(2016, 1, 2).and_hms(0, 0, 0)).into(),
                     max_value: 100,
                     current_value: 10,
                 },

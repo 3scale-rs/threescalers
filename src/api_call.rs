@@ -32,7 +32,7 @@ impl Kind {
 pub struct ApiCall<'service, 'tx, 'app, 'user, 'usage, 'extensions> {
     kind:         Kind,
     service:      &'service Service,
-    transactions: &'tx [Transaction<'app, 'user, 'usage, 'tx>],
+    transactions: &'tx [Transaction<'app, 'user, 'usage>],
     extensions:   Option<&'extensions Extensions<'extensions>>,
 }
 
@@ -40,7 +40,7 @@ pub struct ApiCall<'service, 'tx, 'app, 'user, 'usage, 'extensions> {
 pub struct Builder<'service, 'tx, 'app, 'user, 'usage, 'extensions> {
     service:      &'service Service,
     kind:         Option<Kind>,
-    transactions: &'tx [Transaction<'app, 'user, 'usage, 'tx>],
+    transactions: &'tx [Transaction<'app, 'user, 'usage>],
     extensions:   Option<&'extensions Extensions<'extensions>>,
 }
 
@@ -66,7 +66,7 @@ impl<'service, 'tx, 'app, 'user, 'usage, 'extensions>
         self
     }
 
-    pub fn transactions(&mut self, txns: &'tx [Transaction<'app, 'user, 'usage, 'tx>]) -> &mut Self {
+    pub fn transactions(&mut self, txns: &'tx [Transaction<'app, 'user, 'usage>]) -> &mut Self {
         self.transactions = txns;
         self
     }
@@ -96,7 +96,7 @@ impl<'service, 'tx: 'app + 'user + 'usage, 'app, 'user, 'usage, 'extensions>
 
     pub fn new(kind: Kind,
                service: &'service Service,
-               transactions: &'tx [Transaction<'app, 'user, 'usage, 'tx>],
+               transactions: &'tx [Transaction<'app, 'user, 'usage>],
                extensions: Option<&'extensions Extensions>)
                -> Self {
         Self { kind,
@@ -113,13 +113,13 @@ impl<'service, 'tx: 'app + 'user + 'usage, 'app, 'user, 'usage, 'extensions>
         self.service
     }
 
-    pub fn transactions(&self) -> &'tx [Transaction<'app, 'user, 'usage, 'tx>] {
+    pub fn transactions(&self) -> &'tx [Transaction<'app, 'user, 'usage>] {
         self.transactions
     }
 
     // helper to get a transaction only if it's the only one
     // useful for non-report calls
-    pub fn transaction(&self) -> Option<&'tx Transaction<'app, 'user, 'usage, 'tx>> {
+    pub fn transaction(&self) -> Option<&'tx Transaction<'app, 'user, 'usage>> {
         let txns = self.transactions();
 
         if txns.len() == 1 { Some(&txns[0]) } else { None }

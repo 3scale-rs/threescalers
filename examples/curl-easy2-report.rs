@@ -17,6 +17,11 @@ use threescalers::http::request::curl::BodyHandle;
 use curl::easy::Easy2;
 
 fn main() -> Result<(), threescalers::errors::Error> {
+    use std::time::{
+        SystemTime,
+        UNIX_EPOCH,
+    };
+
     let creds = Credentials::ServiceToken(ServiceToken::from("12[3]token"));
     let svc = Service::new("svc123", creds);
     let uks = ["userkey_1", "userkey_2", "userkey_3", "userkey 4", "userkey 5"];
@@ -45,11 +50,13 @@ fn main() -> Result<(), threescalers::errors::Error> {
 
     println!("Usages: {:#?}", usages);
 
-    let ts = Default::default();
+    let ts = SystemTime::now().duration_since(UNIX_EPOCH).ok().map(|st| {
+        std::convert::TryInto::<i64>::try_into(st.as_secs()).expect("cannot fit timestamp in an i64")
+    });
 
     let txns = apps.iter()
                    .zip(&usages)
-                   .map(|(a, u)| Transaction::new(a, None, Some(u), Some(&ts)))
+                   .map(|(a, u)| Transaction::new(a, None, Some(u), ts))
                    .collect::<Vec<_>>();
 
     let extensions = Extensions::new().no_body()
