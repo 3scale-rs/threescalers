@@ -14,9 +14,11 @@ use threescalers::{
 
 use threescalers::http::request::curl::BodyHandle;
 
+use std::error::Error;
+
 use curl::easy::Easy2;
 
-fn main() -> Result<(), threescalers::errors::Error> {
+fn main() -> Result<(), Box<dyn Error>> {
     use std::time::{
         SystemTime,
         UNIX_EPOCH,

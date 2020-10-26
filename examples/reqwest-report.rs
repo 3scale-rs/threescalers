@@ -12,13 +12,15 @@ use threescalers::{
     usage::Usage,
 };
 
+use std::error::Error;
+
 use reqwest::blocking::{
     Client,
     RequestBuilder,
     Response,
 };
 
-fn main() -> Result<(), threescalers::errors::Error> {
+fn main() -> Result<(), Box<dyn Error>> {
     use std::time::{
         SystemTime,
         UNIX_EPOCH,
