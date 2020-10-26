@@ -1,9 +1,9 @@
-use crate::{
-    errors::*,
-    ToParams,
-};
+use crate::ToParams;
 
-use std::str::FromStr;
+use std::{
+    error::Error,
+    str::FromStr,
+};
 
 #[derive(Debug)]
 pub struct UserId(String);
@@ -25,17 +25,17 @@ impl AsRef<str> for OAuthToken {
 
 // These trait impls provide a way to &str#parse()
 impl FromStr for UserId {
-    type Err = Error;
+    type Err = Box<dyn Error>;
 
-    fn from_str(s: &str) -> Result<UserId> {
+    fn from_str(s: &str) -> Result<UserId, Self::Err> {
         Ok(UserId(s.to_owned()))
     }
 }
 
 impl FromStr for OAuthToken {
-    type Err = Error;
+    type Err = Box<dyn Error>;
 
-    fn from_str(s: &str) -> Result<OAuthToken> {
+    fn from_str(s: &str) -> Result<OAuthToken, Self::Err> {
         Ok(OAuthToken(s.to_owned()))
     }
 }

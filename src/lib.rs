@@ -16,7 +16,6 @@ pub mod api_call;
 pub mod application;
 pub mod credentials;
 pub mod encoding;
-pub mod errors;
 pub mod extensions;
 pub mod http;
 pub mod service;

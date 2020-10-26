@@ -46,7 +46,6 @@ all-types = ["http-types", "reqwest-all", "curl-all"]
 xml-response = ["serde-xml-rs", "serde", "chrono"]
 
 [dependencies]
-error-chain = "^0.12"
 percent-encoding = "^2"
 http_types = { version = "^0.2", package = "http" }
 reqwest = { version = "^0.10", optional = true }
