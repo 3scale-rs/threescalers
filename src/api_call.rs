@@ -1,6 +1,6 @@
 use crate::{
     application::Application,
-    extensions::Extensions,
+    extensions::List,
     service::Service,
     transaction::Transaction,
     usage::Usage,
@@ -31,7 +31,7 @@ pub struct ApiCall<'service, 'tx, 'app, 'user, 'usage, 'extensions> {
     kind:         Kind,
     service:      &'service Service,
     transactions: &'tx [Transaction<'app, 'user, 'usage>],
-    extensions:   Option<&'extensions Extensions<'extensions>>,
+    extensions:   Option<&'extensions List<'extensions>>,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -39,7 +39,7 @@ pub struct Builder<'service, 'tx, 'app, 'user, 'usage, 'extensions> {
     service:      &'service Service,
     kind:         Option<Kind>,
     transactions: &'tx [Transaction<'app, 'user, 'usage>],
-    extensions:   Option<&'extensions Extensions<'extensions>>,
+    extensions:   Option<&'extensions List<'extensions>>,
 }
 
 // TODO: we can improve this with a state machine of types so that we are required to set svc, app,
@@ -69,7 +69,7 @@ impl<'service, 'tx, 'app, 'user, 'usage, 'extensions>
         self
     }
 
-    pub fn extensions(&mut self, extensions: &'extensions Extensions) -> &mut Self {
+    pub fn extensions(&mut self, extensions: &'extensions List) -> &mut Self {
         self.extensions = Some(extensions);
         self
     }
@@ -95,7 +95,7 @@ impl<'service, 'tx: 'app + 'user + 'usage, 'app, 'user, 'usage, 'extensions>
     pub fn new(kind: Kind,
                service: &'service Service,
                transactions: &'tx [Transaction<'app, 'user, 'usage>],
-               extensions: Option<&'extensions Extensions>)
+               extensions: Option<&'extensions List>)
                -> Self {
         Self { kind,
                service,
@@ -135,7 +135,7 @@ impl<'service, 'tx: 'app + 'user + 'usage, 'app, 'user, 'usage, 'extensions>
         self.transaction().and_then(Transaction::usage)
     }
 
-    pub fn extensions(&self) -> Option<&'extensions Extensions> {
+    pub fn extensions(&self) -> Option<&'extensions List> {
         self.extensions
     }
 
