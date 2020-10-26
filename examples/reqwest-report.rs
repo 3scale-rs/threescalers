@@ -81,11 +81,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn run_request(request: Request) -> Result<Response, reqwest::Error> {
+fn run_request(request: Request) -> Result<Response, Box<dyn Error>> {
     let mut client = Client::new();
-    let reqbuilder = client.setup_request(request, "https://echo-api.3scale.net");
+    let reqbuilder = client.setup_request(request, "https://echo-api.3scale.net")?;
     let result = exec_request(reqbuilder);
-    show_response(result)
+    show_response(result).map_err(Into::into)
 }
 
 fn exec_request(reqb: RequestBuilder) -> Result<Response, reqwest::Error> {

@@ -80,12 +80,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn run_request(request: Request) -> Result<(), curl::Error> {
+fn run_request(request: Request) -> Result<(), Box<dyn Error>> {
     let mut client = Easy::new();
     let _ = client.verbose(true).unwrap();
-    let curlclient = client.setup_request(request, "https://echo-api.3scale.net");
+    let curlclient = client.setup_request(request, "https://echo-api.3scale.net")?;
     let result = exec_request(&curlclient);
-    show_response(curlclient, result)
+    show_response(curlclient, result).map_err(Into::into)
 }
 
 fn exec_request(curlc: &CurlEasyClient) -> Result<(), curl::Error> {
