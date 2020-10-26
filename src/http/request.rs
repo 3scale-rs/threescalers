@@ -11,11 +11,11 @@ use crate::{
 
 use super::Parameters;
 
-#[cfg(feature = "curl-types")]
+#[cfg(any(feature = "curl-easy", feature = "curl-easy2"))]
 pub mod curl;
 #[cfg(feature = "http-types")]
 mod http_types;
-#[cfg(feature = "reqwest-types")]
+#[cfg(any(feature = "reqwest-sync", feature = "reqwest-async"))]
 mod reqwest;
 
 pub use super::{

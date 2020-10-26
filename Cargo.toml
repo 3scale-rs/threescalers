@@ -31,14 +31,12 @@ default = ["xml-response"]
 # Add in conversions for http's crate types
 http-types = ["http_types"]
 # Add in conversions for reqwest's crate types
-reqwest-types = ["reqwest"]
-reqwest-async = ["reqwest-types"]
-reqwest-sync = ["reqwest-types", "reqwest/blocking"]
+reqwest-async = ["reqwest", "http-types"]
+reqwest-sync = ["reqwest", "reqwest/blocking", "http-types"]
 reqwest-all = ["reqwest-async", "reqwest-sync"]
 # Add in conversions for curl's crate types
-curl-types = ["curl"]
-curl-easy = ["curl-types"]
-curl-easy2 = ["curl-types"]
+curl-easy = ["curl"]
+curl-easy2 = ["curl"]
 curl-all = ["curl-easy", "curl-easy2"]
 # Include all supported clients types
 all-types = ["http-types", "reqwest-all", "curl-all"]
