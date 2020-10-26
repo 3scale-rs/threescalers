@@ -9,20 +9,22 @@ macro_rules! reqwest_impl {
         //
         // https://a_host
         //
-        impl<URI: ToString> SetupRequest<'_, URI, $B> for $C {
-            fn setup_request(&mut self, r: Request, params: URI) -> $B {
+        impl<URI: ToString> SetupRequest<'_, URI, Result<$B, Box<dyn std::error::Error>>> for $C {
+            fn setup_request(&mut self, r: Request, params: URI) -> Result<$B, Box<dyn std::error::Error>> {
+                use core::convert::TryInto;
+
                 let (uri, body) = r.parameters.uri_and_body(r.path);
                 let uri_base = params;
                 let uri = uri_base.to_string() + uri.as_ref();
 
-                let rb = self.request(r.method, uri.as_str()).headers(r.headers);
+                let rb = self.request(r.method.into(), uri.as_str()).headers(r.headers.try_into()?);
 
-                match body {
+                Ok(match body {
                     // when there is a body just consume it from the request's
                     // parameters to avoid cloning it unnecessarily.
                     Some(_) => rb.body(r.parameters.into_inner()),
                     _ => rb
-                }
+                })
             }
         }
     }
