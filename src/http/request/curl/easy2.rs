@@ -1,13 +1,14 @@
 use super::super::{
+    Method,
     Request,
     SetupRequest,
 };
 use curl::easy::{
     Easy2,
     Handler,
+    List,
     ReadError,
 };
-use http_types::Method;
 
 /// This trait has to be implemented by the Easy2<H>'s H generic type, as well as curl's Handler.
 /// This is because the body of POST requests needs to be pushed from the storage associated to
@@ -70,8 +71,10 @@ impl SetBody for BodyHandle {
     }
 }
 
-impl<URI: ToString, H: SetBody> SetupRequest<'_, URI, ()> for Easy2<H> {
-    fn setup_request(&mut self, r: Request, params: URI) {
+impl<URI: ToString, H: SetBody> SetupRequest<'_, URI, Result<(), Box<dyn std::error::Error>>> for Easy2<H> {
+    fn setup_request(&mut self, r: Request, params: URI) -> Result<(), Box<dyn std::error::Error>> {
+        use core::convert::TryFrom;
+
         let (uri, body) = r.parameters.uri_and_body(r.path);
         let uri_base = params;
         let uri = uri_base.to_string() + uri.as_ref();
@@ -82,26 +85,24 @@ impl<URI: ToString, H: SetBody> SetupRequest<'_, URI, ()> for Easy2<H> {
             Method::PUT => self.put(true),
             // any other verb needs to use custom_request()
             m => self.custom_request(m.as_str()),
-        }.expect("failed to set up the request's method");
+        }?;
 
-        self.url(uri.as_str()).expect("error setting up url for curl");
-        let mut headerlist = super::headermap_to_curl_list(&r.headers);
+        self.url(uri.as_str())?;
+        let mut headerlist = List::try_from(&r.headers)?;
         // libcurl by default adds "Expect: 100-continue" to send bodies, which would break us
-        headerlist.append("Expect:")
-                  .expect("failed to allocate node for curl list of headers");
+        headerlist.append("Expect:")?;
         // don't specify Content-Type for this request (similar to other clients)
-        headerlist.append("Content-Type:")
-                  .expect("failed to allocate node for curl list of headers");
-        self.http_headers(headerlist)
-            .expect("error setting up headers for curl");
+        headerlist.append("Content-Type:")?;
+        self.http_headers(headerlist)?;
 
         if body.is_some() {
             let body = r.parameters.into_inner();
             // this sets the Content-Length - some servers will misbehave without this
-            self.post_field_size(body.len() as u64)
-                .expect("failed to set post size");
+            self.post_field_size(body.len() as u64)?;
 
             self.get_mut().set_body(body);
         }
+
+        Ok(())
     }
 }
