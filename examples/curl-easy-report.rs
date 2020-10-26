@@ -2,7 +2,10 @@ use threescalers::{
     api_call::*,
     application::*,
     credentials::*,
-    extensions::*,
+    extensions::{
+        self,
+        Extension,
+    },
     http::{
         request::{
             curl::CurlEasyClient,
@@ -62,9 +65,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                    .map(|(a, u)| Transaction::new(a, None, Some(u), ts))
                    .collect::<Vec<_>>();
 
-    let extensions = Extensions::new().no_body()
-                                      .push(Extension::Hierarchy)
-                                      .push_other("testing[=]".into(), "0[=:=]0".into());
+    let extensions = extensions::List::new().no_body()
+                                            .push(Extension::Hierarchy)
+                                            .push_other("testing[=]".into(), "0[=:=]0".into());
     let mut apicall = ApiCall::builder(&svc);
     let apicall = apicall.transactions(&txns)
                          .extensions(&extensions)
