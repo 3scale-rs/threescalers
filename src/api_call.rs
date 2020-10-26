@@ -21,10 +21,7 @@ impl Kind {
     // report requires specific treatment due to being the only call supporting
     // multiple transactions.
     pub fn is_report(self) -> bool {
-        match self {
-            Kind::Report => true,
-            _ => false,
-        }
+        matches!(self, Kind::Report)
     }
 }
 

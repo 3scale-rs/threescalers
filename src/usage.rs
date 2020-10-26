@@ -14,7 +14,7 @@ pub struct Usage<'m>(Vec<MetricUsage<'m>>);
 
 impl<'m, M: AsRef<str> + 'm, V: AsRef<str> + 'm> From<&'m [(M, V)]> for Usage<'m> {
     fn from(mvs: &'m [(M, V)]) -> Self {
-        Self(mvs.iter().map(|mv| MetricUsage::from(mv)).collect())
+        Self(mvs.iter().map(MetricUsage::from).collect())
     }
 }
 

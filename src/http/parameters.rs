@@ -30,10 +30,7 @@ impl Parameters {
 
     #[inline]
     fn method_requires_body(method: &Method) -> bool {
-        match *method {
-            Method::GET | Method::HEAD | Method::DELETE => false,
-            _ => true,
-        }
+        !matches!(*method, Method::GET | Method::HEAD | Method::DELETE)
     }
 
     pub fn path_and_query<'p>(&self, path: &'p str) -> Cow<'p, str> {

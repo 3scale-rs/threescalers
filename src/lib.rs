@@ -1,6 +1,7 @@
 #![warn(clippy::all)]
 #![cfg_attr(feature_gate_never_type, feature(never_type))]
-#![cfg_attr(feature_gate_const_saturating_int_methods, feature(const_saturating_int_methods))]
+#![cfg_attr(feature_gate_const_saturating_int_methods,
+            feature(const_saturating_int_methods))]
 #![cfg_attr(feature_gate_test, feature(test))]
 #[cfg(all(test, has_test))]
 extern crate test;

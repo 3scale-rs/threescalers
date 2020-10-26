@@ -11,7 +11,7 @@ use AvailabilityStatic::*;
 // Declare features used by the project.
 // Use minimum and maximum (not included) versions.
 // "always"/"unknown" for minimum and "unknown" for maximum are special.
-static FEATURES: &'static [Feature<'_>] = &[Feature { name:         "nightly",
+static FEATURES: &[Feature<'_>] = &[Feature { name:         "nightly",
                                                       availability: Nightly("always", "unknown"), },
                                             Feature { name:         "test",
                                                       availability: NightlyGated("always", "unknown"), },
