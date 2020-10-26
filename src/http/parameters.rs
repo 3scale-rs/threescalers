@@ -1,4 +1,4 @@
-use http_types::Method;
+use super::Method;
 use std::borrow::Cow;
 
 #[derive(Clone, Debug)]
