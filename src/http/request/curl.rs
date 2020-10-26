@@ -1,20 +1,24 @@
 use curl::easy::List;
-use http_types::header::HeaderValue;
 
-// Common functions for curl clients
-fn headermap_to_curl_list(headermap: &http_types::HeaderMap<HeaderValue>) -> List {
-    let mut list = List::new();
-    headermap.iter().for_each(|(k, v)| {
-                        // this will scan for printable US-ASCII only bytes
-                        let header = v.to_str()
-                                      .map(|hval| [k.as_str(), ": ", hval].concat())
-                                      .expect("found header value without a displayable US-ASCII string");
-                        list.append(header.as_str())
-                            .expect("failed to allocate node for curl list of headers");
-                    });
-    list
+use super::HeaderMap;
+use core::convert::TryFrom;
+
+impl TryFrom<&HeaderMap> for List {
+    type Error = Box<dyn std::error::Error>;
+
+    fn try_from(hm: &HeaderMap) -> Result<Self, Self::Error> {
+        let mut list = List::new();
+
+        for (k, v) in hm.iter() {
+            let header = [k.as_str(), ": ", v.as_str()].concat();
+            list.append(header.as_str())?;
+        }
+
+        Ok(list)
+    }
 }
 
+// Common functions for curl clients
 pub fn copy_data(offset: &mut usize, source: &[u8], dst: &mut [u8]) -> usize {
     use std::io::Read;
 
