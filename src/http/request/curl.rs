@@ -23,12 +23,11 @@ impl TryFrom<&HeaderMap> for List {
 
 // Common functions for curl clients
 pub fn copy_data(offset: &mut usize, source: &[u8], dst: &mut [u8]) -> usize {
-    use std::io::Read;
-
-    let mut bytes = &source[*offset..];
-    let newcount = bytes.read(dst).expect("error while copying body data to buffer");
-    *offset += newcount;
-    newcount
+    let bytes = &source[*offset..];
+    let len = bytes.len();
+    dst[..len].copy_from_slice(bytes);
+    *offset += len;
+    len
 }
 
 #[cfg(feature = "curl-easy")]
