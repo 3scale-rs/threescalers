@@ -31,6 +31,19 @@ pub mod version;
 #[cfg(feature = "xml-response")]
 pub mod response;
 
+pub(crate) mod error {
+    pub use anyhow::{
+        anyhow,
+        Error,
+        Result,
+    };
+}
+
+pub use error::Error;
+
+#[allow(unused_imports)]
+pub(crate) use error::anyhow;
+
 use std::borrow::Cow;
 
 /// This is the trait to be implemented by structures that can set parameters to API calls.
