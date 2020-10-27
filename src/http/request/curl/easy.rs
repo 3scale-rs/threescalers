@@ -1,5 +1,7 @@
 use std::prelude::v1::*;
 
+use crate::Error;
+
 use super::super::{
     Method,
     Request,
@@ -53,13 +55,13 @@ impl<'easy, 'data> CurlEasyClient<'easy, 'data> {
     }
 }
 
-impl<'easy, 'data, URI: ToString>
-    SetupRequest<'easy, URI, Result<CurlEasyClient<'easy, 'data>, Box<dyn std::error::Error>>> for Easy
+impl<'easy, 'data, URI: ToString> SetupRequest<'easy, URI, Result<CurlEasyClient<'easy, 'data>, Error>>
+    for Easy
 {
     fn setup_request(&'easy mut self,
                      r: Request,
                      params: URI)
-                     -> Result<CurlEasyClient<'easy, 'data>, Box<dyn std::error::Error>> {
+                     -> Result<CurlEasyClient<'easy, 'data>, Error> {
         use core::convert::TryFrom;
 
         let (uri, body) = r.parameters.uri_and_body(r.path);

@@ -1,5 +1,7 @@
 use std::prelude::v1::*;
 
+use crate::Error;
+
 use super::super::{
     Method,
     Request,
@@ -73,8 +75,8 @@ impl SetBody for BodyHandle {
     }
 }
 
-impl<URI: ToString, H: SetBody> SetupRequest<'_, URI, Result<(), Box<dyn std::error::Error>>> for Easy2<H> {
-    fn setup_request(&mut self, r: Request, params: URI) -> Result<(), Box<dyn std::error::Error>> {
+impl<URI: ToString, H: SetBody> SetupRequest<'_, URI, Result<(), Error>> for Easy2<H> {
+    fn setup_request(&mut self, r: Request, params: URI) -> Result<(), Error> {
         use core::convert::TryFrom;
 
         let (uri, body) = r.parameters.uri_and_body(r.path);

@@ -6,6 +6,7 @@ use super::{
 use crate::{
     api_call::ApiCall,
     version::*,
+    Error,
 };
 use core::convert::TryFrom;
 use http_types::{
@@ -42,7 +43,7 @@ trait FillFrom {
 }
 
 impl FillFrom for HTTPHeaderMap {
-    type Error = Box<dyn std::error::Error>;
+    type Error = Error;
 
     fn fill_from(&mut self, hm: &HeaderMap) -> Result<(), Self::Error> {
         use core::str::FromStr;
@@ -59,7 +60,7 @@ impl FillFrom for HTTPHeaderMap {
 }
 
 impl TryFrom<HeaderMap> for HTTPHeaderMap {
-    type Error = Box<dyn std::error::Error>;
+    type Error = Error;
 
     fn try_from(hm: HeaderMap) -> Result<Self, Self::Error> {
         let mut map = HTTPHeaderMap::with_capacity(hm.len());
@@ -71,7 +72,7 @@ impl TryFrom<HeaderMap> for HTTPHeaderMap {
 }
 
 impl TryFrom<Request> for HTTPRequest<String> {
-    type Error = Box<dyn std::error::Error>;
+    type Error = Error;
 
     fn try_from(r: Request) -> Result<Self, Self::Error> {
         let (uri, body) = r.parameters.uri_and_body(r.path);
@@ -91,7 +92,7 @@ impl TryFrom<Request> for HTTPRequest<String> {
 }
 
 impl TryFrom<&ApiCall<'_, '_, '_, '_, '_, '_>> for HTTPRequest<String> {
-    type Error = Box<dyn std::error::Error>;
+    type Error = Error;
 
     fn try_from(i: &ApiCall) -> Result<Self, Self::Error> {
         HTTPRequest::try_from(Request::from(i))

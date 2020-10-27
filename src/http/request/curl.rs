@@ -3,10 +3,11 @@ use std::prelude::v1::*;
 use curl::easy::List;
 
 use super::HeaderMap;
+use crate::Error;
 use core::convert::TryFrom;
 
 impl TryFrom<&HeaderMap> for List {
-    type Error = Box<dyn std::error::Error>;
+    type Error = Error;
 
     fn try_from(hm: &HeaderMap) -> Result<Self, Self::Error> {
         let mut list = List::new();

@@ -11,8 +11,8 @@ macro_rules! reqwest_impl {
         //
         // https://a_host
         //
-        impl<URI: ToString> SetupRequest<'_, URI, Result<$B, Box<dyn std::error::Error>>> for $C {
-            fn setup_request(&mut self, r: Request, params: URI) -> Result<$B, Box<dyn std::error::Error>> {
+        impl<URI: ToString> SetupRequest<'_, URI, Result<$B, Error>> for $C {
+            fn setup_request(&mut self, r: Request, params: URI) -> Result<$B, Error> {
                 use core::convert::TryInto;
 
                 let (uri, body) = r.parameters.uri_and_body(r.path);
