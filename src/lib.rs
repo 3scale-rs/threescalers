@@ -3,6 +3,10 @@
 #![cfg_attr(feature_gate_const_saturating_int_methods,
             feature(const_saturating_int_methods))]
 #![cfg_attr(feature_gate_test, feature(test))]
+#![no_std]
+extern crate no_std_compat as std;
+use std::prelude::v1::*;
+
 #[cfg(all(test, has_test))]
 extern crate test;
 

@@ -1,3 +1,5 @@
+use std::prelude::v1::*;
+
 use curl::easy::List;
 
 use super::HeaderMap;
