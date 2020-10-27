@@ -1,7 +1,6 @@
 use crate::{
     application::Application,
-    errors::*,
-    extensions::Extensions,
+    extensions::List,
     service::Service,
     transaction::Transaction,
     usage::Usage,
@@ -9,6 +8,8 @@ use crate::{
 };
 
 use crate::ToParams;
+
+use std::error::Error;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Kind {
@@ -21,10 +22,7 @@ impl Kind {
     // report requires specific treatment due to being the only call supporting
     // multiple transactions.
     pub fn is_report(self) -> bool {
-        match self {
-            Kind::Report => true,
-            _ => false,
-        }
+        matches!(self, Kind::Report)
     }
 }
 
@@ -33,7 +31,7 @@ pub struct ApiCall<'service, 'tx, 'app, 'user, 'usage, 'extensions> {
     kind:         Kind,
     service:      &'service Service,
     transactions: &'tx [Transaction<'app, 'user, 'usage>],
-    extensions:   Option<&'extensions Extensions<'extensions>>,
+    extensions:   Option<&'extensions List<'extensions>>,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -41,7 +39,7 @@ pub struct Builder<'service, 'tx, 'app, 'user, 'usage, 'extensions> {
     service:      &'service Service,
     kind:         Option<Kind>,
     transactions: &'tx [Transaction<'app, 'user, 'usage>],
-    extensions:   Option<&'extensions Extensions<'extensions>>,
+    extensions:   Option<&'extensions List<'extensions>>,
 }
 
 // TODO: we can improve this with a state machine of types so that we are required to set svc, app,
@@ -71,12 +69,12 @@ impl<'service, 'tx, 'app, 'user, 'usage, 'extensions>
         self
     }
 
-    pub fn extensions(&mut self, extensions: &'extensions Extensions) -> &mut Self {
+    pub fn extensions(&mut self, extensions: &'extensions List) -> &mut Self {
         self.extensions = Some(extensions);
         self
     }
 
-    pub fn build(&self) -> Result<ApiCall> {
+    pub fn build(&self) -> Result<ApiCall, Box<dyn Error>> {
         let kind = self.kind.ok_or_else(|| "kind error".to_string())?;
         Ok(ApiCall::new(kind,
                         self.service,
@@ -97,7 +95,7 @@ impl<'service, 'tx: 'app + 'user + 'usage, 'app, 'user, 'usage, 'extensions>
     pub fn new(kind: Kind,
                service: &'service Service,
                transactions: &'tx [Transaction<'app, 'user, 'usage>],
-               extensions: Option<&'extensions Extensions>)
+               extensions: Option<&'extensions List>)
                -> Self {
         Self { kind,
                service,
@@ -137,7 +135,7 @@ impl<'service, 'tx: 'app + 'user + 'usage, 'app, 'user, 'usage, 'extensions>
         self.transaction().and_then(Transaction::usage)
     }
 
-    pub fn extensions(&self) -> Option<&'extensions Extensions> {
+    pub fn extensions(&self) -> Option<&'extensions List> {
         self.extensions
     }
 

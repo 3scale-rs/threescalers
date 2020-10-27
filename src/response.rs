@@ -222,7 +222,7 @@ impl<'de> Visitor<'de> for MetricsHierarchyVisitor {
 
         // The key in the hierarchy structure is always "metric". It is not
         // used, but we need to read it to get the value.
-        while let Some(_) = map.next_key::<String>()? {
+        while map.next_key::<String>()?.is_some() {
             let val: HashMap<String, String> = map.next_value()?;
 
             let parent_metric = val["name"].to_owned();

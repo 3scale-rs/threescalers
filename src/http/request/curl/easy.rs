@@ -1,12 +1,13 @@
 use super::super::{
+    Method,
     Request,
     SetupRequest,
 };
 use curl::easy::{
     Easy,
+    List,
     Transfer,
 };
-use http_types::Method;
 
 #[derive(Debug)]
 pub enum CurlEasyClient<'easy, 'data> {
@@ -50,8 +51,15 @@ impl<'easy, 'data> CurlEasyClient<'easy, 'data> {
     }
 }
 
-impl<'easy, 'data, URI: ToString> SetupRequest<'easy, URI, CurlEasyClient<'easy, 'data>> for Easy {
-    fn setup_request(&'easy mut self, r: Request, params: URI) -> CurlEasyClient<'easy, 'data> {
+impl<'easy, 'data, URI: ToString>
+    SetupRequest<'easy, URI, Result<CurlEasyClient<'easy, 'data>, Box<dyn std::error::Error>>> for Easy
+{
+    fn setup_request(&'easy mut self,
+                     r: Request,
+                     params: URI)
+                     -> Result<CurlEasyClient<'easy, 'data>, Box<dyn std::error::Error>> {
+        use core::convert::TryFrom;
+
         let (uri, body) = r.parameters.uri_and_body(r.path);
         let uri_base = params;
         let uri = uri_base.to_string() + uri.as_ref();
@@ -62,34 +70,29 @@ impl<'easy, 'data, URI: ToString> SetupRequest<'easy, URI, CurlEasyClient<'easy,
             Method::PUT => self.put(true),
             // any other verb needs to use custom_request()
             m => self.custom_request(m.as_str()),
-        }.expect("failed to set up the request's method");
+        }?;
 
-        self.url(uri.as_str()).expect("error setting up url for curl");
-        let mut headerlist = super::headermap_to_curl_list(&r.headers);
+        self.url(uri.as_str())?;
+        let mut headerlist = List::try_from(&r.headers)?;
         // libcurl by default adds "Expect: 100-continue" to send bodies, which would break us
-        headerlist.append("Expect:")
-                  .expect("failed to allocate node for curl list of headers");
+        headerlist.append("Expect:")?;
         // don't specify Content-Type for this request (similar to other clients)
-        headerlist.append("Content-Type:")
-                  .expect("failed to allocate node for curl list of headers");
-        self.http_headers(headerlist)
-            .expect("error setting up headers for curl");
+        headerlist.append("Content-Type:")?;
+        self.http_headers(headerlist)?;
 
-        match body {
+        Ok(match body {
             Some(_) => {
                 let body = r.parameters.into_inner();
                 // this sets the Content-Length - some servers will misbehave without this
-                self.post_field_size(body.len() as u64)
-                    .expect("failed to set post size");
+                self.post_field_size(body.len() as u64)?;
                 let mut transfer = self.transfer();
 
                 let mut count = 0usize;
-                transfer.read_function(move |buf| Ok(super::copy_data(&mut count, &body.as_bytes(), buf)))
-                        .expect("failed to set up read function for curl");
+                transfer.read_function(move |buf| Ok(super::copy_data(&mut count, &body.as_bytes(), buf)))?;
 
                 transfer.into()
             }
             None => (self as &Easy).into(),
-        }
+        })
     }
 }

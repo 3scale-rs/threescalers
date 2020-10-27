@@ -2,7 +2,10 @@ use threescalers::{
     api_call::*,
     application::*,
     credentials::*,
-    extensions::*,
+    extensions::{
+        self,
+        Extension,
+    },
     http::{
         request::{
             curl::CurlEasyClient,
@@ -15,9 +18,11 @@ use threescalers::{
     usage::Usage,
 };
 
+use std::error::Error;
+
 use curl::easy::Easy;
 
-fn main() -> Result<(), threescalers::errors::Error> {
+fn main() -> Result<(), Box<dyn Error>> {
     use std::time::{
         SystemTime,
         UNIX_EPOCH,
@@ -60,9 +65,9 @@ fn main() -> Result<(), threescalers::errors::Error> {
                    .map(|(a, u)| Transaction::new(a, None, Some(u), ts))
                    .collect::<Vec<_>>();
 
-    let extensions = Extensions::new().no_body()
-                                      .push(Extension::Hierarchy)
-                                      .push_other("testing[=]".into(), "0[=:=]0".into());
+    let extensions = extensions::List::new().no_body()
+                                            .push(Extension::Hierarchy)
+                                            .push_other("testing[=]".into(), "0[=:=]0".into());
     let mut apicall = ApiCall::builder(&svc);
     let apicall = apicall.transactions(&txns)
                          .extensions(&extensions)
@@ -78,12 +83,12 @@ fn main() -> Result<(), threescalers::errors::Error> {
     Ok(())
 }
 
-fn run_request(request: Request) -> Result<(), curl::Error> {
+fn run_request(request: Request) -> Result<(), Box<dyn Error>> {
     let mut client = Easy::new();
     let _ = client.verbose(true).unwrap();
-    let curlclient = client.setup_request(request, "https://echo-api.3scale.net");
+    let curlclient = client.setup_request(request, "https://echo-api.3scale.net")?;
     let result = exec_request(&curlclient);
-    show_response(curlclient, result)
+    show_response(curlclient, result).map_err(Into::into)
 }
 
 fn exec_request(curlc: &CurlEasyClient) -> Result<(), curl::Error> {

@@ -1,9 +1,9 @@
-use crate::{
-    errors::*,
-    ToParams,
-};
+use crate::ToParams;
 
-use std::str::FromStr;
+use std::{
+    error::Error,
+    str::FromStr,
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct AppId(String);
@@ -41,33 +41,33 @@ impl AsRef<str> for OAuthToken {
 
 // These trait impls provide a way to &str#parse() our Application type
 impl FromStr for AppId {
-    type Err = Error;
+    type Err = Box<dyn Error>;
 
-    fn from_str(s: &str) -> Result<AppId> {
+    fn from_str(s: &str) -> Result<AppId, Self::Err> {
         Ok(AppId(s.into()))
     }
 }
 
 impl FromStr for AppKey {
-    type Err = Error;
+    type Err = Box<dyn Error>;
 
-    fn from_str(s: &str) -> Result<AppKey> {
+    fn from_str(s: &str) -> Result<AppKey, Self::Err> {
         Ok(AppKey(s.into()))
     }
 }
 
 impl FromStr for UserKey {
-    type Err = Error;
+    type Err = Box<dyn Error>;
 
-    fn from_str(s: &str) -> Result<UserKey> {
+    fn from_str(s: &str) -> Result<UserKey, Self::Err> {
         Ok(UserKey(s.into()))
     }
 }
 
 impl FromStr for OAuthToken {
-    type Err = Error;
+    type Err = Box<dyn Error>;
 
-    fn from_str(s: &str) -> Result<OAuthToken> {
+    fn from_str(s: &str) -> Result<OAuthToken, Self::Err> {
         Ok(OAuthToken(s.into()))
     }
 }

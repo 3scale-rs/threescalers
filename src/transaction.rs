@@ -38,7 +38,7 @@ impl<'app, 'user, 'usage> Transaction<'app, 'user, 'usage> {
     }
 
     pub fn timestamp(&self) -> Option<&str> {
-        self.timestamp.as_ref().map(|s| s.as_str())
+        self.timestamp.as_deref()
     }
 }
 

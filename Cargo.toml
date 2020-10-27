@@ -26,19 +26,17 @@ codecov = { repository = "3scale-rs/threescalers" }
 maintenance = { status = "actively-developed" }
 
 [features]
-default = ["http-types", "xml-response"]
+default = ["xml-response"]
 
 # Add in conversions for http's crate types
-http-types = []
+http-types = ["http_types"]
 # Add in conversions for reqwest's crate types
-reqwest-types = ["reqwest"]
-reqwest-async = ["reqwest-types"]
-reqwest-sync = ["reqwest-types", "reqwest/blocking"]
+reqwest-async = ["reqwest", "http-types"]
+reqwest-sync = ["reqwest", "reqwest/blocking", "http-types"]
 reqwest-all = ["reqwest-async", "reqwest-sync"]
 # Add in conversions for curl's crate types
-curl-types = ["curl"]
-curl-easy = ["curl-types"]
-curl-easy2 = ["curl-types"]
+curl-easy = ["curl"]
+curl-easy2 = ["curl"]
 curl-all = ["curl-easy", "curl-easy2"]
 # Include all supported clients types
 all-types = ["http-types", "reqwest-all", "curl-all"]
@@ -46,9 +44,8 @@ all-types = ["http-types", "reqwest-all", "curl-all"]
 xml-response = ["serde-xml-rs", "serde", "chrono"]
 
 [dependencies]
-error-chain = "^0.12"
 percent-encoding = "^2"
-http_types = { version = "^0.2", package = "http" }
+http_types = { version = "^0.2", package = "http", optional = true }
 reqwest = { version = "^0.10", optional = true }
 curl = { version = "^0.4", optional = true }
 serde = { version = "^1", optional = true, features = ["derive"] }

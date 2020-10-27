@@ -1,6 +1,6 @@
 /// Static endpoints from the 3scale Apisonator service
 ///
-use http_types::Method;
+use super::Method;
 
 pub const AUTHORIZE_ENDPOINT: (Method, &str) = (Method::GET, "/transactions/authorize.xml");
 pub const AUTHREP_ENDPOINT: (Method, &str) = (Method::GET, "/transactions/authrep.xml");

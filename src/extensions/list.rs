@@ -7,15 +7,15 @@ use std::{
 use super::Extension;
 
 #[derive(Debug, Clone, PartialEq, Default)]
-pub struct Extensions<'s>(Vec<Extension<'s>>);
+pub struct List<'s>(Vec<Extension<'s>>);
 
-impl<'s> From<Vec<Extension<'s>>> for Extensions<'s> {
+impl<'s> From<Vec<Extension<'s>>> for List<'s> {
     fn from(v: Vec<Extension<'s>>) -> Self {
         Self(v)
     }
 }
 
-impl<'s> Extensions<'s> {
+impl<'s> List<'s> {
     pub fn new() -> Self {
         Self(Vec::new())
     }
@@ -99,25 +99,25 @@ impl<'s> Extensions<'s> {
     }
 }
 
-impl ToString for Extensions<'_> {
+impl ToString for List<'_> {
     fn to_string(&self) -> String {
         self.0.iter().map(|e| e.to_string()).collect::<Vec<_>>().join("&")
     }
 }
 
-impl<'s> Extend<Extension<'s>> for Extensions<'s> {
+impl<'s> Extend<Extension<'s>> for List<'s> {
     fn extend<T: IntoIterator<Item = Extension<'s>>>(&mut self, iter: T) {
         self.0.extend(iter)
     }
 }
 
-impl<'s> FromIterator<Extension<'s>> for Extensions<'s> {
+impl<'s> FromIterator<Extension<'s>> for List<'s> {
     fn from_iter<T: IntoIterator<Item = Extension<'s>>>(iter: T) -> Self {
         Self(Vec::from_iter(iter))
     }
 }
 
-impl<'v, 's> IntoIterator for &'v Extensions<'s> {
+impl<'v, 's> IntoIterator for &'v List<'s> {
     type IntoIter = <&'v Vec<Extension<'s>> as IntoIterator>::IntoIter;
     type Item = <&'v Vec<Extension<'s>> as IntoIterator>::Item;
 
@@ -127,7 +127,7 @@ impl<'v, 's> IntoIterator for &'v Extensions<'s> {
     }
 }
 
-impl<'v, 's> IntoIterator for &'v mut Extensions<'s> {
+impl<'v, 's> IntoIterator for &'v mut List<'s> {
     type IntoIter = <&'v mut Vec<Extension<'s>> as IntoIterator>::IntoIter;
     type Item = <&'v mut Vec<Extension<'s>> as IntoIterator>::Item;
 
@@ -137,7 +137,7 @@ impl<'v, 's> IntoIterator for &'v mut Extensions<'s> {
     }
 }
 
-impl<'s> IntoIterator for Extensions<'s> {
+impl<'s> IntoIterator for List<'s> {
     type IntoIter = IntoIter<Extension<'s>>;
     type Item = Extension<'s>;
 

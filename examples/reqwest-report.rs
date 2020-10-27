@@ -2,7 +2,10 @@ use threescalers::{
     api_call::*,
     application::*,
     credentials::*,
-    extensions::*,
+    extensions::{
+        self,
+        Extension,
+    },
     http::{
         request::SetupRequest,
         Request,
@@ -12,13 +15,15 @@ use threescalers::{
     usage::Usage,
 };
 
+use std::error::Error;
+
 use reqwest::blocking::{
     Client,
     RequestBuilder,
     Response,
 };
 
-fn main() -> Result<(), threescalers::errors::Error> {
+fn main() -> Result<(), Box<dyn Error>> {
     use std::time::{
         SystemTime,
         UNIX_EPOCH,
@@ -61,9 +66,9 @@ fn main() -> Result<(), threescalers::errors::Error> {
                    .map(|(a, u)| Transaction::new(a, None, Some(u), ts))
                    .collect::<Vec<_>>();
 
-    let extensions = Extensions::new().no_body()
-                                      .push(Extension::Hierarchy)
-                                      .push_other("testing[=]".into(), "0[=:=]0".into());
+    let extensions = extensions::List::new().no_body()
+                                            .push(Extension::Hierarchy)
+                                            .push_other("testing[=]".into(), "0[=:=]0".into());
     let mut apicall = ApiCall::builder(&svc);
     let apicall = apicall.transactions(&txns)
                          .extensions(&extensions)
@@ -79,11 +84,11 @@ fn main() -> Result<(), threescalers::errors::Error> {
     Ok(())
 }
 
-fn run_request(request: Request) -> Result<Response, reqwest::Error> {
+fn run_request(request: Request) -> Result<Response, Box<dyn Error>> {
     let mut client = Client::new();
-    let reqbuilder = client.setup_request(request, "https://echo-api.3scale.net");
+    let reqbuilder = client.setup_request(request, "https://echo-api.3scale.net")?;
     let result = exec_request(reqbuilder);
-    show_response(result)
+    show_response(result).map_err(Into::into)
 }
 
 fn exec_request(reqb: RequestBuilder) -> Result<Response, reqwest::Error> {

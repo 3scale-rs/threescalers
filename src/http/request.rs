@@ -11,22 +11,26 @@ use crate::{
 
 use super::Parameters;
 
-#[cfg(feature = "curl-types")]
+#[cfg(any(feature = "curl-easy", feature = "curl-easy2"))]
 pub mod curl;
 #[cfg(feature = "http-types")]
-mod http;
-#[cfg(feature = "reqwest-types")]
+mod http_types;
+#[cfg(any(feature = "reqwest-sync", feature = "reqwest-async"))]
 mod reqwest;
+
+pub use super::{
+    HeaderMap,
+    Method,
+};
 
 #[derive(Clone, Debug)]
 pub struct Request {
-    pub method:     http_types::Method,
+    pub method:     Method,
     pub path:       &'static str,
     pub parameters: Parameters,
-    pub headers:    http_types::HeaderMap,
+    pub headers:    HeaderMap,
 }
 
-use http_types::Method;
 use std::borrow::Cow;
 
 impl Request {
@@ -63,14 +67,6 @@ pub trait SetupRequest<'client, P, Output> {
 
 impl From<&ApiCall<'_, '_, '_, '_, '_, '_>> for Request {
     fn from(apicall: &ApiCall) -> Self {
-        use http_types::{
-            header::{
-                HeaderName,
-                HeaderValue,
-            },
-            HeaderMap,
-        };
-
         let (method, path) = Request::endpoint(apicall.kind(), apicall.application(), apicall.user());
 
         let mut params = Vec::with_capacity(8);
@@ -78,21 +74,15 @@ impl From<&ApiCall<'_, '_, '_, '_, '_, '_>> for Request {
 
         let parameters = Parameters::new(&method, params.as_slice());
 
-        let mut headers =
-            apicall.extensions().map_or_else(|| HeaderMap::with_capacity(1),
-                                             |e| {
-                                                 let options = e.to_string();
-                                                 let mut h = HeaderMap::with_capacity(2);
-                                                 let val = HeaderValue::from_str(options.as_str());
+        let mut headers = apicall.extensions().map_or_else(|| HeaderMap::with_capacity(1),
+                                                           |e| {
+                                                               let mut hm = HeaderMap::with_capacity(2);
+                                                               let _ = hm.insert("3scale-options".to_owned(),
+                                                                                 e.to_string());
+                                                               hm
+                                                           });
 
-                                                 if let Ok(val) = val {
-                                                     h.insert(HeaderName::from_static("3scale-options"), val);
-                                                 }
-
-                                                 h
-                                             });
-
-        headers.insert("User-Agent", HeaderValue::from_static(USER_AGENT));
+        headers.insert("User-Agent".to_owned(), USER_AGENT.to_owned());
 
         Request { method,
                   path,
