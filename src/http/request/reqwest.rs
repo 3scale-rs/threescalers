@@ -4,6 +4,10 @@ use super::{
     Request,
     SetupRequest,
 };
+use crate::{
+    anyhow,
+    Error,
+};
 
 macro_rules! reqwest_impl {
     { $C:ty, $B:ty } => {
@@ -19,7 +23,9 @@ macro_rules! reqwest_impl {
                 let uri_base = params;
                 let uri = uri_base.to_string() + uri.as_ref();
 
-                let rb = self.request(r.method.into(), uri.as_str()).headers(r.headers.try_into()?);
+                let rb = self.request(r.method.into(), uri.as_str())
+                    .headers(r.headers.try_into()
+                             .map_err(|e| anyhow!("failed to add headers to reqwest: {:#?}", e))?);
 
                 Ok(match body {
                     // when there is a body just consume it from the request's

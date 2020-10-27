@@ -1,6 +1,10 @@
 use std::prelude::v1::*;
 
-use crate::{anyhow, Error, Result};
+use crate::{
+    anyhow,
+    Error,
+    Result,
+};
 
 use super::super::{
     Method,
@@ -91,18 +95,26 @@ impl<URI: ToString, H: SetBody> SetupRequest<'_, URI, Result<(), Error>> for Eas
             m => self.custom_request(m.as_str()),
         }.map_err(|e| anyhow!("failed to set curl request method: {:#?}", e))?;
 
-        self.url(uri.as_str()).map_err(|e| anyhow!("failed to set curl request URL: {:#?}", e))?;
-        let mut headerlist = List::try_from(&r.headers).map_err(|e| anyhow!("failed to create curl::List from headers: {:#?}", e))?;
+        self.url(uri.as_str())
+            .map_err(|e| anyhow!("failed to set curl request URL: {:#?}", e))?;
+        let mut headerlist =
+            List::try_from(&r.headers).map_err(|e| {
+                                          anyhow!("failed to create curl::List from headers: {:#?}", e)
+                                      })?;
         // libcurl by default adds "Expect: 100-continue" to send bodies, which would break us
-        headerlist.append("Expect:").map_err(|e| anyhow!("failed to add node to curl::List: {:#?}", e))?;
+        headerlist.append("Expect:")
+                  .map_err(|e| anyhow!("failed to add node to curl::List: {:#?}", e))?;
         // don't specify Content-Type for this request (similar to other clients)
-        headerlist.append("Content-Type:").map_err(|e| anyhow!("failed to add node to curl::List: {:#?}", e))?;
-        self.http_headers(headerlist).map_err(|e| anyhow!("failed to add headers to curl client: {:#?}", e))?;
+        headerlist.append("Content-Type:")
+                  .map_err(|e| anyhow!("failed to add node to curl::List: {:#?}", e))?;
+        self.http_headers(headerlist)
+            .map_err(|e| anyhow!("failed to add headers to curl client: {:#?}", e))?;
 
         if body.is_some() {
             let body = r.parameters.into_inner();
             // this sets the Content-Length - some servers will misbehave without this
-            self.post_field_size(body.len() as u64).map_err(|e| anyhow!("failed to set Content-Length: {:#?}", e))?;
+            self.post_field_size(body.len() as u64)
+                .map_err(|e| anyhow!("failed to set Content-Length: {:#?}", e))?;
 
             self.get_mut().set_body(body);
         }
