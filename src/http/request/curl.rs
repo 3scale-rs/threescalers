@@ -3,8 +3,8 @@ use std::prelude::v1::*;
 use curl::easy::List;
 
 use super::HeaderMap;
-use crate::Error;
 use core::convert::TryFrom;
+use crate::{anyhow, Error};
 
 impl TryFrom<&HeaderMap> for List {
     type Error = Error;
@@ -14,7 +14,7 @@ impl TryFrom<&HeaderMap> for List {
 
         for (k, v) in hm.iter() {
             let header = [k.as_str(), ": ", v.as_str()].concat();
-            list.append(header.as_str())?;
+            list.append(header.as_str()).map_err(|e| anyhow!("failed to add a node to a curl List: {:#?}", e))?;
         }
 
         Ok(list)
