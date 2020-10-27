@@ -1,4 +1,9 @@
-use std::collections::HashMap;
+use std::prelude::v1::*;
+
+use std::collections::{
+    btree_map::Iter as InnerIter,
+    BTreeMap,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[non_exhaustive]
@@ -28,15 +33,16 @@ impl Method {
 
 #[derive(Debug, Clone, PartialEq)]
 #[repr(transparent)]
-pub struct HeaderMap(HashMap<String, String>);
+pub struct HeaderMap(BTreeMap<String, String>);
 
 impl HeaderMap {
     pub fn new() -> Self {
-        Self(HashMap::new())
+        Self(BTreeMap::new())
     }
 
-    pub fn with_capacity(cap: usize) -> Self {
-        Self(HashMap::with_capacity(cap))
+    // There's no provision for this method in the inner map
+    pub fn with_capacity(_: usize) -> Self {
+        Self::new()
     }
 
     pub fn insert(&mut self, key: String, value: String) -> Option<String> {
@@ -64,11 +70,11 @@ impl Default for HeaderMap {
 
 #[repr(transparent)]
 pub struct Iter<'a> {
-    iter: std::collections::hash_map::Iter<'a, String, String>,
+    iter: InnerIter<'a, String, String>,
 }
 
 impl<'a> Iterator for Iter<'a> {
-    type Item = <std::collections::hash_map::Iter<'a, String, String> as Iterator>::Item;
+    type Item = <InnerIter<'a, String, String> as Iterator>::Item;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.iter.next()
@@ -76,8 +82,8 @@ impl<'a> Iterator for Iter<'a> {
 }
 
 impl IntoIterator for HeaderMap {
-    type IntoIter = <HashMap<String, String> as IntoIterator>::IntoIter;
-    type Item = <HashMap<String, String> as IntoIterator>::Item;
+    type IntoIter = <BTreeMap<String, String> as IntoIterator>::IntoIter;
+    type Item = <BTreeMap<String, String> as IntoIterator>::Item;
 
     fn into_iter(self) -> Self::IntoIter {
         self.0.into_iter()
@@ -101,8 +107,8 @@ impl<S: ToString> Extend<(S, S)> for HeaderMap {
     }
 }
 
-impl From<HashMap<String, String>> for HeaderMap {
-    fn from(map: HashMap<String, String>) -> Self {
+impl From<BTreeMap<String, String>> for HeaderMap {
+    fn from(map: BTreeMap<String, String>) -> Self {
         HeaderMap(map)
     }
 }
