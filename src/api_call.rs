@@ -1,3 +1,10 @@
+use std::prelude::v1::*;
+
+use crate::{
+    anyhow,
+    Error,
+};
+
 use crate::{
     application::Application,
     extensions::List,
@@ -8,8 +15,6 @@ use crate::{
 };
 
 use crate::ToParams;
-
-use std::error::Error;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Kind {
@@ -74,8 +79,8 @@ impl<'service, 'tx, 'app, 'user, 'usage, 'extensions>
         self
     }
 
-    pub fn build(&self) -> Result<ApiCall, Box<dyn Error>> {
-        let kind = self.kind.ok_or_else(|| "kind error".to_string())?;
+    pub fn build(&self) -> Result<ApiCall, Error> {
+        let kind = self.kind.ok_or_else(|| anyhow!("kind error"))?;
         Ok(ApiCall::new(kind,
                         self.service,
                         self.transactions,

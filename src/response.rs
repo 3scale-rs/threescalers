@@ -1,3 +1,5 @@
+use std::prelude::v1::*;
+
 use chrono::prelude::*;
 use serde::{
     de::{
@@ -10,11 +12,11 @@ use serde::{
 };
 use std::{
     collections::{
-        hash_map::{
+        btree_map::{
             Iter,
             IterMut,
         },
-        HashMap,
+        BTreeMap,
     },
     fmt,
     str::FromStr,
@@ -36,14 +38,14 @@ mod systemtime {
 
 pub use systemtime::PeriodTime;
 
-// We might want to consider moving from a BTreeMap to a Vec, as most of the time this hashmap will
+// We might want to consider moving from a BTreeMap to a Vec, as most of the time this btreemap will
 // contain a (very) small number of entries.
 #[derive(Debug, Clone, PartialEq, Default)]
-pub struct MetricsHierarchy(HashMap<String, Vec<String>>);
+pub struct MetricsHierarchy(BTreeMap<String, Vec<String>>);
 
 impl MetricsHierarchy {
     pub fn new() -> Self {
-        Self(HashMap::new())
+        Self(BTreeMap::new())
     }
 
     pub fn insert<S: Into<String>, V: Into<Vec<String>>>(&mut self,
@@ -65,7 +67,7 @@ impl MetricsHierarchy {
         self.0.iter_mut()
     }
 
-    pub fn into_inner(self) -> HashMap<String, Vec<String>> {
+    pub fn into_inner(self) -> BTreeMap<String, Vec<String>> {
         self.0
     }
 
@@ -223,7 +225,7 @@ impl<'de> Visitor<'de> for MetricsHierarchyVisitor {
         // The key in the hierarchy structure is always "metric". It is not
         // used, but we need to read it to get the value.
         while map.next_key::<String>()?.is_some() {
-            let val: HashMap<String, String> = map.next_value()?;
+            let val: BTreeMap<String, String> = map.next_value()?;
 
             let parent_metric = val["name"].to_owned();
             let children_metrics = val["children"].split(' ')

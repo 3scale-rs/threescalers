@@ -26,8 +26,10 @@ codecov = { repository = "3scale-rs/threescalers" }
 maintenance = { status = "actively-developed" }
 
 [features]
-default = ["xml-response"]
+default = ["std", "xml-response"]
 
+# Use std library
+std = ["no-std-compat/std", "anyhow/std"]
 # Add in conversions for http's crate types
 http-types = ["http_types"]
 # Add in conversions for reqwest's crate types
@@ -48,9 +50,11 @@ percent-encoding = "^2"
 http_types = { version = "^0.2", package = "http", optional = true }
 reqwest = { version = "^0.10", optional = true }
 curl = { version = "^0.4", optional = true }
-serde = { version = "^1", optional = true, features = ["derive"] }
+serde = { version = "^1", optional = true, default-features = false, features = ["alloc", "derive"] }
 serde-xml-rs = { version = "^0.4", optional = true }
-chrono = { version = "^0.4", optional = true }
+chrono = { version = "^0.4", optional = true, default-features = false }
+no-std-compat = { version = "^0.4", features = ["alloc"] }
+anyhow = { version = "^1", default-features = false }
 
 [build-dependencies]
 rustc_version = "^0.2"

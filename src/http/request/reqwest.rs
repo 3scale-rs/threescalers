@@ -1,6 +1,12 @@
+use std::prelude::v1::*;
+
 use super::{
     Request,
     SetupRequest,
+};
+use crate::{
+    anyhow,
+    Error,
 };
 
 macro_rules! reqwest_impl {
@@ -9,15 +15,17 @@ macro_rules! reqwest_impl {
         //
         // https://a_host
         //
-        impl<URI: ToString> SetupRequest<'_, URI, Result<$B, Box<dyn std::error::Error>>> for $C {
-            fn setup_request(&mut self, r: Request, params: URI) -> Result<$B, Box<dyn std::error::Error>> {
+        impl<URI: ToString> SetupRequest<'_, URI, Result<$B, Error>> for $C {
+            fn setup_request(&mut self, r: Request, params: URI) -> Result<$B, Error> {
                 use core::convert::TryInto;
 
                 let (uri, body) = r.parameters.uri_and_body(r.path);
                 let uri_base = params;
                 let uri = uri_base.to_string() + uri.as_ref();
 
-                let rb = self.request(r.method.into(), uri.as_str()).headers(r.headers.try_into()?);
+                let rb = self.request(r.method.into(), uri.as_str())
+                    .headers(r.headers.try_into()
+                             .map_err(|e| anyhow!("failed to add headers to reqwest: {:#?}", e))?);
 
                 Ok(match body {
                     // when there is a body just consume it from the request's

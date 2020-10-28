@@ -3,6 +3,10 @@
 #![cfg_attr(feature_gate_const_saturating_int_methods,
             feature(const_saturating_int_methods))]
 #![cfg_attr(feature_gate_test, feature(test))]
+#![no_std]
+extern crate no_std_compat as std;
+use std::prelude::v1::*;
+
 #[cfg(all(test, has_test))]
 extern crate test;
 
@@ -26,6 +30,19 @@ pub mod version;
 
 #[cfg(feature = "xml-response")]
 pub mod response;
+
+pub(crate) mod error {
+    pub use anyhow::{
+        anyhow,
+        Error,
+        Result,
+    };
+}
+
+pub use error::Error;
+
+#[allow(unused_imports)]
+pub(crate) use error::anyhow;
 
 use std::borrow::Cow;
 

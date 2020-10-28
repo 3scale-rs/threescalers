@@ -1,3 +1,5 @@
+use std::prelude::v1::*;
+
 use crate::{
     api_call::{
         Kind::*,

@@ -1,3 +1,5 @@
+use std::prelude::v1::*;
+
 use super::Method;
 use std::borrow::Cow;
 

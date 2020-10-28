@@ -1,9 +1,10 @@
+use std::prelude::v1::*;
+
 use crate::ToParams;
 
-use std::{
-    error::Error,
-    str::FromStr,
-};
+use crate::Error;
+
+use std::str::FromStr;
 
 #[derive(Debug)]
 pub struct ProviderKey(String);
@@ -31,7 +32,7 @@ impl AsRef<str> for ServiceToken {
 
 // These trait impls provide a way to &str#parse()
 impl FromStr for ProviderKey {
-    type Err = Box<dyn Error>;
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<ProviderKey, Self::Err> {
         Ok(ProviderKey(s.into()))
@@ -39,7 +40,7 @@ impl FromStr for ProviderKey {
 }
 
 impl FromStr for ServiceToken {
-    type Err = Box<dyn Error>;
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<ServiceToken, Self::Err> {
         Ok(ServiceToken(s.into()))
@@ -144,7 +145,7 @@ impl AsRef<str> for ServiceId {
 }
 
 impl FromStr for ServiceId {
-    type Err = Box<dyn Error>;
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<ServiceId, Self::Err> {
         Ok(ServiceId(s.into()))
