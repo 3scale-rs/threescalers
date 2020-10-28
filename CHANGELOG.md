@@ -2,6 +2,28 @@
 
 Notable changes to threescalers will be tracked in this document.
 
+## 0.7.0 - 2020-10-28
+
+### Compatibility
+
+- [__BREAKING__] This release is a breaking change from previous releases due to
+  public functions and types changing signatures.
+
+### Added
+
+- Added no_std mode. Disable default features to get it unless you enable the "std"
+  feature. We now use anyhow to generate errors in fallible functions. ([#69](https://github.com/3scale-rs/threescalers/pull/69))
+
+### Changed
+
+- The timestamps used are now simple integers removing the complexity of using
+  SystemTime implementations. ([#73](https://github.com/3scale-rs/threescalers/pull/73))
+- Updated the XML parsing crate serde-xml-rs to 0.4 ([#72](https://github.com/3scale-rs/threescalers/pull/72))
+
+### Removed
+
+- Removed the mandatory dependencies on error_chain and the http crate. ([#71](https://github.com/3scale-rs/threescalers/pull/71))
+
 ## 0.6.1 - 2020-10-08
 
 ### Compatibility
