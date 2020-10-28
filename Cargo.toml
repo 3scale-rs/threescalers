@@ -12,9 +12,8 @@ categories = ["api-bindings"]
 exclude = [
     ".gitignore",
     "bors.toml",
-    ".appveyor.yml",
-    ".travis.yml",
     "/ci/**",
+    "/.github/**",
 ]
 
 [badges]
