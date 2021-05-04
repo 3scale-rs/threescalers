@@ -1,7 +1,9 @@
 #![warn(clippy::all)]
 #![cfg_attr(feature_gate_never_type, feature(never_type))]
-#![cfg_attr(feature_gate_const_saturating_int_methods,
-            feature(const_saturating_int_methods))]
+#![cfg_attr(
+    feature_gate_const_saturating_int_methods,
+    feature(const_saturating_int_methods)
+)]
 #![cfg_attr(feature_gate_test, feature(test))]
 #![no_std]
 extern crate no_std_compat as std;
@@ -32,11 +34,7 @@ pub mod version;
 pub mod response;
 
 pub(crate) mod error {
-    pub use anyhow::{
-        anyhow,
-        Error,
-        Result,
-    };
+    pub use anyhow::{anyhow, Error, Result};
 }
 
 pub use error::Error;
@@ -53,8 +51,9 @@ use std::borrow::Cow;
 /// so in order to take advantage of single allocations when modifications are not needed,
 /// a copy-on-write type is used. Values are always kept as is, so just references are ok.
 pub(crate) trait ToParams<'k, 'v, 'this, E>
-    where 'this: 'k + 'v,
-          E: Extend<(Cow<'k, str>, &'v str)>
+where
+    'this: 'k + 'v,
+    E: Extend<(Cow<'k, str>, &'v str)>,
 {
     fn to_params(&'this self, extendable: &mut E) {
         self.to_params_with_prefix(extendable, None);
@@ -62,14 +61,16 @@ pub(crate) trait ToParams<'k, 'v, 'this, E>
 
     fn to_params_with_prefix(&'this self, extendable: &mut E, prefix: Option<&'k str>) {
         self.to_params_with_mangling(extendable, &mut |c| match prefix {
-                Some(p) => c + p,
-                _ => c,
-            });
+            Some(p) => c + p,
+            _ => c,
+        });
     }
 
-    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(&'this self,
-                                                                       extendable: &mut E,
-                                                                       key_mangling: &mut F);
+    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(
+        &'this self,
+        extendable: &mut E,
+        key_mangling: &mut F,
+    );
 }
 
 #[cfg(test)]

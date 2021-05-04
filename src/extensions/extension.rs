@@ -49,7 +49,12 @@ impl Extension<'_> {
     pub fn to_encoded_string(&self) -> String {
         use crate::encoding::encode;
 
-        [encode(self.key()), "=".into(), encode(self.value().as_ref())].concat()
+        [
+            encode(self.key()),
+            "=".into(),
+            encode(self.value().as_ref()),
+        ]
+        .concat()
     }
 }
 
@@ -67,11 +72,18 @@ mod tests {
     // Perhaps at some point this could be statically guaranteed.
     #[test]
     fn test_to_cow_is_well_encoded() {
-        assert_eq!(Extension::NoBody.to_cow(), Extension::NoBody.to_encoded_string());
-        assert_eq!(Extension::Hierarchy.to_string(),
-                   Extension::Hierarchy.to_encoded_string());
-        assert_eq!(Extension::FlatUsage(1.to_string().into()).to_string(),
-                   Extension::FlatUsage(1.to_string().into()).to_encoded_string());
+        assert_eq!(
+            Extension::NoBody.to_cow(),
+            Extension::NoBody.to_encoded_string()
+        );
+        assert_eq!(
+            Extension::Hierarchy.to_string(),
+            Extension::Hierarchy.to_encoded_string()
+        );
+        assert_eq!(
+            Extension::FlatUsage(1.to_string().into()).to_string(),
+            Extension::FlatUsage(1.to_string().into()).to_encoded_string()
+        );
         let ext = Extension::Other("some;[]key&%1".into(), "a_^&[]%:;@value".into());
         assert_eq!(ext.to_string(), ext.to_encoded_string());
     }

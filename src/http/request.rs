@@ -1,10 +1,7 @@
 use std::prelude::v1::*;
 
 use crate::{
-    api_call::{
-        Kind::*,
-        *,
-    },
+    api_call::{Kind::*, *},
     application::*,
     user::*,
     version::USER_AGENT,
@@ -20,26 +17,24 @@ mod http_types;
 #[cfg(any(feature = "reqwest-sync", feature = "reqwest-async"))]
 mod reqwest;
 
-pub use super::{
-    HeaderMap,
-    Method,
-};
+pub use super::{HeaderMap, Method};
 
 #[derive(Clone, Debug)]
 pub struct Request {
-    pub method:     Method,
-    pub path:       &'static str,
+    pub method: Method,
+    pub path: &'static str,
     pub parameters: Parameters,
-    pub headers:    HeaderMap,
+    pub headers: HeaderMap,
 }
 
 use std::borrow::Cow;
 
 impl Request {
-    pub fn endpoint(kind: Kind,
-                    application: Option<&Application>,
-                    user: Option<&User>)
-                    -> (Method, &'static str) {
+    pub fn endpoint(
+        kind: Kind,
+        application: Option<&Application>,
+        user: Option<&User>,
+    ) -> (Method, &'static str) {
         use super::endpoints::*;
 
         match (kind, application, user) {
@@ -54,7 +49,10 @@ impl Request {
     }
 
     pub fn uri_and_body(&self) -> (Cow<str>, Option<&str>) {
-        (self.parameters.path_and_query(self.path), self.parameters.body())
+        (
+            self.parameters.path_and_query(self.path),
+            self.parameters.body(),
+        )
     }
 }
 
@@ -69,26 +67,30 @@ pub trait SetupRequest<'client, P, Output> {
 
 impl From<&ApiCall<'_, '_, '_, '_, '_, '_>> for Request {
     fn from(apicall: &ApiCall) -> Self {
-        let (method, path) = Request::endpoint(apicall.kind(), apicall.application(), apicall.user());
+        let (method, path) =
+            Request::endpoint(apicall.kind(), apicall.application(), apicall.user());
 
         let mut params = Vec::with_capacity(8);
         apicall.to_params(&mut params);
 
         let parameters = Parameters::new(&method, params.as_slice());
 
-        let mut headers = apicall.extensions().map_or_else(|| HeaderMap::with_capacity(1),
-                                                           |e| {
-                                                               let mut hm = HeaderMap::with_capacity(2);
-                                                               let _ = hm.insert("3scale-options".to_owned(),
-                                                                                 e.to_string());
-                                                               hm
-                                                           });
+        let mut headers = apicall.extensions().map_or_else(
+            || HeaderMap::with_capacity(1),
+            |e| {
+                let mut hm = HeaderMap::with_capacity(2);
+                let _ = hm.insert("3scale-options".to_owned(), e.to_string());
+                hm
+            },
+        );
 
         headers.insert("User-Agent".to_owned(), USER_AGENT.to_owned());
 
-        Request { method,
-                  path,
-                  parameters,
-                  headers }
+        Request {
+            method,
+            path,
+            parameters,
+            headers,
+        }
     }
 }

@@ -1,10 +1,6 @@
 use std::prelude::v1::*;
 
-use std::{
-    borrow::Cow,
-    iter::FromIterator,
-    vec::IntoIter,
-};
+use std::{borrow::Cow, iter::FromIterator, vec::IntoIter};
 
 use super::Extension;
 
@@ -103,7 +99,11 @@ impl<'s> List<'s> {
 
 impl ToString for List<'_> {
     fn to_string(&self) -> String {
-        self.0.iter().map(|e| e.to_string()).collect::<Vec<_>>().join("&")
+        self.0
+            .iter()
+            .map(|e| e.to_string())
+            .collect::<Vec<_>>()
+            .join("&")
     }
 }
 

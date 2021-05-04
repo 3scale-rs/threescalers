@@ -1,9 +1,6 @@
 use std::prelude::v1::*;
 
-use crate::{
-    Error,
-    ToParams,
-};
+use crate::{Error, ToParams};
 
 use std::str::FromStr;
 
@@ -43,14 +40,18 @@ impl FromStr for OAuthToken {
 }
 
 // These trait impls are similar to FromStr (but are infallible)
-impl From<&str> for UserId where Self: FromStr
+impl From<&str> for UserId
+where
+    Self: FromStr,
 {
     fn from(s: &str) -> UserId {
         s.parse().unwrap()
     }
 }
 
-impl From<&str> for OAuthToken where Self: FromStr
+impl From<&str> for OAuthToken
+where
+    Self: FromStr,
 {
     fn from(s: &str) -> OAuthToken {
         s.parse().unwrap()
@@ -119,12 +120,15 @@ impl User {
 use std::borrow::Cow;
 
 impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for User
-    where 'this: 'k + 'v,
-          E: Extend<(Cow<'k, str>, &'v str)>
+where
+    'this: 'k + 'v,
+    E: Extend<(Cow<'k, str>, &'v str)>,
 {
-    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(&'this self,
-                                                                       extendable: &mut E,
-                                                                       key_mangling: &mut F) {
+    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(
+        &'this self,
+        extendable: &mut E,
+        key_mangling: &mut F,
+    ) {
         let (field, value) = match self {
             User::UserId(user_id) => ("user_id", user_id.as_ref()),
             User::OAuthToken(token) => ("access_token", token.as_ref()),

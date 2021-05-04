@@ -1,26 +1,12 @@
 use std::prelude::v1::*;
 
-use super::{
-    HeaderMap,
-    Method,
-    Request,
-};
-use crate::{
-    anyhow,
-    api_call::ApiCall,
-    version::*,
-    Error,
-};
+use super::{HeaderMap, Method, Request};
+use crate::{anyhow, api_call::ApiCall, version::*, Error};
 use core::convert::TryFrom;
 use http_types::{
-    header::{
-        HeaderName,
-        HeaderValue,
-    },
+    header::{HeaderName, HeaderValue},
     request::Builder,
-    HeaderMap as HTTPHeaderMap,
-    Method as HTTPMethod,
-    Request as HTTPRequest,
+    HeaderMap as HTTPHeaderMap, Method as HTTPMethod, Request as HTTPRequest,
 };
 
 impl From<Method> for HTTPMethod {
@@ -53,13 +39,10 @@ impl FillFrom for HTTPHeaderMap {
 
         let it = hm.iter();
         for (key, value) in it {
-            let key = HeaderName::from_str(key.as_str()).map_err(|e| {
-                                                            anyhow!("failed validation of header name: {:#?}",
-                                                                    e)
-                                                        })?;
-            let value = HeaderValue::try_from(value).map_err(|e| {
-                                                        anyhow!("failed validation of header value: {:#?}", e)
-                                                    })?;
+            let key = HeaderName::from_str(key.as_str())
+                .map_err(|e| anyhow!("failed validation of header name: {:#?}", e))?;
+            let value = HeaderValue::try_from(value)
+                .map_err(|e| anyhow!("failed validation of header value: {:#?}", e))?;
             self.append(key, value);
         }
 
@@ -74,7 +57,7 @@ impl TryFrom<HeaderMap> for HTTPHeaderMap {
         let mut map = HTTPHeaderMap::with_capacity(hm.len());
 
         map.fill_from(&hm)
-           .map_err(|e| anyhow!("failed to convert header map to http's HeaderMap: {:#?}", e))?;
+            .map_err(|e| anyhow!("failed to convert header map to http's HeaderMap: {:#?}", e))?;
 
         Ok(map)
     }
@@ -88,17 +71,19 @@ impl TryFrom<Request> for HTTPRequest<String> {
         let body = body.unwrap_or("").to_owned();
         let rb = HTTPRequest::builder();
 
-        let mut rb = rb.header("User-Agent", USER_AGENT)
-                       .method(HTTPMethod::from(r.method))
-                       .uri(uri.as_ref());
+        let mut rb = rb
+            .header("User-Agent", USER_AGENT)
+            .method(HTTPMethod::from(r.method))
+            .uri(uri.as_ref());
 
         let map = rb.headers_mut().unwrap();
 
         map.fill_from(&r.headers)
-           .map_err(|e| anyhow!("failed to attach headers to request: {:#?}", e))?;
+            .map_err(|e| anyhow!("failed to attach headers to request: {:#?}", e))?;
 
-        Ok(rb.body(body)
-             .map_err(|e| anyhow!("failed to assign body to request: {:#?}", e))?)
+        Ok(rb
+            .body(body)
+            .map_err(|e| anyhow!("failed to assign body to request: {:#?}", e))?)
     }
 }
 
@@ -115,6 +100,7 @@ use crate::Never;
 
 impl SetupRequest<'_, Never, Result<HTTPRequest<String>, Error>> for Builder {
     fn setup_request(&mut self, r: Request, _params: Never) -> Result<HTTPRequest<String>, Error> {
-        HTTPRequest::try_from(r).map_err(|e| anyhow!("failed to convert request to http's Request: {:#?}", e))
+        HTTPRequest::try_from(r)
+            .map_err(|e| anyhow!("failed to convert request to http's Request: {:#?}", e))
     }
 }

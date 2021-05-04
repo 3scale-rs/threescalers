@@ -1,20 +1,9 @@
 use std::prelude::v1::*;
 
-use crate::{
-    anyhow,
-    Error,
-};
+use crate::{anyhow, Error};
 
-use super::super::{
-    Method,
-    Request,
-    SetupRequest,
-};
-use curl::easy::{
-    Easy,
-    List,
-    Transfer,
-};
+use super::super::{Method, Request, SetupRequest};
+use curl::easy::{Easy, List, Transfer};
 
 #[derive(Debug)]
 pub enum CurlEasyClient<'easy, 'data> {
@@ -54,17 +43,22 @@ impl<'easy, 'data> CurlEasyClient<'easy, 'data> {
     }
 
     pub fn easy(&self) -> Option<&'easy Easy> {
-        if let Self::Easy(e) = self { Some(e) } else { None }
+        if let Self::Easy(e) = self {
+            Some(e)
+        } else {
+            None
+        }
     }
 }
 
-impl<'easy, 'data, URI: ToString> SetupRequest<'easy, URI, Result<CurlEasyClient<'easy, 'data>, Error>>
-    for Easy
+impl<'easy, 'data, URI: ToString>
+    SetupRequest<'easy, URI, Result<CurlEasyClient<'easy, 'data>, Error>> for Easy
 {
-    fn setup_request(&'easy mut self,
-                     r: Request,
-                     params: URI)
-                     -> Result<CurlEasyClient<'easy, 'data>, Error> {
+    fn setup_request(
+        &'easy mut self,
+        r: Request,
+        params: URI,
+    ) -> Result<CurlEasyClient<'easy, 'data>, Error> {
         use core::convert::TryFrom;
 
         let (uri, body) = r.parameters.uri_and_body(r.path);
@@ -77,20 +71,21 @@ impl<'easy, 'data, URI: ToString> SetupRequest<'easy, URI, Result<CurlEasyClient
             Method::PUT => self.put(true),
             // any other verb needs to use custom_request()
             m => self.custom_request(m.as_str()),
-        }.map_err(|e| anyhow!("failed to set curl request method: {:#?}", e))?;
+        }
+        .map_err(|e| anyhow!("failed to set curl request method: {:#?}", e))?;
 
         self.url(uri.as_str())
             .map_err(|e| anyhow!("failed to set curl request URL: {:#?}", e))?;
-        let mut headerlist =
-            List::try_from(&r.headers).map_err(|e| {
-                                          anyhow!("failed to create curl::List from headers: {:#?}", e)
-                                      })?;
+        let mut headerlist = List::try_from(&r.headers)
+            .map_err(|e| anyhow!("failed to create curl::List from headers: {:#?}", e))?;
         // libcurl by default adds "Expect: 100-continue" to send bodies, which would break us
-        headerlist.append("Expect:")
-                  .map_err(|e| anyhow!("failed to add node to curl::List: {:#?}", e))?;
+        headerlist
+            .append("Expect:")
+            .map_err(|e| anyhow!("failed to add node to curl::List: {:#?}", e))?;
         // don't specify Content-Type for this request (similar to other clients)
-        headerlist.append("Content-Type:")
-                  .map_err(|e| anyhow!("failed to add node to curl::List: {:#?}", e))?;
+        headerlist
+            .append("Content-Type:")
+            .map_err(|e| anyhow!("failed to add node to curl::List: {:#?}", e))?;
         self.http_headers(headerlist)
             .map_err(|e| anyhow!("failed to add headers to curl client: {:#?}", e))?;
 
@@ -103,8 +98,11 @@ impl<'easy, 'data, URI: ToString> SetupRequest<'easy, URI, Result<CurlEasyClient
                 let mut transfer = self.transfer();
 
                 let mut count = 0usize;
-                transfer.read_function(move |buf| Ok(super::copy_data(&mut count, &body.as_bytes(), buf)))
-                        .map_err(|e| anyhow!("failed to set curl client read function: {:#?}", e))?;
+                transfer
+                    .read_function(move |buf| {
+                        Ok(super::copy_data(&mut count, &body.as_bytes(), buf))
+                    })
+                    .map_err(|e| anyhow!("failed to set curl client read function: {:#?}", e))?;
 
                 transfer.into()
             }
