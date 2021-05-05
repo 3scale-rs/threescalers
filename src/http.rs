@@ -118,3 +118,6 @@ pub use self::parameters::Parameters;
 pub mod endpoints;
 pub mod request;
 pub use self::request::Request;
+
+#[cfg(feature = "rest-mappings")]
+pub mod mapping_rule;
