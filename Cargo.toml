@@ -46,7 +46,7 @@ xml-response = ["serde-xml-rs", "serde", "chrono"]
 [dependencies]
 percent-encoding = "^2"
 http_types = { version = "^0.2", package = "http", optional = true }
-reqwest = { version = "^0.10", optional = true }
+reqwest = { version = ">= 0.10, < 0.12", optional = true }
 curl = { version = "^0.4", optional = true }
 serde = { version = "^1", optional = true, default-features = false, features = ["alloc", "derive"] }
 serde-xml-rs = { version = "^0.4", optional = true }
@@ -55,7 +55,7 @@ no-std-compat = { version = "^0.4", features = ["alloc"] }
 anyhow = { version = "^1", default-features = false }
 
 [build-dependencies]
-rustc_version = "^0.2"
+rustc_version = "^0.3"
 
 [[example]]
 name = "reqwest-report"
