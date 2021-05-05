@@ -1,13 +1,7 @@
 use std::prelude::v1::*;
 
-use super::{
-    Request,
-    SetupRequest,
-};
-use crate::{
-    anyhow,
-    Error,
-};
+use super::{Request, SetupRequest};
+use crate::{anyhow, Error};
 
 macro_rules! reqwest_impl {
     { $C:ty, $B:ty } => {

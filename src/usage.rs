@@ -57,16 +57,19 @@ impl<'m> Usage<'m> {
 use std::borrow::Cow;
 
 impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Usage<'this>
-    where 'this: 'k + 'v,
-          E: Extend<(Cow<'k, str>, &'v str)>
+where
+    'this: 'k + 'v,
+    E: Extend<(Cow<'k, str>, &'v str)>,
 {
-    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(&'this self,
-                                                                       extendable: &mut E,
-                                                                       key_mangling: &mut F) {
+    fn to_params_with_mangling<F: FnMut(Cow<'k, str>) -> Cow<'k, str>>(
+        &'this self,
+        extendable: &mut E,
+        key_mangling: &mut F,
+    ) {
         extendable.extend(self.0.iter().map(|mv| {
-                                           let m = format!("usage[{}]", mv.0);
-                                           (key_mangling(m.into()), mv.1)
-                                       }))
+            let m = format!("usage[{}]", mv.0);
+            (key_mangling(m.into()), mv.1)
+        }))
     }
 }
 
@@ -86,8 +89,10 @@ mod tests {
         let mut result = Vec::new();
         usage.to_params(&mut result);
 
-        let expected: Vec<(Cow<str>, &str)> = vec![("usage[metric1]".into(), metric1_val),
-                                                   ("usage[metric2]".into(), metric2_val),];
+        let expected: Vec<(Cow<str>, &str)> = vec![
+            ("usage[metric1]".into(), metric1_val),
+            ("usage[metric2]".into(), metric2_val),
+        ];
         assert_eq!(expected, result);
     }
 
@@ -105,8 +110,10 @@ mod tests {
         let mut result = Vec::new();
         usage.to_params(&mut result);
 
-        let expected: Vec<(Cow<str>, &str)> = vec![("usage[metric1]".into(), metric1_val),
-                                                   ("usage[metric2]".into(), metric2_val),];
+        let expected: Vec<(Cow<str>, &str)> = vec![
+            ("usage[metric1]".into(), metric1_val),
+            ("usage[metric2]".into(), metric2_val),
+        ];
         assert_eq!(expected, result);
     }
 }

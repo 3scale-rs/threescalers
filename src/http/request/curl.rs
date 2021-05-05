@@ -3,10 +3,7 @@ use std::prelude::v1::*;
 use curl::easy::List;
 
 use super::HeaderMap;
-use crate::{
-    anyhow,
-    Error,
-};
+use crate::{anyhow, Error};
 use core::convert::TryFrom;
 
 impl TryFrom<&HeaderMap> for List {
@@ -42,7 +39,4 @@ mod easy2;
 #[cfg(feature = "curl-easy")]
 pub use easy::CurlEasyClient;
 #[cfg(feature = "curl-easy2")]
-pub use easy2::{
-    BodyHandle,
-    SetBody,
-};
+pub use easy2::{BodyHandle, SetBody};

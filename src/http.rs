@@ -1,9 +1,6 @@
 use std::prelude::v1::*;
 
-use std::collections::{
-    btree_map::Iter as InnerIter,
-    BTreeMap,
-};
+use std::collections::{btree_map::Iter as InnerIter, BTreeMap};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[non_exhaustive]
@@ -58,7 +55,9 @@ impl HeaderMap {
     }
 
     pub fn iter(&self) -> Iter<'_> {
-        Iter { iter: self.0.iter() }
+        Iter {
+            iter: self.0.iter(),
+        }
     }
 }
 

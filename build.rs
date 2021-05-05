@@ -1,31 +1,37 @@
 // Detect nightly compilers and features.
-use rustc_version::{
-    version_meta,
-    Channel,
-    Version,
-    VersionMeta,
-};
+use rustc_version::{version_meta, Channel, Version, VersionMeta};
 
 use AvailabilityStatic::*;
 
 // Declare features used by the project.
 // Use minimum and maximum (not included) versions.
 // "always"/"unknown" for minimum and "unknown" for maximum are special.
-static FEATURES: &[Feature<'_>] = &[Feature { name:         "nightly",
-                                                      availability: Nightly("always", "unknown"), },
-                                            Feature { name:         "test",
-                                                      availability: NightlyGated("always", "unknown"), },
-                                            Feature { name:         "never_type",
-                                                      availability: NightlyGated("1.12.0", "unknown"), },
-                                            Feature { name:         "const_saturating_int_methods",
-                                                      availability: Stable("1.47.0", "unknown"), }];
+static FEATURES: &[Feature<'_>] = &[
+    Feature {
+        name: "nightly",
+        availability: Nightly("always", "unknown"),
+    },
+    Feature {
+        name: "test",
+        availability: NightlyGated("always", "unknown"),
+    },
+    Feature {
+        name: "never_type",
+        availability: NightlyGated("1.12.0", "unknown"),
+    },
+    Feature {
+        name: "const_saturating_int_methods",
+        availability: Stable("1.47.0", "unknown"),
+    },
+];
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let version_meta = version_meta()?;
 
-    FEATURES.iter()
-            .map(|f| f.cargo_flags(&version_meta))
-            .for_each(|fl_set| fl_set.iter().for_each(|fl| println!("{}", fl)));
+    FEATURES
+        .iter()
+        .map(|f| f.cargo_flags(&version_meta))
+        .for_each(|fl_set| fl_set.iter().for_each(|fl| println!("{}", fl)));
 
     Ok(())
 }
@@ -78,7 +84,7 @@ enum FeatureFlags {
 }
 
 struct Feature<'a> {
-    name:         &'a str,
+    name: &'a str,
     availability: AvailabilityStatic,
 }
 
@@ -124,8 +130,11 @@ impl<'a> Feature<'a> {
     pub fn cargo_flags(&self, version_meta: &VersionMeta) -> Box<[String]> {
         match self.flags(version_meta) {
             FeatureFlags::HasFeature => [format!("cargo:rustc-cfg=has_{}", self.name())].into(),
-            FeatureFlags::HasGatedFeature => [format!("cargo:rustc-cfg=has_{}", self.name()),
-                                              format!("cargo:rustc-cfg=feature_gate_{}", self.name())].into(),
+            FeatureFlags::HasGatedFeature => [
+                format!("cargo:rustc-cfg=has_{}", self.name()),
+                format!("cargo:rustc-cfg=feature_gate_{}", self.name()),
+            ]
+            .into(),
             FeatureFlags::Unavailable => [].into(),
         }
     }

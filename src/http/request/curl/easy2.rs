@@ -1,22 +1,9 @@
 use std::prelude::v1::*;
 
-use crate::{
-    anyhow,
-    Error,
-    Result,
-};
+use crate::{anyhow, Error, Result};
 
-use super::super::{
-    Method,
-    Request,
-    SetupRequest,
-};
-use curl::easy::{
-    Easy2,
-    Handler,
-    List,
-    ReadError,
-};
+use super::super::{Method, Request, SetupRequest};
+use curl::easy::{Easy2, Handler, List, ReadError};
 
 /// This trait has to be implemented by the Easy2<H>'s H generic type, as well as curl's Handler.
 /// This is because the body of POST requests needs to be pushed from the storage associated to
@@ -39,13 +26,15 @@ pub trait SetBody: Handler {
 #[derive(Debug, Clone)]
 pub struct BodyHandle {
     count: usize,
-    body:  Option<String>,
+    body: Option<String>,
 }
 
 impl BodyHandle {
     pub fn new() -> Self {
-        Self { count: 0,
-               body:  None, }
+        Self {
+            count: 0,
+            body: None,
+        }
     }
 
     /// A method to set/unset the body. To be used from a SetBody trait impl.
@@ -93,20 +82,21 @@ impl<URI: ToString, H: SetBody> SetupRequest<'_, URI, Result<(), Error>> for Eas
             Method::PUT => self.put(true),
             // any other verb needs to use custom_request()
             m => self.custom_request(m.as_str()),
-        }.map_err(|e| anyhow!("failed to set curl request method: {:#?}", e))?;
+        }
+        .map_err(|e| anyhow!("failed to set curl request method: {:#?}", e))?;
 
         self.url(uri.as_str())
             .map_err(|e| anyhow!("failed to set curl request URL: {:#?}", e))?;
-        let mut headerlist =
-            List::try_from(&r.headers).map_err(|e| {
-                                          anyhow!("failed to create curl::List from headers: {:#?}", e)
-                                      })?;
+        let mut headerlist = List::try_from(&r.headers)
+            .map_err(|e| anyhow!("failed to create curl::List from headers: {:#?}", e))?;
         // libcurl by default adds "Expect: 100-continue" to send bodies, which would break us
-        headerlist.append("Expect:")
-                  .map_err(|e| anyhow!("failed to add node to curl::List: {:#?}", e))?;
+        headerlist
+            .append("Expect:")
+            .map_err(|e| anyhow!("failed to add node to curl::List: {:#?}", e))?;
         // don't specify Content-Type for this request (similar to other clients)
-        headerlist.append("Content-Type:")
-                  .map_err(|e| anyhow!("failed to add node to curl::List: {:#?}", e))?;
+        headerlist
+            .append("Content-Type:")
+            .map_err(|e| anyhow!("failed to add node to curl::List: {:#?}", e))?;
         self.http_headers(headerlist)
             .map_err(|e| anyhow!("failed to add headers to curl client: {:#?}", e))?;
 

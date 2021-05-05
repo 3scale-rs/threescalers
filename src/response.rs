@@ -2,20 +2,12 @@ use std::prelude::v1::*;
 
 use chrono::prelude::*;
 use serde::{
-    de::{
-        self,
-        Deserializer,
-        MapAccess,
-        Visitor,
-    },
+    de::{self, Deserializer, MapAccess, Visitor},
     Deserialize,
 };
 use std::{
     collections::{
-        btree_map::{
-            Iter,
-            IterMut,
-        },
+        btree_map::{Iter, IterMut},
         BTreeMap,
     },
     fmt,
@@ -48,10 +40,11 @@ impl MetricsHierarchy {
         Self(BTreeMap::new())
     }
 
-    pub fn insert<S: Into<String>, V: Into<Vec<String>>>(&mut self,
-                                                         parent_metric: S,
-                                                         children_metrics: V)
-                                                         -> Option<Vec<String>> {
+    pub fn insert<S: Into<String>, V: Into<Vec<String>>>(
+        &mut self,
+        parent_metric: S,
+        children_metrics: V,
+    ) -> Option<Vec<String>> {
         self.0.insert(parent_metric.into(), children_metrics.into())
     }
 
@@ -75,23 +68,23 @@ impl MetricsHierarchy {
     /// 1 parent metrics, not multiple.
     pub fn parent_of(&self, metric_name: &str) -> Option<&str> {
         self.iter().find_map(|(parent, v)| {
-                       if v.iter().any(|child| metric_name == child) {
-                           Some(parent.as_str())
-                       } else {
-                           None
-                       }
-                   })
+            if v.iter().any(|child| metric_name == child) {
+                Some(parent.as_str())
+            } else {
+                None
+            }
+        })
     }
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
 #[serde(rename = "usage_report")]
 pub struct UsageReport {
-    pub metric:        String,
-    pub period:        Period,
-    pub period_start:  PeriodTime,
-    pub period_end:    PeriodTime,
-    pub max_value:     u64,
+    pub metric: String,
+    pub period: Period,
+    pub period_start: PeriodTime,
+    pub period_end: PeriodTime,
+    pub max_value: u64,
     pub current_value: u64,
 }
 
@@ -114,7 +107,7 @@ pub enum Authorization {
 
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct OkAuthorization {
-    plan:          String,
+    plan: String,
     usage_reports: UsageReports,
 
     #[serde(rename = "hierarchy")]
@@ -147,7 +140,8 @@ impl<'de> Visitor<'de> for PeriodStringVisitor {
     }
 
     fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-        where E: de::Error
+    where
+        E: de::Error,
     {
         match v {
             "minute" => Ok(Period::Minute),
@@ -164,7 +158,8 @@ impl<'de> Visitor<'de> for PeriodStringVisitor {
 
 impl<'de> Deserialize<'de> for Period {
     fn deserialize<D>(deserializer: D) -> Result<Period, D::Error>
-        where D: Deserializer<'de>
+    where
+        D: Deserializer<'de>,
     {
         deserializer.deserialize_any(PeriodStringVisitor)
     }
@@ -180,7 +175,8 @@ impl<'de> Visitor<'de> for TimestampVisitor {
     }
 
     fn visit_map<V>(self, mut map: V) -> Result<PeriodTime, V::Error>
-        where V: MapAccess<'de>
+    where
+        V: MapAccess<'de>,
     {
         // We know there's only one key with one value.
         // The key is not used, but we need to call "next_key()". From the
@@ -190,11 +186,12 @@ impl<'de> Visitor<'de> for TimestampVisitor {
         let timestamp: String = map.next_value()?;
 
         let ts_str = timestamp.as_str();
-        let dt =
-            DateTime::parse_from_str(ts_str, "%Y-%m-%d %H:%M:%S %z").map_err(|e| {
-                de::Error::custom(format_args!("invalid timestamp {}, expected %Y-%m-%d %H:%M:%S %z: {:?}",
-                                               ts_str, e))
-            })?;
+        let dt = DateTime::parse_from_str(ts_str, "%Y-%m-%d %H:%M:%S %z").map_err(|e| {
+            de::Error::custom(format_args!(
+                "invalid timestamp {}, expected %Y-%m-%d %H:%M:%S %z: {:?}",
+                ts_str, e
+            ))
+        })?;
 
         Ok(PeriodTime::from(dt))
     }
@@ -202,7 +199,8 @@ impl<'de> Visitor<'de> for TimestampVisitor {
 
 impl<'de> Deserialize<'de> for PeriodTime {
     fn deserialize<D>(deserializer: D) -> Result<PeriodTime, D::Error>
-        where D: Deserializer<'de>
+    where
+        D: Deserializer<'de>,
     {
         deserializer.deserialize_any(TimestampVisitor)
     }
@@ -218,7 +216,8 @@ impl<'de> Visitor<'de> for MetricsHierarchyVisitor {
     }
 
     fn visit_map<V>(self, mut map: V) -> Result<Self::Value, V::Error>
-        where V: MapAccess<'de>
+    where
+        V: MapAccess<'de>,
     {
         let mut hierarchy = MetricsHierarchy::new();
 
@@ -228,9 +227,10 @@ impl<'de> Visitor<'de> for MetricsHierarchyVisitor {
             let val: BTreeMap<String, String> = map.next_value()?;
 
             let parent_metric = val["name"].to_owned();
-            let children_metrics = val["children"].split(' ')
-                                                  .map(|s| s.to_owned())
-                                                  .collect::<Vec<_>>();
+            let children_metrics = val["children"]
+                .split(' ')
+                .map(|s| s.to_owned())
+                .collect::<Vec<_>>();
 
             hierarchy.insert(parent_metric, children_metrics);
         }
@@ -241,7 +241,8 @@ impl<'de> Visitor<'de> for MetricsHierarchyVisitor {
 
 impl<'de> Deserialize<'de> for MetricsHierarchy {
     fn deserialize<D>(deserializer: D) -> Result<MetricsHierarchy, D::Error>
-        where D: Deserializer<'de>
+    where
+        D: Deserializer<'de>,
     {
         deserializer.deserialize_any(MetricsHierarchyVisitor)
     }
@@ -249,7 +250,7 @@ impl<'de> Deserialize<'de> for MetricsHierarchy {
 
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct UsageData {
-    max_value:     u64,
+    max_value: u64,
     current_value: u64,
 }
 
@@ -266,10 +267,7 @@ impl FromStr for Authorization {
 
 #[cfg(test)]
 mod tests {
-    use super::{
-        UsageReports::*,
-        *,
-    };
+    use super::{UsageReports::*, *};
 
     #[test]
     fn parse() {
@@ -297,26 +295,31 @@ mod tests {
 
         let parsed_auth = Authorization::from_str(s).unwrap();
 
-        let expected_auth = Authorization::Ok(OkAuthorization { plan:              String::from("App Plan"),
-                                                                metrics_hierarchy: None,
-                                                                usage_reports:     UsageReports(vec![
+        let expected_auth = Authorization::Ok(OkAuthorization {
+            plan: String::from("App Plan"),
+            metrics_hierarchy: None,
+            usage_reports: UsageReports(vec![
                 UsageReport {
                     metric: String::from("products"),
                     period: Period::Minute,
-                    period_start: DateTime::<Utc>::from(Utc.ymd(2019, 6, 5).and_hms(16, 24, 0)).into(),
-                    period_end: DateTime::<Utc>::from(Utc.ymd(2019, 6, 5).and_hms(16, 25, 0)).into(),
+                    period_start: DateTime::<Utc>::from(Utc.ymd(2019, 6, 5).and_hms(16, 24, 0))
+                        .into(),
+                    period_end: DateTime::<Utc>::from(Utc.ymd(2019, 6, 5).and_hms(16, 25, 0))
+                        .into(),
                     max_value: 5,
                     current_value: 0,
                 },
                 UsageReport {
                     metric: String::from("products"),
                     period: Period::Month,
-                    period_start: DateTime::<Utc>::from(Utc.ymd(2019, 6, 1).and_hms(0, 0, 0)).into(),
+                    period_start: DateTime::<Utc>::from(Utc.ymd(2019, 6, 1).and_hms(0, 0, 0))
+                        .into(),
                     period_end: DateTime::<Utc>::from(Utc.ymd(2019, 7, 1).and_hms(0, 0, 0)).into(),
                     max_value: 50,
                     current_value: 0,
                 },
-            ]), });
+            ]),
+        });
 
         assert_eq!(parsed_auth, expected_auth);
     }
@@ -362,8 +365,9 @@ mod tests {
 
         let parsed_auth = Authorization::from_str(xml_response).unwrap();
 
-        let expected_auth =
-            Authorization::Denied(DeniedAuthorization { code: String::from("user_key_invalid"), });
+        let expected_auth = Authorization::Denied(DeniedAuthorization {
+            code: String::from("user_key_invalid"),
+        });
         assert_eq!(parsed_auth, expected_auth);
     }
 
@@ -416,16 +420,21 @@ mod tests {
         let parsed_auth = Authorization::from_str(xml_response).unwrap();
 
         let mut expected_hierarchy = MetricsHierarchy::new();
-        expected_hierarchy.insert("parent1", vec![String::from("child1"), String::from("child2")]);
+        expected_hierarchy.insert(
+            "parent1",
+            vec![String::from("child1"), String::from("child2")],
+        );
         expected_hierarchy.insert("parent2", vec![String::from("child3")]);
 
-        let expected_auth = Authorization::Ok(OkAuthorization { plan:              String::from("Basic"),
-                                                                metrics_hierarchy: Some(expected_hierarchy),
-                                                                usage_reports:     UsageReports(vec![
+        let expected_auth = Authorization::Ok(OkAuthorization {
+            plan: String::from("Basic"),
+            metrics_hierarchy: Some(expected_hierarchy),
+            usage_reports: UsageReports(vec![
                 UsageReport {
                     metric: String::from("parent1"),
                     period: Period::Day,
-                    period_start: DateTime::<Utc>::from(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0)).into(),
+                    period_start: DateTime::<Utc>::from(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0))
+                        .into(),
                     period_end: DateTime::<Utc>::from(Utc.ymd(2016, 1, 2).and_hms(0, 0, 0)).into(),
                     max_value: 100,
                     current_value: 20,
@@ -433,7 +442,8 @@ mod tests {
                 UsageReport {
                     metric: String::from("parent2"),
                     period: Period::Day,
-                    period_start: DateTime::<Utc>::from(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0)).into(),
+                    period_start: DateTime::<Utc>::from(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0))
+                        .into(),
                     period_end: DateTime::<Utc>::from(Utc.ymd(2016, 1, 2).and_hms(0, 0, 0)).into(),
                     max_value: 100,
                     current_value: 10,
@@ -441,7 +451,8 @@ mod tests {
                 UsageReport {
                     metric: String::from("child1"),
                     period: Period::Day,
-                    period_start: DateTime::<Utc>::from(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0)).into(),
+                    period_start: DateTime::<Utc>::from(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0))
+                        .into(),
                     period_end: DateTime::<Utc>::from(Utc.ymd(2016, 1, 2).and_hms(0, 0, 0)).into(),
                     max_value: 100,
                     current_value: 10,
@@ -449,7 +460,8 @@ mod tests {
                 UsageReport {
                     metric: String::from("child2"),
                     period: Period::Day,
-                    period_start: DateTime::<Utc>::from(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0)).into(),
+                    period_start: DateTime::<Utc>::from(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0))
+                        .into(),
                     period_end: DateTime::<Utc>::from(Utc.ymd(2016, 1, 2).and_hms(0, 0, 0)).into(),
                     max_value: 100,
                     current_value: 10,
@@ -457,12 +469,14 @@ mod tests {
                 UsageReport {
                     metric: String::from("child3"),
                     period: Period::Day,
-                    period_start: DateTime::<Utc>::from(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0)).into(),
+                    period_start: DateTime::<Utc>::from(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0))
+                        .into(),
                     period_end: DateTime::<Utc>::from(Utc.ymd(2016, 1, 2).and_hms(0, 0, 0)).into(),
                     max_value: 100,
                     current_value: 10,
                 },
-            ]), });
+            ]),
+        });
 
         assert_eq!(parsed_auth, expected_auth);
     }
@@ -471,7 +485,10 @@ mod tests {
     fn metrics_hierarchy_remove() {
         let mut hierarchy = MetricsHierarchy::new();
 
-        hierarchy.insert("parent1", vec![String::from("child1"), String::from("child2")]);
+        hierarchy.insert(
+            "parent1",
+            vec![String::from("child1"), String::from("child2")],
+        );
         hierarchy.insert("parent2", vec![String::from("child3")]);
 
         hierarchy.remove("parent1");
@@ -488,7 +505,10 @@ mod tests {
         let a_parent = "a_parent";
         let mut hierarchy = MetricsHierarchy::new();
 
-        hierarchy.insert(a_parent, vec![String::from("child1"), String::from("child2")]);
+        hierarchy.insert(
+            a_parent,
+            vec![String::from("child1"), String::from("child2")],
+        );
         hierarchy.insert("parent2", vec![String::from("child3")]);
 
         assert_eq!(hierarchy.parent_of("child2"), Some(a_parent));
