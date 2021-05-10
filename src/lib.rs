@@ -16,6 +16,10 @@ pub type Never = !;
 #[cfg(not(supports_never_type))]
 pub type Never = core::convert::Infallible;
 
+// Macros declared here, so this module should come first.
+#[macro_use]
+pub(crate) mod util;
+
 pub mod api_call;
 pub mod application;
 pub mod credentials;
