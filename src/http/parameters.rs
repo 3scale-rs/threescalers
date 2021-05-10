@@ -118,7 +118,9 @@ impl Parameters {
     }
 }
 
-#[cfg(all(test, has_nightly))]
+// can't test directly for test::Bencher because autocfg lacks support for now,
+// so use feature_test which is already a guarantee of running nightly.
+#[cfg(all(test, feature_test))]
 mod benches {
     use super::*;
     use test::Bencher;
