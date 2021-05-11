@@ -77,15 +77,15 @@ pub enum User {
     OAuthToken(OAuthToken),
 }
 
-impl Into<User> for UserId {
-    fn into(self) -> User {
-        User::UserId(self)
+impl From<UserId> for User {
+    fn from(uid: UserId) -> Self {
+        User::UserId(uid)
     }
 }
 
-impl Into<User> for OAuthToken {
-    fn into(self) -> User {
-        User::OAuthToken(self)
+impl From<OAuthToken> for User {
+    fn from(token: OAuthToken) -> Self {
+        User::OAuthToken(token)
     }
 }
 
