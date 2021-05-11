@@ -7,3 +7,6 @@ pub use inner_deref::{InnerDerefExt, InnerDerefMutExt};
 mod iterator_fold_self;
 #[cfg(not(has_core_iter_Iterator_reduce))]
 pub use iterator_fold_self::IteratorFoldSelfExt;
+
+mod never;
+pub use never::Never;

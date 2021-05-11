@@ -10,12 +10,6 @@ use std::prelude::v1::*;
 #[cfg(all(test, feature_test))]
 extern crate test;
 
-// Define a never type useful for some traits (ie. SetupRequest)
-#[cfg(supports_never_type)]
-pub type Never = !;
-#[cfg(not(supports_never_type))]
-pub type Never = core::convert::Infallible;
-
 // Macros declared here, so this module should come first.
 #[macro_use]
 pub(crate) mod util;
