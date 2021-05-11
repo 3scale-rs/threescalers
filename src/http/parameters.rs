@@ -106,7 +106,7 @@ impl Parameters {
     ) -> ParamsMapper<'a, 'p, S, String> {
         params
             .iter()
-            .map(|(k, v)| [k.as_ref().as_ref(), "=", v.as_ref()].concat())
+            .map(|(k, v)| [k.as_ref(), "=", v.as_ref()].concat())
     }
 
     fn params_to_vec<S: AsRef<str>>(params: &[(Cow<str>, S)]) -> Vec<String> {
