@@ -79,15 +79,15 @@ impl From<String> for ServiceToken {
     }
 }
 
-impl Into<Credentials> for ProviderKey {
-    fn into(self) -> Credentials {
-        Credentials::ProviderKey(self)
+impl From<ProviderKey> for Credentials {
+    fn from(pk: ProviderKey) -> Self {
+        Credentials::ProviderKey(pk)
     }
 }
 
-impl Into<Credentials> for ServiceToken {
-    fn into(self) -> Credentials {
-        Credentials::ServiceToken(self)
+impl From<ServiceToken> for Credentials {
+    fn from(token: ServiceToken) -> Self {
+        Credentials::ServiceToken(token)
     }
 }
 
