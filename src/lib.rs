@@ -1,4 +1,4 @@
-#![warn(clippy::all)]
+#![deny(clippy::all)]
 #![cfg_attr(feature_gate_never_type, feature(never_type))]
 #![cfg_attr(
     feature_gate_const_saturating_int_methods,
