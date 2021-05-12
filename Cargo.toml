@@ -55,7 +55,7 @@ no-std-compat = { version = "^0.4", features = ["alloc"] }
 anyhow = { version = "^1", default-features = false }
 
 [build-dependencies]
-rustc_version = "^0.3"
+autocfg = { git = "https://github.com/unleashed/autocfg", branch = "probe_feature" }
 
 [[example]]
 name = "reqwest-report"

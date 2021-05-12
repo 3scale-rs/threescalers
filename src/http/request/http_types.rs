@@ -96,7 +96,7 @@ impl TryFrom<&ApiCall<'_, '_, '_, '_, '_, '_>> for HTTPRequest<String> {
 }
 
 use super::SetupRequest;
-use crate::Never;
+use crate::util::Never;
 
 impl SetupRequest<'_, Never, Result<HTTPRequest<String>, Error>> for Builder {
     fn setup_request(&mut self, r: Request, _params: Never) -> Result<HTTPRequest<String>, Error> {

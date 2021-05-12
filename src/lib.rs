@@ -1,22 +1,18 @@
 #![deny(clippy::all)]
-#![cfg_attr(feature_gate_never_type, feature(never_type))]
-#![cfg_attr(
-    feature_gate_const_saturating_int_methods,
-    feature(const_saturating_int_methods)
-)]
-#![cfg_attr(feature_gate_test, feature(test))]
+#![cfg_attr(feature_never_type, feature(never_type))]
+#![cfg_attr(feature_matches_macro, feature(matches_macro))]
+#![cfg_attr(feature_inner_deref, feature(inner_deref))]
+#![cfg_attr(feature_test, feature(test))]
 #![no_std]
 extern crate no_std_compat as std;
 use std::prelude::v1::*;
 
-#[cfg(all(test, has_test))]
+#[cfg(all(test, feature_test))]
 extern crate test;
 
-// Define a never type useful for some traits (ie. SetupRequest)
-#[cfg(feature_gate_never_type)]
-pub type Never = !;
-#[cfg(not(has_never_type))]
-pub type Never = core::convert::Infallible;
+// Macros declared here, so this module should come first.
+#[macro_use]
+pub(crate) mod util;
 
 pub mod api_call;
 pub mod application;
