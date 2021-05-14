@@ -28,8 +28,8 @@ impl Method {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
 #[repr(transparent)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct HeaderMap(BTreeMap<String, String>);
 
 impl HeaderMap {
