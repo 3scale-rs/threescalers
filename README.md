@@ -4,11 +4,8 @@
 
 ![Minimum rustc version](https://img.shields.io/badge/rustc-1.40.0+-green.svg)
 [![docs.rs](https://docs.rs/threescalers/badge.svg)](https://docs.rs/threescalers)
-[![Build Status](https://travis-ci.org/3scale-rs/threescalers.svg?branch=master)](https://travis-ci.org/3scale-rs/threescalers)
-[![Build status](https://ci.appveyor.com/api/projects/status/gf7okt6bbiqf2l1d/branch/master?svg=true)](https://ci.appveyor.com/project/3scale-rs/threescalers/branch/master)
+[![Build Status](https://github.com/3scale-rs/threescalers/actions/workflows/ci.yaml/badge.svg)](https://travis-ci.org/3scale-rs/threescalers)
 [![codecov.io](https://codecov.io/gh/3scale-rs/threescalers/coverage.svg?branch=master)](https://codecov.io/gh/3scale-rs/threescalers/branch/master)
-
-[Nightly (master) documentation](https://3scale-rs.github.io/threescalers/)
 
 This library offers types to work with the 3scale Service Management API and
 convenience implementations for some comonly used HTTP clients.
