@@ -226,13 +226,17 @@ impl<'de> Visitor<'de> for MetricsHierarchyVisitor {
         while map.next_key::<String>()?.is_some() {
             let val: BTreeMap<String, String> = map.next_value()?;
 
-            let parent_metric = val["name"].to_owned();
-            let children_metrics = val["children"]
+            let parent_metric = val
+                .get("name")
+                .ok_or_else(|| de::Error::missing_field("name"))?;
+            let children_metrics = val
+                .get("children")
+                .ok_or_else(|| de::Error::missing_field("children"))?
                 .split(' ')
                 .map(|s| s.to_owned())
                 .collect::<Vec<_>>();
 
-            hierarchy.insert(parent_metric, children_metrics);
+            hierarchy.insert(parent_metric.to_owned(), children_metrics);
         }
 
         Ok(hierarchy)
