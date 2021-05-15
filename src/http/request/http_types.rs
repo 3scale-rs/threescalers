@@ -86,7 +86,7 @@ impl TryFrom<Request> for HTTPRequest<String> {
     }
 }
 
-impl TryFrom<&ApiCall<'_, '_, '_, '_, '_, '_>> for HTTPRequest<String> {
+impl TryFrom<&ApiCall<'_>> for HTTPRequest<String> {
     type Error = Error;
 
     fn try_from(i: &ApiCall) -> Result<Self, Self::Error> {

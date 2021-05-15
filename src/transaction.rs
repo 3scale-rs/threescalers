@@ -3,18 +3,18 @@ use std::prelude::v1::*;
 use super::{application::Application, usage::Usage, user::User, ToParams};
 
 #[derive(Clone, Debug)]
-pub struct Transaction<'app, 'user, 'usage> {
-    application: &'app Application,
-    user: Option<&'user User>,
-    usage: Option<&'usage Usage<'usage>>,
+pub struct Transaction<'a> {
+    application: &'a Application,
+    user: Option<&'a User>,
+    usage: Option<&'a Usage<'a>>,
     timestamp: Option<String>,
 }
 
-impl<'app, 'user, 'usage> Transaction<'app, 'user, 'usage> {
+impl<'a> Transaction<'a> {
     pub fn new(
-        application: &'app Application,
-        user: Option<&'user User>,
-        usage: Option<&'usage Usage>,
+        application: &'a Application,
+        user: Option<&'a User>,
+        usage: Option<&'a Usage>,
         timestamp: Option<i64>,
     ) -> Self {
         Self {
@@ -44,7 +44,7 @@ impl<'app, 'user, 'usage> Transaction<'app, 'user, 'usage> {
 
 use std::borrow::Cow;
 
-impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Transaction<'_, '_, '_>
+impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for Transaction<'_>
 where
     'this: 'k + 'v,
     E: Extend<(Cow<'k, str>, &'v str)>,

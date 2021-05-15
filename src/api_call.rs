@@ -25,27 +25,25 @@ impl Kind {
 }
 
 #[derive(Copy, Clone, Debug)]
-pub struct ApiCall<'service, 'tx, 'app, 'user, 'usage, 'extensions> {
+pub struct ApiCall<'a> {
     kind: Kind,
-    service: &'service Service,
-    transactions: &'tx [Transaction<'app, 'user, 'usage>],
-    extensions: Option<&'extensions List<'extensions>>,
+    service: &'a Service,
+    transactions: &'a [Transaction<'a>],
+    extensions: Option<&'a List<'a>>,
 }
 
 #[derive(Copy, Clone, Debug)]
-pub struct Builder<'service, 'tx, 'app, 'user, 'usage, 'extensions> {
-    service: &'service Service,
+pub struct Builder<'a> {
+    service: &'a Service,
     kind: Option<Kind>,
-    transactions: &'tx [Transaction<'app, 'user, 'usage>],
-    extensions: Option<&'extensions List<'extensions>>,
+    transactions: &'a [Transaction<'a>],
+    extensions: Option<&'a List<'a>>,
 }
 
 // TODO: we can improve this with a state machine of types so that we are required to set svc, app,
 // user and kind before being able to set (required) the usage to build the call
-impl<'service, 'tx, 'app, 'user, 'usage, 'extensions>
-    Builder<'service, 'tx, 'app, 'user, 'usage, 'extensions>
-{
-    pub fn new(service: &'service Service) -> Self {
+impl<'a> Builder<'a> {
+    pub fn new(service: &'a Service) -> Self {
         Builder {
             service,
             kind: Default::default(),
@@ -54,7 +52,7 @@ impl<'service, 'tx, 'app, 'user, 'usage, 'extensions>
         }
     }
 
-    pub fn service(&mut self, s: &'service Service) -> &mut Self {
+    pub fn service(&mut self, s: &'a Service) -> &mut Self {
         self.service = s;
         self
     }
@@ -64,12 +62,12 @@ impl<'service, 'tx, 'app, 'user, 'usage, 'extensions>
         self
     }
 
-    pub fn transactions(&mut self, txns: &'tx [Transaction<'app, 'user, 'usage>]) -> &mut Self {
+    pub fn transactions(&mut self, txns: &'a [Transaction]) -> &mut Self {
         self.transactions = txns;
         self
     }
 
-    pub fn extensions(&mut self, extensions: &'extensions List) -> &mut Self {
+    pub fn extensions(&mut self, extensions: &'a List) -> &mut Self {
         self.extensions = Some(extensions);
         self
     }
@@ -87,18 +85,16 @@ impl<'service, 'tx, 'app, 'user, 'usage, 'extensions>
 
 use std::borrow::Cow;
 
-impl<'service, 'tx: 'app + 'user + 'usage, 'app, 'user, 'usage, 'extensions>
-    ApiCall<'service, 'tx, 'app, 'user, 'usage, 'extensions>
-{
-    pub fn builder(service: &'service Service) -> Builder {
+impl<'a> ApiCall<'a> {
+    pub fn builder(service: &'a Service) -> Builder {
         Builder::new(service)
     }
 
     pub fn new(
         kind: Kind,
-        service: &'service Service,
-        transactions: &'tx [Transaction<'app, 'user, 'usage>],
-        extensions: Option<&'extensions List>,
+        service: &'a Service,
+        transactions: &'a [Transaction],
+        extensions: Option<&'a List>,
     ) -> Self {
         Self {
             kind,
@@ -112,17 +108,17 @@ impl<'service, 'tx: 'app + 'user + 'usage, 'app, 'user, 'usage, 'extensions>
         self.kind
     }
 
-    pub fn service(&self) -> &'service Service {
+    pub fn service(&self) -> &Service {
         self.service
     }
 
-    pub fn transactions(&self) -> &'tx [Transaction<'app, 'user, 'usage>] {
+    pub fn transactions(&self) -> &[Transaction<'a>] {
         self.transactions
     }
 
     // helper to get a transaction only if it's the only one
     // useful for non-report calls
-    pub fn transaction(&self) -> Option<&'tx Transaction<'app, 'user, 'usage>> {
+    pub fn transaction(&self) -> Option<&Transaction<'a>> {
         let txns = self.transactions();
 
         if txns.len() == 1 {
@@ -132,19 +128,19 @@ impl<'service, 'tx: 'app + 'user + 'usage, 'app, 'user, 'usage, 'extensions>
         }
     }
 
-    pub fn application(&self) -> Option<&'app Application> {
+    pub fn application(&self) -> Option<&Application> {
         self.transaction().map(Transaction::application)
     }
 
-    pub fn user(&self) -> Option<&'user User> {
+    pub fn user(&self) -> Option<&User> {
         self.transaction().and_then(Transaction::user)
     }
 
-    pub fn usage(&self) -> Option<&'usage Usage> {
+    pub fn usage(&self) -> Option<&Usage> {
         self.transaction().and_then(Transaction::usage)
     }
 
-    pub fn extensions(&self) -> Option<&'extensions List> {
+    pub fn extensions(&self) -> Option<&List> {
         self.extensions
     }
 
@@ -156,7 +152,7 @@ impl<'service, 'tx: 'app + 'user + 'usage, 'app, 'user, 'usage, 'extensions>
     }
 }
 
-impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for ApiCall<'_, '_, '_, '_, '_, '_>
+impl<'k, 'v, 'this, E> ToParams<'k, 'v, 'this, E> for ApiCall<'_>
 where
     'this: 'k + 'v,
     E: Extend<(Cow<'k, str>, &'v str)>,
