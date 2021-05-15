@@ -51,10 +51,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     .map(|m| (m.0, format!("{}", m.1)))
     .collect::<Vec<_>>();
 
-    let usages = usages
-        .chunks(2)
-        .map(|metrics_and_values| Usage::from(metrics_and_values))
-        .collect::<Vec<_>>();
+    let usages = usages.chunks(2).map(Usage::from).collect::<Vec<_>>();
 
     println!("Usages: {:#?}", usages);
 

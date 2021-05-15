@@ -81,9 +81,8 @@ impl TryFrom<Request> for HTTPRequest<String> {
         map.fill_from(&r.headers)
             .map_err(|e| anyhow!("failed to attach headers to request: {:#?}", e))?;
 
-        Ok(rb
-            .body(body)
-            .map_err(|e| anyhow!("failed to assign body to request: {:#?}", e))?)
+        rb.body(body)
+            .map_err(|e| anyhow!("failed to assign body to request: {:#?}", e))
     }
 }
 

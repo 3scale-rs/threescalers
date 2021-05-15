@@ -102,9 +102,7 @@ mod tests {
         let metric1_val = "10";
         let metric2_name = "metric2";
         let metric2_val = "20";
-        let mut metrics = Vec::new();
-        metrics.push((metric1_name, metric1_val));
-        metrics.push((metric2_name, metric2_val));
+        let metrics = vec![(metric1_name, metric1_val), (metric2_name, metric2_val)];
         let usage = Usage::from(metrics.as_slice());
 
         let mut result = Vec::new();

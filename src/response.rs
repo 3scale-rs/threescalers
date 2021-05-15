@@ -307,19 +307,16 @@ mod tests {
                 UsageReport {
                     metric: String::from("products"),
                     period: Period::Minute,
-                    period_start: DateTime::<Utc>::from(Utc.ymd(2019, 6, 5).and_hms(16, 24, 0))
-                        .into(),
-                    period_end: DateTime::<Utc>::from(Utc.ymd(2019, 6, 5).and_hms(16, 25, 0))
-                        .into(),
+                    period_start: Utc.ymd(2019, 6, 5).and_hms(16, 24, 0).into(),
+                    period_end: Utc.ymd(2019, 6, 5).and_hms(16, 25, 0).into(),
                     max_value: 5,
                     current_value: 0,
                 },
                 UsageReport {
                     metric: String::from("products"),
                     period: Period::Month,
-                    period_start: DateTime::<Utc>::from(Utc.ymd(2019, 6, 1).and_hms(0, 0, 0))
-                        .into(),
-                    period_end: DateTime::<Utc>::from(Utc.ymd(2019, 7, 1).and_hms(0, 0, 0)).into(),
+                    period_start: Utc.ymd(2019, 6, 1).and_hms(0, 0, 0).into(),
+                    period_end: Utc.ymd(2019, 7, 1).and_hms(0, 0, 0).into(),
                     max_value: 50,
                     current_value: 0,
                 },
@@ -438,45 +435,40 @@ mod tests {
                 UsageReport {
                     metric: String::from("parent1"),
                     period: Period::Day,
-                    period_start: DateTime::<Utc>::from(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0))
-                        .into(),
-                    period_end: DateTime::<Utc>::from(Utc.ymd(2016, 1, 2).and_hms(0, 0, 0)).into(),
+                    period_start: Utc.ymd(2016, 1, 1).and_hms(0, 0, 0).into(),
+                    period_end: Utc.ymd(2016, 1, 2).and_hms(0, 0, 0).into(),
                     max_value: 100,
                     current_value: 20,
                 },
                 UsageReport {
                     metric: String::from("parent2"),
                     period: Period::Day,
-                    period_start: DateTime::<Utc>::from(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0))
-                        .into(),
-                    period_end: DateTime::<Utc>::from(Utc.ymd(2016, 1, 2).and_hms(0, 0, 0)).into(),
+                    period_start: Utc.ymd(2016, 1, 1).and_hms(0, 0, 0).into(),
+                    period_end: Utc.ymd(2016, 1, 2).and_hms(0, 0, 0).into(),
                     max_value: 100,
                     current_value: 10,
                 },
                 UsageReport {
                     metric: String::from("child1"),
                     period: Period::Day,
-                    period_start: DateTime::<Utc>::from(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0))
-                        .into(),
-                    period_end: DateTime::<Utc>::from(Utc.ymd(2016, 1, 2).and_hms(0, 0, 0)).into(),
+                    period_start: Utc.ymd(2016, 1, 1).and_hms(0, 0, 0).into(),
+                    period_end: Utc.ymd(2016, 1, 2).and_hms(0, 0, 0).into(),
                     max_value: 100,
                     current_value: 10,
                 },
                 UsageReport {
                     metric: String::from("child2"),
                     period: Period::Day,
-                    period_start: DateTime::<Utc>::from(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0))
-                        .into(),
-                    period_end: DateTime::<Utc>::from(Utc.ymd(2016, 1, 2).and_hms(0, 0, 0)).into(),
+                    period_start: Utc.ymd(2016, 1, 1).and_hms(0, 0, 0).into(),
+                    period_end: Utc.ymd(2016, 1, 2).and_hms(0, 0, 0).into(),
                     max_value: 100,
                     current_value: 10,
                 },
                 UsageReport {
                     metric: String::from("child3"),
                     period: Period::Day,
-                    period_start: DateTime::<Utc>::from(Utc.ymd(2016, 1, 1).and_hms(0, 0, 0))
-                        .into(),
-                    period_end: DateTime::<Utc>::from(Utc.ymd(2016, 1, 2).and_hms(0, 0, 0)).into(),
+                    period_start: Utc.ymd(2016, 1, 1).and_hms(0, 0, 0).into(),
+                    period_end: Utc.ymd(2016, 1, 2).and_hms(0, 0, 0).into(),
                     max_value: 100,
                     current_value: 10,
                 },

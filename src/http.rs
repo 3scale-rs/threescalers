@@ -3,6 +3,7 @@ use std::prelude::v1::*;
 use std::collections::{btree_map::Iter as InnerIter, BTreeMap};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[allow(clippy::upper_case_acronyms)]
 #[non_exhaustive]
 pub enum Method {
     GET,
