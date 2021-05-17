@@ -65,7 +65,7 @@ pub trait SetupRequest<'client, P, Output> {
     fn setup_request(&'client mut self, r: Request, params: P) -> Output;
 }
 
-impl From<&ApiCall<'_, '_, '_, '_, '_, '_>> for Request {
+impl From<&ApiCall<'_>> for Request {
     fn from(apicall: &ApiCall) -> Self {
         let (method, path) =
             Request::endpoint(apicall.kind(), apicall.application(), apicall.user());
