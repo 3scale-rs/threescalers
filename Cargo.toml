@@ -17,8 +17,6 @@ exclude = [
 ]
 
 [badges]
-appveyor = { repository = "3scale-rs/threescalers" }
-travis-ci = { repository = "3scale-rs/threescalers" }
 codecov = { repository = "3scale-rs/threescalers" }
 maintenance = { status = "actively-developed" }
 
