@@ -1,18 +1,18 @@
 use std::prelude::v1::*;
 
+use std::{fmt, str::FromStr};
+
 use chrono::prelude::*;
 use serde::{
     de::{self, Deserializer, MapAccess, Visitor},
     Deserialize,
 };
-use std::{
-    collections::{
-        btree_map::{Iter, IterMut},
-        BTreeMap,
-    },
-    fmt,
-    str::FromStr,
-};
+
+mod app_keys_list;
+pub use app_keys_list::AppKeysList;
+
+mod metrics_hierarchy;
+pub use metrics_hierarchy::MetricsHierarchy;
 
 mod systemtime {
     use chrono::DateTime;
@@ -29,53 +29,6 @@ mod systemtime {
 }
 
 pub use systemtime::PeriodTime;
-
-// We might want to consider moving from a BTreeMap to a Vec, as most of the time this btreemap will
-// contain a (very) small number of entries.
-#[derive(Debug, Clone, PartialEq, Default)]
-pub struct MetricsHierarchy(BTreeMap<String, Vec<String>>);
-
-impl MetricsHierarchy {
-    pub fn new() -> Self {
-        Self(BTreeMap::new())
-    }
-
-    pub fn insert<S: Into<String>, V: Into<Vec<String>>>(
-        &mut self,
-        parent_metric: S,
-        children_metrics: V,
-    ) -> Option<Vec<String>> {
-        self.0.insert(parent_metric.into(), children_metrics.into())
-    }
-
-    pub fn remove<S: AsRef<str>>(&mut self, parent_metric: S) -> Option<Vec<String>> {
-        self.0.remove(parent_metric.as_ref())
-    }
-
-    pub fn iter(&self) -> Iter<String, Vec<String>> {
-        self.0.iter()
-    }
-
-    pub fn iter_mut(&mut self) -> IterMut<String, Vec<String>> {
-        self.0.iter_mut()
-    }
-
-    pub fn into_inner(self) -> BTreeMap<String, Vec<String>> {
-        self.0
-    }
-
-    /// Retrieves the parent metric of a given metric. Note that Apisonator metrics have 0 or
-    /// 1 parent metrics, not multiple.
-    pub fn parent_of(&self, metric_name: &str) -> Option<&str> {
-        self.iter().find_map(|(parent, v)| {
-            if v.iter().any(|child| metric_name == child) {
-                Some(parent.as_str())
-            } else {
-                None
-            }
-        })
-    }
-}
 
 #[derive(Debug, Deserialize, PartialEq)]
 #[serde(rename = "usage_report")]
@@ -97,25 +50,28 @@ pub enum UsageReports {
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
 pub enum Authorization {
-    #[serde(rename = "status")]
-    Ok(OkAuthorization),
-
-    #[serde(rename = "error")]
-    Denied(DeniedAuthorization),
+    Status(AuthorizationStatus),
+    Error(AuthorizationError),
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
-pub struct OkAuthorization {
+pub struct AuthorizationStatus {
+    authorized: bool,
+    reason: Option<String>,
     plan: String,
     usage_reports: UsageReports,
 
     #[serde(rename = "hierarchy")]
     metrics_hierarchy: Option<MetricsHierarchy>,
+
+    #[serde(rename = "app_keys")]
+    app_keys: Option<AppKeysList>,
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
-pub struct DeniedAuthorization {
+pub struct AuthorizationError {
     code: String,
 }
 
@@ -206,52 +162,6 @@ impl<'de> Deserialize<'de> for PeriodTime {
     }
 }
 
-struct MetricsHierarchyVisitor;
-
-impl<'de> Visitor<'de> for MetricsHierarchyVisitor {
-    type Value = MetricsHierarchy;
-
-    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("a structure that represents a hierarchy of metrics")
-    }
-
-    fn visit_map<V>(self, mut map: V) -> Result<Self::Value, V::Error>
-    where
-        V: MapAccess<'de>,
-    {
-        let mut hierarchy = MetricsHierarchy::new();
-
-        // The key in the hierarchy structure is always "metric". It is not
-        // used, but we need to read it to get the value.
-        while map.next_key::<String>()?.is_some() {
-            let val: BTreeMap<String, String> = map.next_value()?;
-
-            let parent_metric = val
-                .get("name")
-                .ok_or_else(|| de::Error::missing_field("name"))?;
-            let children_metrics = val
-                .get("children")
-                .ok_or_else(|| de::Error::missing_field("children"))?
-                .split(' ')
-                .map(|s| s.to_owned())
-                .collect::<Vec<_>>();
-
-            hierarchy.insert(parent_metric.to_owned(), children_metrics);
-        }
-
-        Ok(hierarchy)
-    }
-}
-
-impl<'de> Deserialize<'de> for MetricsHierarchy {
-    fn deserialize<D>(deserializer: D) -> Result<MetricsHierarchy, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        deserializer.deserialize_any(MetricsHierarchyVisitor)
-    }
-}
-
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct UsageData {
     max_value: u64,
@@ -300,9 +210,12 @@ mod tests {
 
         let parsed_auth = Authorization::from_str(s).unwrap();
 
-        let expected_auth = Authorization::Ok(OkAuthorization {
+        let expected_auth = Authorization::Status(AuthorizationStatus {
+            authorized: true,
+            reason: None,
             plan: String::from("App Plan"),
             metrics_hierarchy: None,
+            app_keys: None,
             usage_reports: UsageReports(vec![
                 UsageReport {
                     metric: String::from("products"),
@@ -359,7 +272,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_denied_authorization() {
+    fn parse_error_authorization() {
         let xml_response = r##"
         <?xml version="1.0" encoding="UTF-8"?>
         <error code="user_key_invalid">user key "some_user_key" is invalid</error>
@@ -367,7 +280,7 @@ mod tests {
 
         let parsed_auth = Authorization::from_str(xml_response).unwrap();
 
-        let expected_auth = Authorization::Denied(DeniedAuthorization {
+        let expected_auth = Authorization::Error(AuthorizationError {
             code: String::from("user_key_invalid"),
         });
         assert_eq!(parsed_auth, expected_auth);
@@ -428,9 +341,12 @@ mod tests {
         );
         expected_hierarchy.insert("parent2", vec![String::from("child3")]);
 
-        let expected_auth = Authorization::Ok(OkAuthorization {
+        let expected_auth = Authorization::Status(AuthorizationStatus {
+            authorized: true,
+            reason: None,
             plan: String::from("Basic"),
             metrics_hierarchy: Some(expected_hierarchy),
+            app_keys: None,
             usage_reports: UsageReports(vec![
                 UsageReport {
                     metric: String::from("parent1"),
@@ -512,5 +428,71 @@ mod tests {
         assert_eq!(hierarchy.parent_of("child3"), Some("parent2"));
         assert_eq!(hierarchy.parent_of("nonchild"), None);
         assert_eq!(hierarchy.parent_of(a_parent), None);
+    }
+
+    #[test]
+    fn parse_app_keys() {
+        let xml_response = r##"
+        <?xml version="1.0" encoding="UTF-8"?>
+        <status>
+            <authorized>true</authorized>
+            <plan>Basic</plan>
+            <app_keys app="app_id" svc="service_id">
+                <key id="a_secret_key" />
+                <key id="another_secret_key"/>
+            </app_keys>
+        </status>
+        "##;
+
+        let parsed_auth = Authorization::from_str(xml_response).unwrap();
+
+        let expected_app_keys = AppKeysList::new(
+            "service_id".into(),
+            "app_id".into(),
+            vec!["a_secret_key", "another_secret_key"],
+        );
+
+        let expected_auth = Authorization::Status(AuthorizationStatus {
+            authorized: true,
+            reason: None,
+            plan: String::from("Basic"),
+            app_keys: Some(expected_app_keys),
+            metrics_hierarchy: None,
+            usage_reports: None,
+        });
+
+        assert_eq!(parsed_auth, expected_auth);
+    }
+
+    #[test]
+    fn parse_empty_app_keys() {
+        let xml_response = r##"
+        <?xml version="1.0" encoding="UTF-8"?>
+        <status>
+            <authorized>true</authorized>
+            <plan>Basic</plan>
+            <app_keys app="app_id" svc="service_id">
+            </app_keys>
+        </status>
+        "##;
+
+        let parsed_auth = Authorization::from_str(xml_response).unwrap();
+
+        let expected_app_keys = AppKeysList::new(
+            "service_id".into(),
+            "app_id".into(),
+            core::iter::empty::<crate::application::AppKey>(),
+        );
+
+        let expected_auth = Authorization::Status(AuthorizationStatus {
+            authorized: true,
+            reason: None,
+            plan: String::from("Basic"),
+            app_keys: Some(expected_app_keys),
+            metrics_hierarchy: None,
+            usage_reports: None,
+        });
+
+        assert_eq!(parsed_auth, expected_auth);
     }
 }
