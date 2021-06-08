@@ -71,10 +71,42 @@ pub struct AuthorizationStatus {
     app_keys: Option<AppKeysList>,
 }
 
+impl AuthorizationStatus {
+    pub fn authorized(&self) -> bool {
+        self.authorized
+    }
+
+    pub fn reason(&self) -> Option<&str> {
+        self.reason.as_deref()
+    }
+
+    pub fn plan(&self) -> &str {
+        self.plan.as_ref()
+    }
+
+    pub fn app_keys(&self) -> Option<&AppKeysList> {
+        self.app_keys.as_ref()
+    }
+
+    pub fn usage_reports(&self) -> Option<&UsageReports> {
+        self.usage_reports.as_ref()
+    }
+
+    pub fn hierarchy(&self) -> Option<&MetricsHierarchy> {
+        self.metrics_hierarchy.as_ref()
+    }
+}
+
 #[repr(transparent)]
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 pub struct AuthorizationError {
     code: String,
+}
+
+impl AuthorizationError {
+    pub fn code(&self) -> &str {
+        self.code.as_ref()
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
