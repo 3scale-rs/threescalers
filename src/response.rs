@@ -43,7 +43,7 @@ pub struct UsageReport {
 
 // Unfortunately the XML output from Apisonator includes a rather useless "usage_reports" tag that
 // is then followed by a "usage_report" tag in each UsageReport, so we need to wrap that up.
-#[repr(transparent)]
+#[cfg_attr(supports_transparent_enums, repr(transparent))]
 #[derive(Debug, Clone, Deserialize, PartialEq, Eq)]
 pub enum UsageReports {
     #[serde(rename = "usage_report")]

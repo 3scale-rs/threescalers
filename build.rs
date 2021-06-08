@@ -122,6 +122,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "{ let a = Some(5i32); matches!(a, None) }",
     );
 
+    emit_expression_maybe_using_feature(
+        &mut ac,
+        "transparent_enums",
+        "{\n#[repr(transparent)]\npub enum MaybeTransparent { A }\n}",
+    );
+
     ac.emit_feature("test");
 
     autocfg::rerun_path("build.rs");
