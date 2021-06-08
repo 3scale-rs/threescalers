@@ -15,7 +15,7 @@ use serde::{
 
 // We might want to consider moving from a BTreeMap to a Vec, as most of the time this btreemap will
 // contain a (very) small number of entries.
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct MetricsHierarchy(BTreeMap<String, Vec<String>>);
 
 impl MetricsHierarchy {

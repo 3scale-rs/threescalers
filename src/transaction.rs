@@ -2,7 +2,7 @@ use std::prelude::v1::*;
 
 use super::{application::Application, usage::Usage, user::User, ToParams};
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Transaction<'a> {
     application: &'a Application,
     user: Option<&'a User>,

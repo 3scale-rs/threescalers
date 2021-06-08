@@ -3,7 +3,7 @@ use std::prelude::v1::*;
 use super::Method;
 use std::borrow::Cow;
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Parameters {
     Query(String),
     Body(String),

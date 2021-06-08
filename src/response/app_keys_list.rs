@@ -12,7 +12,7 @@ use crate::{
     credentials::ServiceId,
 };
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AppKeysList {
     service_id: Option<ServiceId>,
     app_id: Option<AppId>,

@@ -2,8 +2,8 @@ use std::prelude::v1::*;
 
 use std::collections::{btree_map::Iter as InnerIter, BTreeMap};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
 #[allow(clippy::upper_case_acronyms)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Method {
     GET,
@@ -30,7 +30,7 @@ impl Method {
 }
 
 #[repr(transparent)]
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct HeaderMap(BTreeMap<String, String>);
 
 impl HeaderMap {
@@ -69,6 +69,7 @@ impl Default for HeaderMap {
 }
 
 #[repr(transparent)]
+#[derive(Debug, Clone)]
 pub struct Iter<'a> {
     iter: InnerIter<'a, String, String>,
 }

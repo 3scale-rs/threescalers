@@ -7,16 +7,16 @@ use crate::Error;
 use std::str::FromStr;
 
 #[repr(transparent)]
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AppId(String);
 #[repr(transparent)]
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AppKey(String);
 #[repr(transparent)]
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UserKey(String);
 #[repr(transparent)]
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct OAuthToken(String);
 
 // These trait impls provide a way to reference our types as &str
@@ -139,7 +139,7 @@ impl From<String> for OAuthToken {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Application {
     AppId(AppId, Option<AppKey>),
     UserKey(UserKey),

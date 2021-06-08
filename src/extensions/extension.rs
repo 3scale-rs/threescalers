@@ -2,8 +2,8 @@ use std::prelude::v1::*;
 
 use std::borrow::Cow;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 #[non_exhaustive]
-#[derive(Debug, Clone, PartialEq)]
 pub enum Extension<'s> {
     FlatUsage(Cow<'s, str>),
     Hierarchy,

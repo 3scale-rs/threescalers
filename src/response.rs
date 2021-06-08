@@ -18,7 +18,7 @@ mod systemtime {
     use chrono::DateTime;
 
     #[repr(transparent)]
-    #[derive(Debug, PartialEq)]
+    #[derive(Debug, Clone, PartialEq, Eq)]
     pub struct PeriodTime(pub i64);
 
     impl<Tz: chrono::TimeZone> From<DateTime<Tz>> for PeriodTime {
@@ -30,7 +30,7 @@ mod systemtime {
 
 pub use systemtime::PeriodTime;
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, PartialEq, Eq)]
 #[serde(rename = "usage_report")]
 pub struct UsageReport {
     pub metric: String,
@@ -43,20 +43,21 @@ pub struct UsageReport {
 
 // Unfortunately the XML output from Apisonator includes a rather useless "usage_reports" tag that
 // is then followed by a "usage_report" tag in each UsageReport, so we need to wrap that up.
-#[derive(Debug, Deserialize, PartialEq)]
+#[repr(transparent)]
+#[derive(Debug, Clone, Deserialize, PartialEq, Eq)]
 pub enum UsageReports {
     #[serde(rename = "usage_report")]
     UsageReports(Vec<UsageReport>),
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum Authorization {
     Status(AuthorizationStatus),
     Error(AuthorizationError),
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 pub struct AuthorizationStatus {
     authorized: bool,
     reason: Option<String>,
@@ -70,12 +71,13 @@ pub struct AuthorizationStatus {
     app_keys: Option<AppKeysList>,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[repr(transparent)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 pub struct AuthorizationError {
     code: String,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Period {
     Minute,
     Hour,
