@@ -61,7 +61,7 @@ pub struct AuthorizationStatus {
     authorized: bool,
     reason: Option<String>,
     plan: String,
-    usage_reports: UsageReports,
+    usage_reports: Option<UsageReports>,
 
     #[serde(rename = "hierarchy")]
     metrics_hierarchy: Option<MetricsHierarchy>,
@@ -216,7 +216,7 @@ mod tests {
             plan: String::from("App Plan"),
             metrics_hierarchy: None,
             app_keys: None,
-            usage_reports: UsageReports(vec![
+            usage_reports: Some(UsageReports(vec![
                 UsageReport {
                     metric: String::from("products"),
                     period: Period::Minute,
@@ -233,7 +233,7 @@ mod tests {
                     max_value: 50,
                     current_value: 0,
                 },
-            ]),
+            ])),
         });
 
         assert_eq!(parsed_auth, expected_auth);
@@ -269,6 +269,29 @@ mod tests {
 
         let s = format!("{}", parsed_auth.unwrap_err());
         assert!(s.contains("invalid timestamp"));
+    }
+
+    #[test]
+    fn parse_response_with_no_usage_reports() {
+        let s = r##"
+        <?xml version="1.0" encoding="UTF-8"?>
+        <status>
+            <authorized>true</authorized>
+            <plan>App Plan</plan>
+        </status>
+        "##;
+        let expected_auth = Authorization::Status(AuthorizationStatus {
+            authorized: true,
+            reason: None,
+            plan: "App Plan".into(),
+            usage_reports: None,
+            metrics_hierarchy: None,
+            app_keys: None,
+        });
+        let parsed_auth = Authorization::from_str(s)
+            .expect("failed to parse authorization without usage reports");
+
+        assert_eq!(expected_auth, parsed_auth);
     }
 
     #[test]
@@ -347,7 +370,7 @@ mod tests {
             plan: String::from("Basic"),
             metrics_hierarchy: Some(expected_hierarchy),
             app_keys: None,
-            usage_reports: UsageReports(vec![
+            usage_reports: Some(UsageReports(vec![
                 UsageReport {
                     metric: String::from("parent1"),
                     period: Period::Day,
@@ -388,7 +411,7 @@ mod tests {
                     max_value: 100,
                     current_value: 10,
                 },
-            ]),
+            ])),
         });
 
         assert_eq!(parsed_auth, expected_auth);
