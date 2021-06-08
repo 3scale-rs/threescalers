@@ -310,6 +310,45 @@ mod tests {
     }
 
     #[test]
+    fn parse_denied_authorization() {
+        let xml_response = r##"
+        <?xml version="1.0" encoding="UTF-8"?>
+        <status>
+          <authorized>false</authorized>
+          <reason>application key is missing</reason>
+          <plan>sample</plan>
+          <usage_reports>
+            <usage_report metric="ticks" period="minute">
+              <period_start>2021-06-08 18:07:00 +0000</period_start>
+              <period_end>2021-06-08 18:08:00 +0000</period_end>
+              <max_value>5</max_value>
+              <current_value>0</current_value>
+            </usage_report>
+          </usage_reports>
+        </status>
+        "##;
+
+        let parsed_auth = Authorization::from_str(xml_response).unwrap();
+
+        let expected_auth = Authorization::Status(AuthorizationStatus {
+            authorized: false,
+            reason: Some("application key is missing".into()),
+            plan: "sample".into(),
+            usage_reports: Some(UsageReports(vec![UsageReport {
+                metric: String::from("ticks"),
+                period: Period::Minute,
+                period_start: Utc.ymd(2021, 6, 8).and_hms(18, 7, 0).into(),
+                period_end: Utc.ymd(2021, 6, 8).and_hms(18, 8, 0).into(),
+                max_value: 5,
+                current_value: 0,
+            }])),
+            metrics_hierarchy: None,
+            app_keys: None,
+        });
+        assert_eq!(expected_auth, parsed_auth);
+    }
+
+    #[test]
     fn parse_metrics_hierarchy() {
         let xml_response = r##"
         <?xml version="1.0" encoding="UTF-8"?>
