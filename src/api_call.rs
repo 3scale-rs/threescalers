@@ -9,7 +9,7 @@ use crate::{
 
 use crate::ToParams;
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Kind {
     Authorize,
     AuthRep,
@@ -24,7 +24,7 @@ impl Kind {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ApiCall<'a> {
     kind: Kind,
     service: &'a Service,
@@ -32,7 +32,7 @@ pub struct ApiCall<'a> {
     extensions: Option<&'a List<'a>>,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Builder<'a> {
     service: &'a Service,
     kind: Option<Kind>,

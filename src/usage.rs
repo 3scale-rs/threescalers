@@ -2,7 +2,7 @@ use std::prelude::v1::*;
 
 use crate::ToParams;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MetricUsage<'m>(&'m str, &'m str);
 
 impl<'m, M: AsRef<str> + 'm, V: AsRef<str> + 'm> From<&'m (M, V)> for MetricUsage<'m> {
@@ -11,7 +11,8 @@ impl<'m, M: AsRef<str> + 'm, V: AsRef<str> + 'm> From<&'m (M, V)> for MetricUsag
     }
 }
 
-#[derive(Debug, Clone)]
+#[repr(transparent)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Usage<'m>(Vec<MetricUsage<'m>>);
 
 impl<'m, M: AsRef<str> + 'm, V: AsRef<str> + 'm> From<&'m [(M, V)]> for Usage<'m> {

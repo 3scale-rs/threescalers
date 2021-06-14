@@ -5,7 +5,7 @@ use crate::{
     ToParams,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Service {
     service_id: ServiceId,
     creds: Credentials,

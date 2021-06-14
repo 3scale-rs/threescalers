@@ -2,12 +2,13 @@ use std::prelude::v1::*;
 
 use std::borrow::Cow;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 #[non_exhaustive]
-#[derive(Debug, Clone, PartialEq)]
 pub enum Extension<'s> {
     FlatUsage(Cow<'s, str>),
     Hierarchy,
     NoBody,
+    AppKeysList(Cow<'s, str>),
     Other(Cow<'s, str>, Cow<'s, str>),
 }
 
@@ -17,13 +18,14 @@ impl Extension<'_> {
             Extension::Other(k, _) => k,
             Extension::FlatUsage(..) => "flat_usage",
             Extension::Hierarchy => "hierarchy",
+            Extension::AppKeysList(..) => "app_keys_list",
             Extension::NoBody => "no_body",
         }
     }
 
     pub fn value(&self) -> &'_ str {
         match self {
-            Extension::Other(_, v) | Extension::FlatUsage(v) => v,
+            Extension::Other(_, v) | Extension::FlatUsage(v) | Extension::AppKeysList(v) => v,
             Extension::Hierarchy | Extension::NoBody => "1",
         }
     }
@@ -36,6 +38,7 @@ impl Extension<'_> {
             Extension::Other(k, v) => encode(k) + "=" + encode(v),
             Extension::FlatUsage(value) => Cow::from("flat_usage=") + value.as_ref(),
             Extension::Hierarchy => "hierarchy=1".into(),
+            Extension::AppKeysList(value) => Cow::from("app_keys_list=") + value.as_ref(),
             Extension::NoBody => "no_body=1".into(),
         }
     }
@@ -83,6 +86,10 @@ mod tests {
         assert_eq!(
             Extension::FlatUsage(1.to_string().into()).to_string(),
             Extension::FlatUsage(1.to_string().into()).to_encoded_string()
+        );
+        assert_eq!(
+            Extension::AppKeysList(1.to_string().into()).to_string(),
+            Extension::AppKeysList(1.to_string().into()).to_encoded_string()
         );
         let ext = Extension::Other("some;[]key&%1".into(), "a_^&[]%:;@value".into());
         assert_eq!(ext.to_string(), ext.to_encoded_string());

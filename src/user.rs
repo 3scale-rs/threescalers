@@ -4,9 +4,12 @@ use crate::{Error, ToParams};
 
 use std::str::FromStr;
 
-#[derive(Debug)]
+#[repr(transparent)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UserId(String);
-#[derive(Debug)]
+
+#[repr(transparent)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct OAuthToken(String);
 
 // These trait impls provide a way to reference our types as &str
@@ -71,7 +74,7 @@ impl From<String> for OAuthToken {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum User {
     UserId(UserId),
     OAuthToken(OAuthToken),

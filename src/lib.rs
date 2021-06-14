@@ -3,6 +3,7 @@
 #![cfg_attr(feature_matches_macro, feature(matches_macro))]
 #![cfg_attr(feature_inner_deref, feature(inner_deref))]
 #![cfg_attr(feature_test, feature(test))]
+#![cfg_attr(feature_transparent_enums, feature(transparent_enums))]
 #![no_std]
 extern crate no_std_compat as std;
 use std::prelude::v1::*;
