@@ -9,7 +9,7 @@ use serde::{
 };
 
 mod app_keys_list;
-pub use app_keys_list::AppKeysList;
+pub use app_keys_list::ListAppKeys;
 
 mod metrics_hierarchy;
 pub use metrics_hierarchy::MetricsHierarchy;
@@ -68,7 +68,7 @@ pub struct AuthorizationStatus {
     metrics_hierarchy: Option<MetricsHierarchy>,
 
     #[serde(rename = "app_keys")]
-    app_keys: Option<AppKeysList>,
+    app_keys: Option<ListAppKeys>,
 }
 
 impl AuthorizationStatus {
@@ -84,7 +84,7 @@ impl AuthorizationStatus {
         self.plan.as_ref()
     }
 
-    pub fn app_keys(&self) -> Option<&AppKeysList> {
+    pub fn app_keys(&self) -> Option<&ListAppKeys> {
         self.app_keys.as_ref()
     }
 
@@ -542,7 +542,7 @@ mod tests {
 
         let parsed_auth = Authorization::from_str(xml_response).unwrap();
 
-        let expected_app_keys = AppKeysList::new(
+        let expected_app_keys = ListAppKeys::new(
             "service_id".into(),
             "app_id".into(),
             vec!["a_secret_key", "another_secret_key"],
@@ -574,7 +574,7 @@ mod tests {
 
         let parsed_auth = Authorization::from_str(xml_response).unwrap();
 
-        let expected_app_keys = AppKeysList::new(
+        let expected_app_keys = ListAppKeys::new(
             "service_id".into(),
             "app_id".into(),
             core::iter::empty::<crate::application::AppKey>(),
