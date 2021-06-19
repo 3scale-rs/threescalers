@@ -13,13 +13,13 @@ use crate::{
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct AppKeysList {
+pub struct ListAppKeys {
     service_id: Option<ServiceId>,
     app_id: Option<AppId>,
     keys: Vec<AppKey>,
 }
 
-impl AppKeysList {
+impl ListAppKeys {
     pub fn new<S: Into<ServiceId>, A: Into<AppId>, K: Into<AppKey>, I: IntoIterator<Item = K>>(
         service_id: Option<S>,
         app_id: Option<A>,
@@ -45,10 +45,10 @@ impl AppKeysList {
     }
 }
 
-struct AppKeysListVisitor;
+struct ListAppKeysVisitor;
 
-impl<'de> Visitor<'de> for AppKeysListVisitor {
-    type Value = AppKeysList;
+impl<'de> Visitor<'de> for ListAppKeysVisitor {
+    type Value = ListAppKeys;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         formatter.write_str("a structure that represents the application's keys")
@@ -85,17 +85,17 @@ impl<'de> Visitor<'de> for AppKeysListVisitor {
             }
         }
 
-        let list_app_keys = AppKeysList::new(service_id, app_id, keys);
+        let list_app_keys = ListAppKeys::new(service_id, app_id, keys);
 
         Ok(list_app_keys)
     }
 }
 
-impl<'de> Deserialize<'de> for AppKeysList {
+impl<'de> Deserialize<'de> for ListAppKeys {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
-        deserializer.deserialize_any(AppKeysListVisitor)
+        deserializer.deserialize_any(ListAppKeysVisitor)
     }
 }
