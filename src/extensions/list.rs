@@ -96,6 +96,10 @@ impl<'s> List<'s> {
     pub fn flat_usage(self, level: u32) -> Self {
         self.push(Extension::FlatUsage(level.to_string().into()))
     }
+
+    pub fn list_app_keys(self, level: u32) -> Self {
+        self.push(Extension::ListAppKeys(level.to_string().into()))
+    }
 }
 
 impl ToString for List<'_> {
