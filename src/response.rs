@@ -57,6 +57,41 @@ pub enum Authorization {
     Error(AuthorizationError),
 }
 
+impl Authorization {
+    pub fn is_status(&self) -> bool {
+        #[cfg(not(supports_matches_macro))]
+        match self {
+            Self::Status(_) => true,
+            _ => false,
+        }
+
+        #[cfg(supports_matches_macro)]
+        matches!(self, Self::Status(_))
+    }
+
+    pub fn is_error(&self) -> bool {
+        #[cfg(not(supports_matches_macro))]
+        match self {
+            Self::Error(_) => true,
+            _ => false,
+        }
+
+        #[cfg(supports_matches_macro)]
+        matches!(self, Self::Error(_))
+    }
+
+    // Note that the `into_inner` call will return a `Result` that is much
+    // more like an `Either`, since the Ok variant will represent the AuthStatus
+    // and the Err variant will represent the parsed AuthError, but the Err
+    // variant is not an `Error` type itself.
+    pub fn into_inner(self) -> Result<AuthorizationStatus, AuthorizationError> {
+        match self {
+            Self::Status(st) => Ok(st),
+            Self::Error(err) => Err(err),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 pub struct AuthorizationStatus {
     authorized: bool,
