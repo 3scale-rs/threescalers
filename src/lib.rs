@@ -1,4 +1,4 @@
-#![deny(clippy::all)]
+#![deny(clippy::all, clippy::cargo)]
 #![cfg_attr(feature_never_type, feature(never_type))]
 #![cfg_attr(feature_matches_macro, feature(matches_macro))]
 #![cfg_attr(feature_inner_deref, feature(inner_deref))]
