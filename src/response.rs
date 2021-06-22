@@ -189,12 +189,20 @@ pub struct AuthorizationStatus {
 }
 
 impl AuthorizationStatus {
-    pub fn authorized(&self) -> bool {
+    pub fn is_authorized(&self) -> bool {
         self.authorized
     }
 
     pub fn reason(&self) -> Option<&str> {
         self.reason.as_deref()
+    }
+
+    pub fn authorized(&self) -> Result<(), &str> {
+        if self.authorized {
+            Ok(())
+        } else {
+            Err(self.reason.as_deref().unwrap_or("unspecified reason"))
+        }
     }
 
     pub fn plan(&self) -> &str {
