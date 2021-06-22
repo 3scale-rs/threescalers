@@ -167,33 +167,51 @@ mod tests {
 
         let parsed_auth = Authorization::from_str(s).unwrap();
 
+        let usage_reports = vec![
+            UsageReport {
+                metric: String::from("products"),
+                period: Period::Minute,
+                period_start: Utc.ymd(2019, 6, 5).and_hms(16, 24, 0).into(),
+                period_end: Utc.ymd(2019, 6, 5).and_hms(16, 25, 0).into(),
+                max_value: 5,
+                current_value: 0,
+            },
+            UsageReport {
+                metric: String::from("products"),
+                period: Period::Month,
+                period_start: Utc.ymd(2019, 6, 1).and_hms(0, 0, 0).into(),
+                period_end: Utc.ymd(2019, 7, 1).and_hms(0, 0, 0).into(),
+                max_value: 50,
+                current_value: 0,
+            },
+        ];
+        let app_plan = "App Plan";
+
         let expected_auth = Authorization::Status(AuthorizationStatus {
             authorized: true,
             reason: None,
-            plan: String::from("App Plan"),
+            plan: String::from(app_plan),
             metrics_hierarchy: None,
             app_keys: None,
-            usage_reports: Some(UsageReports(vec![
-                UsageReport {
-                    metric: String::from("products"),
-                    period: Period::Minute,
-                    period_start: Utc.ymd(2019, 6, 5).and_hms(16, 24, 0).into(),
-                    period_end: Utc.ymd(2019, 6, 5).and_hms(16, 25, 0).into(),
-                    max_value: 5,
-                    current_value: 0,
-                },
-                UsageReport {
-                    metric: String::from("products"),
-                    period: Period::Month,
-                    period_start: Utc.ymd(2019, 6, 1).and_hms(0, 0, 0).into(),
-                    period_end: Utc.ymd(2019, 7, 1).and_hms(0, 0, 0).into(),
-                    max_value: 50,
-                    current_value: 0,
-                },
-            ])),
+            usage_reports: Some(UsageReports(usage_reports.clone())),
         });
 
+        assert!(parsed_auth.is_status());
         assert_eq!(parsed_auth, expected_auth);
+        let inner = parsed_auth.into_inner();
+        assert_eq!(inner, expected_auth.into_inner());
+        assert!(inner.is_ok());
+
+        let auth_status = inner.unwrap();
+        assert!(auth_status.is_authorized());
+        assert!(auth_status.reason().is_none());
+        assert_eq!(auth_status.plan(), app_plan);
+        assert!(auth_status.hierarchy().is_none());
+        assert!(auth_status.app_keys().is_none());
+        let ur = auth_status.usage_reports();
+        assert_eq!(ur, Some(&usage_reports));
+        let ur = ur.unwrap();
+        assert_eq!(ur, &usage_reports);
     }
 
     #[test]
@@ -248,7 +266,15 @@ mod tests {
         let parsed_auth = Authorization::from_str(s)
             .expect("failed to parse authorization without usage reports");
 
-        assert_eq!(expected_auth, parsed_auth);
+        assert!(parsed_auth.is_status());
+        assert_eq!(parsed_auth, expected_auth);
+        let inner = parsed_auth.into_inner();
+        assert_eq!(inner, expected_auth.into_inner());
+        assert!(inner.is_ok());
+
+        let auth_status = inner.unwrap();
+        assert!(auth_status.is_authorized());
+        assert!(auth_status.usage_reports().is_none());
     }
 
     #[test]
@@ -262,8 +288,21 @@ mod tests {
 
         let expected_auth = Authorization::Error(AuthorizationError {
             code: String::from("user_key_invalid"),
+            description: r#"user key "some_user_key" is invalid"#.into(),
         });
+
+        assert!(parsed_auth.is_error());
         assert_eq!(parsed_auth, expected_auth);
+        let inner = parsed_auth.into_inner();
+        assert_eq!(inner, expected_auth.into_inner());
+        assert!(inner.is_err());
+
+        let auth_error = inner.unwrap_err();
+        assert_eq!(auth_error.code(), "user_key_invalid");
+        assert_eq!(
+            auth_error.description(),
+            r#"user key "some_user_key" is invalid"#
+        );
     }
 
     #[test]
@@ -287,22 +326,39 @@ mod tests {
 
         let parsed_auth = Authorization::from_str(xml_response).unwrap();
 
+        let reason = "application key is missing";
+        let app_plan = "sample";
+        let usage_reports = vec![UsageReport {
+            metric: String::from("ticks"),
+            period: Period::Minute,
+            period_start: Utc.ymd(2021, 6, 8).and_hms(18, 7, 0).into(),
+            period_end: Utc.ymd(2021, 6, 8).and_hms(18, 8, 0).into(),
+            max_value: 5,
+            current_value: 0,
+        }];
+
         let expected_auth = Authorization::Status(AuthorizationStatus {
             authorized: false,
-            reason: Some("application key is missing".into()),
-            plan: "sample".into(),
-            usage_reports: Some(UsageReports(vec![UsageReport {
-                metric: String::from("ticks"),
-                period: Period::Minute,
-                period_start: Utc.ymd(2021, 6, 8).and_hms(18, 7, 0).into(),
-                period_end: Utc.ymd(2021, 6, 8).and_hms(18, 8, 0).into(),
-                max_value: 5,
-                current_value: 0,
-            }])),
+            reason: Some(reason.into()),
+            plan: app_plan.into(),
+            usage_reports: Some(UsageReports(usage_reports.clone())),
             metrics_hierarchy: None,
             app_keys: None,
         });
-        assert_eq!(expected_auth, parsed_auth);
+
+        assert!(parsed_auth.is_status());
+        assert_eq!(parsed_auth, expected_auth);
+        let inner = parsed_auth.into_inner();
+        assert_eq!(inner, expected_auth.into_inner());
+        assert!(inner.is_ok());
+
+        let auth_status = inner.unwrap();
+        assert!(!auth_status.is_authorized());
+        assert_eq!(auth_status.reason(), Some(reason));
+        assert_eq!(auth_status.plan(), app_plan);
+        assert!(auth_status.hierarchy().is_none());
+        assert!(auth_status.app_keys().is_none());
+        assert_eq!(auth_status.usage_reports(), Some(&usage_reports));
     }
 
     #[test]
