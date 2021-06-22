@@ -94,12 +94,12 @@ impl AuthorizationStatus {
         self.app_keys.as_ref()
     }
 
-    pub fn usage_reports(&self) -> Option<&UsageReports> {
-        self.usage_reports.as_ref()
+    pub fn usage_reports(&self) -> Option<&Vec<UsageReport>> {
+        self.usage_reports.as_ref().map(|ur| ur.as_vec())
     }
 
-    pub fn usage_reports_mut(&mut self) -> Option<&mut UsageReports> {
-        self.usage_reports.as_mut()
+    pub fn usage_reports_mut(&mut self) -> Option<&mut Vec<UsageReport>> {
+        self.usage_reports.as_mut().map(|ur| ur.as_vec_mut())
     }
 
     pub fn hierarchy(&self) -> Option<&MetricsHierarchy> {
