@@ -30,6 +30,13 @@ mod systemtime {
 
 pub use systemtime::PeriodTime;
 
+#[non_exhaustive]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum UsageReportError {
+    LimitsExceeded(u64),
+    Overflow,
+}
+
 #[derive(Debug, Clone, Deserialize, PartialEq, Eq)]
 #[serde(rename = "usage_report")]
 pub struct UsageReport {
@@ -41,6 +48,61 @@ pub struct UsageReport {
     pub current_value: u64,
 }
 
+impl UsageReport {
+    pub fn metric(&self) -> &str {
+        self.metric.as_ref()
+    }
+
+    pub fn period(&self) -> &Period {
+        &self.period
+    }
+
+    pub fn period_times(&self) -> (&PeriodTime, &PeriodTime) {
+        (&self.period_start, &self.period_end)
+    }
+
+    pub fn max_value(&self) -> u64 {
+        self.max_value
+    }
+
+    pub fn current_value(&self) -> u64 {
+        self.max_value
+    }
+
+    pub fn remaining(&self) -> u64 {
+        self.max_value.checked_sub(self.current_value).unwrap_or(0)
+    }
+
+    pub fn is_limited(&self) -> bool {
+        self.current_value >= self.max_value
+    }
+
+    pub fn authorize(&self, hits: u64) -> Result<u64, UsageReportError> {
+        let new_hits = self
+            .current_value
+            .checked_add(hits)
+            .ok_or(UsageReportError::Overflow)?;
+        if new_hits > self.max_value {
+            Err(UsageReportError::LimitsExceeded(new_hits - self.max_value))
+        } else {
+            Ok(new_hits)
+        }
+    }
+
+    pub fn report(&mut self, hits: u64) -> Result<u64, UsageReportError> {
+        self.current_value = self
+            .current_value
+            .checked_add(hits)
+            .ok_or(UsageReportError::Overflow)?;
+
+        Ok(self.current_value)
+    }
+
+    pub fn reset<V: Into<Option<u64>>>(&mut self, val: V) {
+        self.current_value = val.into().unwrap_or(0);
+    }
+}
+
 // Unfortunately the XML output from Apisonator includes a rather useless "usage_reports" tag that
 // is then followed by a "usage_report" tag in each UsageReport, so we need to wrap that up.
 #[cfg_attr(supports_transparent_enums, repr(transparent))]
@@ -48,6 +110,26 @@ pub struct UsageReport {
 pub enum UsageReports {
     #[serde(rename = "usage_report")]
     UsageReports(Vec<UsageReport>),
+}
+
+impl UsageReports {
+    pub fn as_vec(&self) -> &Vec<UsageReport> {
+        match self {
+            Self::UsageReports(v) => v,
+        }
+    }
+
+    pub fn as_vec_mut(&mut self) -> &mut Vec<UsageReport> {
+        match self {
+            Self::UsageReports(v) => v,
+        }
+    }
+
+    pub fn into_inner(self) -> Vec<UsageReport> {
+        match self {
+            Self::UsageReports(v) => v,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Deserialize, PartialEq, Eq)]
