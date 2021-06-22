@@ -1,12 +1,8 @@
 use std::prelude::v1::*;
 
-use std::{fmt, str::FromStr};
+use std::str::FromStr;
 
-use chrono::prelude::*;
-use serde::{
-    de::{self, Deserializer, MapAccess, Visitor},
-    Deserialize,
-};
+use serde::Deserialize;
 
 mod app_keys_list;
 pub use app_keys_list::ListAppKeys;
@@ -14,47 +10,49 @@ pub use app_keys_list::ListAppKeys;
 mod metrics_hierarchy;
 pub use metrics_hierarchy::MetricsHierarchy;
 
-mod systemtime {
-    use chrono::DateTime;
-
-    #[repr(transparent)]
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct PeriodTime(pub i64);
-
-    impl<Tz: chrono::TimeZone> From<DateTime<Tz>> for PeriodTime {
-        fn from(dt: DateTime<Tz>) -> PeriodTime {
-            PeriodTime(dt.timestamp())
-        }
-    }
-}
-
-pub use systemtime::PeriodTime;
-
-#[derive(Debug, Clone, Deserialize, PartialEq, Eq)]
-#[serde(rename = "usage_report")]
-pub struct UsageReport {
-    pub metric: String,
-    pub period: Period,
-    pub period_start: PeriodTime,
-    pub period_end: PeriodTime,
-    pub max_value: u64,
-    pub current_value: u64,
-}
-
-// Unfortunately the XML output from Apisonator includes a rather useless "usage_reports" tag that
-// is then followed by a "usage_report" tag in each UsageReport, so we need to wrap that up.
-#[cfg_attr(supports_transparent_enums, repr(transparent))]
-#[derive(Debug, Clone, Deserialize, PartialEq, Eq)]
-pub enum UsageReports {
-    #[serde(rename = "usage_report")]
-    UsageReports(Vec<UsageReport>),
-}
+mod usage_report;
+pub use usage_report::{Period, PeriodTime, UsageReport, UsageReportError, UsageReports};
 
 #[derive(Debug, Clone, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum Authorization {
     Status(AuthorizationStatus),
     Error(AuthorizationError),
+}
+
+impl Authorization {
+    pub fn is_status(&self) -> bool {
+        #[cfg(not(supports_matches_macro))]
+        match self {
+            Self::Status(_) => true,
+            _ => false,
+        }
+
+        #[cfg(supports_matches_macro)]
+        matches!(self, Self::Status(_))
+    }
+
+    pub fn is_error(&self) -> bool {
+        #[cfg(not(supports_matches_macro))]
+        match self {
+            Self::Error(_) => true,
+            _ => false,
+        }
+
+        #[cfg(supports_matches_macro)]
+        matches!(self, Self::Error(_))
+    }
+
+    // Note that the `into_inner` call will return a `Result` that is much
+    // more like an `Either`, since the Ok variant will represent the AuthStatus
+    // and the Err variant will represent the parsed AuthError, but the Err
+    // variant is not an `Error` type itself.
+    pub fn into_inner(self) -> Result<AuthorizationStatus, AuthorizationError> {
+        match self {
+            Self::Status(st) => Ok(st),
+            Self::Error(err) => Err(err),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
@@ -72,12 +70,20 @@ pub struct AuthorizationStatus {
 }
 
 impl AuthorizationStatus {
-    pub fn authorized(&self) -> bool {
+    pub fn is_authorized(&self) -> bool {
         self.authorized
     }
 
     pub fn reason(&self) -> Option<&str> {
         self.reason.as_deref()
+    }
+
+    pub fn authorized(&self) -> Result<(), &str> {
+        if self.authorized {
+            Ok(())
+        } else {
+            Err(self.reason.as_deref().unwrap_or("unspecified reason"))
+        }
     }
 
     pub fn plan(&self) -> &str {
@@ -88,8 +94,12 @@ impl AuthorizationStatus {
         self.app_keys.as_ref()
     }
 
-    pub fn usage_reports(&self) -> Option<&UsageReports> {
-        self.usage_reports.as_ref()
+    pub fn usage_reports(&self) -> Option<&Vec<UsageReport>> {
+        self.usage_reports.as_ref().map(|ur| ur.as_vec())
+    }
+
+    pub fn usage_reports_mut(&mut self) -> Option<&mut Vec<UsageReport>> {
+        self.usage_reports.as_mut().map(|ur| ur.as_vec_mut())
     }
 
     pub fn hierarchy(&self) -> Option<&MetricsHierarchy> {
@@ -97,110 +107,21 @@ impl AuthorizationStatus {
     }
 }
 
-#[repr(transparent)]
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 pub struct AuthorizationError {
     code: String,
+    #[serde(rename = "$value")]
+    description: String,
 }
 
 impl AuthorizationError {
     pub fn code(&self) -> &str {
         self.code.as_ref()
     }
-}
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Period {
-    Minute,
-    Hour,
-    Day,
-    Week,
-    Month,
-    Year,
-    Eternity,
-    Other(String),
-}
-
-struct PeriodStringVisitor;
-
-impl<'de> Visitor<'de> for PeriodStringVisitor {
-    type Value = Period;
-
-    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("a string that represents a period")
+    pub fn description(&self) -> &str {
+        self.description.as_str()
     }
-
-    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-    where
-        E: de::Error,
-    {
-        match v {
-            "minute" => Ok(Period::Minute),
-            "hour" => Ok(Period::Hour),
-            "day" => Ok(Period::Day),
-            "week" => Ok(Period::Week),
-            "month" => Ok(Period::Month),
-            "year" => Ok(Period::Year),
-            "eternity" => Ok(Period::Eternity),
-            period_name => Ok(Period::Other(period_name.into())),
-        }
-    }
-}
-
-impl<'de> Deserialize<'de> for Period {
-    fn deserialize<D>(deserializer: D) -> Result<Period, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        deserializer.deserialize_any(PeriodStringVisitor)
-    }
-}
-
-struct TimestampVisitor;
-
-impl<'de> Visitor<'de> for TimestampVisitor {
-    type Value = PeriodTime;
-
-    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("a string that represents a timestamp")
-    }
-
-    fn visit_map<V>(self, mut map: V) -> Result<PeriodTime, V::Error>
-    where
-        V: MapAccess<'de>,
-    {
-        // We know there's only one key with one value.
-        // The key is not used, but we need to call "next_key()". From the
-        // docs: "Calling `next_value` before `next_key` is incorrect and is
-        // allowed to panic or return bogus results.".
-        let _key: Option<String> = map.next_key()?;
-        let timestamp: String = map.next_value()?;
-
-        let ts_str = timestamp.as_str();
-        let dt = DateTime::parse_from_str(ts_str, "%Y-%m-%d %H:%M:%S %z").map_err(|e| {
-            de::Error::custom(format_args!(
-                "invalid timestamp {}, expected %Y-%m-%d %H:%M:%S %z: {:?}",
-                ts_str, e
-            ))
-        })?;
-
-        Ok(PeriodTime::from(dt))
-    }
-}
-
-impl<'de> Deserialize<'de> for PeriodTime {
-    fn deserialize<D>(deserializer: D) -> Result<PeriodTime, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        deserializer.deserialize_any(TimestampVisitor)
-    }
-}
-
-#[derive(Debug, Deserialize, PartialEq)]
-pub struct UsageData {
-    max_value: u64,
-    current_value: u64,
 }
 
 #[repr(transparent)]
@@ -217,7 +138,8 @@ impl FromStr for Authorization {
 
 #[cfg(test)]
 mod tests {
-    use super::{UsageReports::*, *};
+    use super::{UsageReports::UsageReports, *};
+    use chrono::prelude::*;
 
     #[test]
     fn parse() {
@@ -245,33 +167,51 @@ mod tests {
 
         let parsed_auth = Authorization::from_str(s).unwrap();
 
+        let usage_reports = vec![
+            UsageReport {
+                metric: String::from("products"),
+                period: Period::Minute,
+                period_start: Utc.ymd(2019, 6, 5).and_hms(16, 24, 0).into(),
+                period_end: Utc.ymd(2019, 6, 5).and_hms(16, 25, 0).into(),
+                max_value: 5,
+                current_value: 0,
+            },
+            UsageReport {
+                metric: String::from("products"),
+                period: Period::Month,
+                period_start: Utc.ymd(2019, 6, 1).and_hms(0, 0, 0).into(),
+                period_end: Utc.ymd(2019, 7, 1).and_hms(0, 0, 0).into(),
+                max_value: 50,
+                current_value: 0,
+            },
+        ];
+        let app_plan = "App Plan";
+
         let expected_auth = Authorization::Status(AuthorizationStatus {
             authorized: true,
             reason: None,
-            plan: String::from("App Plan"),
+            plan: String::from(app_plan),
             metrics_hierarchy: None,
             app_keys: None,
-            usage_reports: Some(UsageReports(vec![
-                UsageReport {
-                    metric: String::from("products"),
-                    period: Period::Minute,
-                    period_start: Utc.ymd(2019, 6, 5).and_hms(16, 24, 0).into(),
-                    period_end: Utc.ymd(2019, 6, 5).and_hms(16, 25, 0).into(),
-                    max_value: 5,
-                    current_value: 0,
-                },
-                UsageReport {
-                    metric: String::from("products"),
-                    period: Period::Month,
-                    period_start: Utc.ymd(2019, 6, 1).and_hms(0, 0, 0).into(),
-                    period_end: Utc.ymd(2019, 7, 1).and_hms(0, 0, 0).into(),
-                    max_value: 50,
-                    current_value: 0,
-                },
-            ])),
+            usage_reports: Some(UsageReports(usage_reports.clone())),
         });
 
+        assert!(parsed_auth.is_status());
         assert_eq!(parsed_auth, expected_auth);
+        let inner = parsed_auth.into_inner();
+        assert_eq!(inner, expected_auth.into_inner());
+        assert!(inner.is_ok());
+
+        let auth_status = inner.unwrap();
+        assert!(auth_status.is_authorized());
+        assert!(auth_status.reason().is_none());
+        assert_eq!(auth_status.plan(), app_plan);
+        assert!(auth_status.hierarchy().is_none());
+        assert!(auth_status.app_keys().is_none());
+        let ur = auth_status.usage_reports();
+        assert_eq!(ur, Some(&usage_reports));
+        let ur = ur.unwrap();
+        assert_eq!(ur, &usage_reports);
     }
 
     #[test]
@@ -326,7 +266,15 @@ mod tests {
         let parsed_auth = Authorization::from_str(s)
             .expect("failed to parse authorization without usage reports");
 
-        assert_eq!(expected_auth, parsed_auth);
+        assert!(parsed_auth.is_status());
+        assert_eq!(parsed_auth, expected_auth);
+        let inner = parsed_auth.into_inner();
+        assert_eq!(inner, expected_auth.into_inner());
+        assert!(inner.is_ok());
+
+        let auth_status = inner.unwrap();
+        assert!(auth_status.is_authorized());
+        assert!(auth_status.usage_reports().is_none());
     }
 
     #[test]
@@ -340,8 +288,21 @@ mod tests {
 
         let expected_auth = Authorization::Error(AuthorizationError {
             code: String::from("user_key_invalid"),
+            description: r#"user key "some_user_key" is invalid"#.into(),
         });
+
+        assert!(parsed_auth.is_error());
         assert_eq!(parsed_auth, expected_auth);
+        let inner = parsed_auth.into_inner();
+        assert_eq!(inner, expected_auth.into_inner());
+        assert!(inner.is_err());
+
+        let auth_error = inner.unwrap_err();
+        assert_eq!(auth_error.code(), "user_key_invalid");
+        assert_eq!(
+            auth_error.description(),
+            r#"user key "some_user_key" is invalid"#
+        );
     }
 
     #[test]
@@ -365,22 +326,39 @@ mod tests {
 
         let parsed_auth = Authorization::from_str(xml_response).unwrap();
 
+        let reason = "application key is missing";
+        let app_plan = "sample";
+        let usage_reports = vec![UsageReport {
+            metric: String::from("ticks"),
+            period: Period::Minute,
+            period_start: Utc.ymd(2021, 6, 8).and_hms(18, 7, 0).into(),
+            period_end: Utc.ymd(2021, 6, 8).and_hms(18, 8, 0).into(),
+            max_value: 5,
+            current_value: 0,
+        }];
+
         let expected_auth = Authorization::Status(AuthorizationStatus {
             authorized: false,
-            reason: Some("application key is missing".into()),
-            plan: "sample".into(),
-            usage_reports: Some(UsageReports(vec![UsageReport {
-                metric: String::from("ticks"),
-                period: Period::Minute,
-                period_start: Utc.ymd(2021, 6, 8).and_hms(18, 7, 0).into(),
-                period_end: Utc.ymd(2021, 6, 8).and_hms(18, 8, 0).into(),
-                max_value: 5,
-                current_value: 0,
-            }])),
+            reason: Some(reason.into()),
+            plan: app_plan.into(),
+            usage_reports: Some(UsageReports(usage_reports.clone())),
             metrics_hierarchy: None,
             app_keys: None,
         });
-        assert_eq!(expected_auth, parsed_auth);
+
+        assert!(parsed_auth.is_status());
+        assert_eq!(parsed_auth, expected_auth);
+        let inner = parsed_auth.into_inner();
+        assert_eq!(inner, expected_auth.into_inner());
+        assert!(inner.is_ok());
+
+        let auth_status = inner.unwrap();
+        assert!(!auth_status.is_authorized());
+        assert_eq!(auth_status.reason(), Some(reason));
+        assert_eq!(auth_status.plan(), app_plan);
+        assert!(auth_status.hierarchy().is_none());
+        assert!(auth_status.app_keys().is_none());
+        assert_eq!(auth_status.usage_reports(), Some(&usage_reports));
     }
 
     #[test]
