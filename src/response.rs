@@ -109,7 +109,7 @@ impl AuthorizationError {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Period {
     Minute,
     Hour,
@@ -118,6 +118,7 @@ pub enum Period {
     Month,
     Year,
     Eternity,
+    Other(String),
 }
 
 struct PeriodStringVisitor;
@@ -141,7 +142,7 @@ impl<'de> Visitor<'de> for PeriodStringVisitor {
             "month" => Ok(Period::Month),
             "year" => Ok(Period::Year),
             "eternity" => Ok(Period::Eternity),
-            _ => Err(E::custom("Invalid period")),
+            period_name => Ok(Period::Other(period_name.into())),
         }
     }
 }
