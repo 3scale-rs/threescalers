@@ -217,20 +217,29 @@ impl AuthorizationStatus {
         self.usage_reports.as_ref()
     }
 
+    pub fn usage_reports_mut(&mut self) -> Option<&mut UsageReports> {
+        self.usage_reports.as_mut()
+    }
+
     pub fn hierarchy(&self) -> Option<&MetricsHierarchy> {
         self.metrics_hierarchy.as_ref()
     }
 }
 
-#[repr(transparent)]
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 pub struct AuthorizationError {
     code: String,
+    #[serde(rename = "$value")]
+    description: String,
 }
 
 impl AuthorizationError {
     pub fn code(&self) -> &str {
         self.code.as_ref()
+    }
+
+    pub fn description(&self) -> &str {
+        self.description.as_str()
     }
 }
 
