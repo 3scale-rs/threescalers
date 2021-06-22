@@ -331,12 +331,6 @@ impl<'de> Deserialize<'de> for PeriodTime {
     }
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
-pub struct UsageData {
-    max_value: u64,
-    current_value: u64,
-}
-
 #[repr(transparent)]
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct Metric(pub String);
