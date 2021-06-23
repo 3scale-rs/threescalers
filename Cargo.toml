@@ -12,6 +12,7 @@ categories = ["api-bindings"]
 exclude = [
     ".gitignore",
     "bors.toml",
+    ".mailmap",
     "/ci/**",
     "/.github/**",
 ]
