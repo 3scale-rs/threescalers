@@ -2,6 +2,46 @@
 
 Notable changes to threescalers will be tracked in this document.
 
+## 0.8.0 - 2021-06-23
+
+### Compatibility
+
+- [__BREAKING__] This release is a breaking change from previous releases due to
+  several public interfaces changing, including types that implement more but also
+  less traits, and also a different amount of generic lifetime parameters.
+
+### Added
+
+- Support emitting the [`list_app_keys` extension](https://github.com/3scale/apisonator/blob/v3.4.3/docs/extensions.md#list_app_keys-integer)
+  and parsing the results back. ([#90](https://github.com/3scale-rs/threescalers/pull/90))
+- Some types for which there was an `Into` impl now also offer a `From` impl. ([#81](https://github.com/3scale-rs/threescalers/pull/81))
+- New implementation with deserialization support for REST mapping rules. This is
+  experimental and will likely change, possibly incompatibly, in the future. ([#78](https://github.com/3scale-rs/threescalers/pull/78))
+- Specifically allow reqwest 0.10 and 0.11 to be used when enabling its feature.
+  This allows for users to not be stuck either one or the other as chosen by us. ([#76](https://github.com/3scale-rs/threescalers/pull/76))
+
+### Changed
+
+- Minimum Supported Rust Version is `rustc 1.40.0`. ([#83](https://github.com/3scale-rs/threescalers/pull/83))
+- The `ApiCall`, its `Builder` and the `Transaction` types have seen their signatures
+  reduce their multiple generic lifetime parameters to just one. ([#86](https://github.com/3scale-rs/threescalers/pull/86))
+- More types that could use a transparent representation now do so. ([#82](https://github.com/3scale-rs/threescalers/pull/82), ([#85](https://github.com/3scale-rs/threescalers/pull/85)))
+- The `Period` enum now includes an `Other` variant that makes it non-copy and non-exhaustive. ([#97](https://github.com/3scale-rs/threescalers/pull/97))
+- The `response` module has been refactored, with the `Authorization` enum variants
+  renamed, refactored and with new helpers to improve ergonomics and allow reusing
+  `UsageReport`s by mutating their counters. ([#89](https://github.com/3scale-rs/threescalers/pull/89), [#96](https://github.com/3scale-rs/threescalers/pull/96))
+
+### Fixed
+
+- The response parsing code will not panic in case malformed metrics hierarchy entry
+  is passed in. ([#83](https://github.com/3scale-rs/threescalers/pull/83))
+
+### Thanks
+
+- [@NomadXD](https://github.com/NomadXD)
+- [@rahulanand16nov](https://github.com/rahulanand16nov)
+- [@unleashed](https://github.com/unleashed)
+
 ## 0.7.0 - 2020-10-28
 
 ### Compatibility
@@ -24,12 +64,20 @@ Notable changes to threescalers will be tracked in this document.
 
 - Removed the mandatory dependencies on error_chain and the http crate. ([#71](https://github.com/3scale-rs/threescalers/pull/71))
 
+### Thanks
+
+- [@unleashed](https://github.com/unleashed)
+
 ## 0.6.1 - 2020-10-08
 
 ### Compatibility
 
 - This release is again usable with newer (and hopefully older) nightlies and makes
   use of new facilities on 1.47.0. ([#70](https://github.com/3scale-rs/threescalers/pull/70))
+
+### Thanks
+
+- [@unleashed](https://github.com/unleashed)
 
 ## 0.6.0 - 2020-05-03
 
@@ -40,6 +88,10 @@ Notable changes to threescalers will be tracked in this document.
 ### Compatibility
 
 - This release is a breaking change from the 0.5 series if you use extensions.
+
+### Thanks
+
+- [@unleashed](https://github.com/unleashed)
 
 ## 0.5.0 - 2020-02-11
 
@@ -52,6 +104,10 @@ Notable changes to threescalers will be tracked in this document.
 ### Compatibility
 
 - This release is a breaking change from the 0.4 series.
+
+### Thanks
+
+- [@unleashed](https://github.com/unleashed)
 
 ## 0.4.0 - 2020-02-02
 
@@ -72,6 +128,11 @@ Notable changes to threescalers will be tracked in this document.
 
 - This release is a breaking change from the 0.3 series.
 
+### Thanks
+
+- [@peakmorgana](https://github.com/peakmorgana)
+- [@unleashed](https://github.com/unleashed)
+
 ## 0.3.0 - 2019-09-24
 
 ### Added
@@ -90,6 +151,11 @@ Notable changes to threescalers will be tracked in this document.
 ### Compatibility
 
 - This release is a breaking change from the 0.2 series.
+
+### Thanks
+
+- [@PhilipGough](https://github.com/PhilipGough)
+- [@unleashed](https://github.com/unleashed)
 
 ## 0.2.0 - 2019-07-19
 
@@ -113,3 +179,19 @@ Notable changes to threescalers will be tracked in this document.
 ### Compatibility
 
 - This release is a breaking change from the 0.1 series.
+
+### Thanks
+
+- [@davidor](https://github.com/davidor)
+- [@unleashed](https://github.com/unleashed)
+
+## 0.1.0 - 2019-06-28
+
+### Added
+
+- Initial release.
+
+### Thanks
+
+- [@davidor](https://github.com/davidor)
+- [@unleashed](https://github.com/unleashed)
