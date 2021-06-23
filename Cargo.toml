@@ -21,10 +21,10 @@ codecov = { repository = "3scale-rs/threescalers" }
 maintenance = { status = "actively-developed" }
 
 [features]
-default = ["std", "xml-response"]
+default = ["std", "xml-response", "rest-mappings"]
 
 # Use std library
-std = ["no-std-compat/std", "anyhow/std"]
+std = ["no-std-compat/std", "anyhow/std", "regex/std"]
 # Add in conversions for http's crate types
 http-types = ["http_types"]
 # Add in conversions for reqwest's crate types
@@ -39,6 +39,9 @@ curl-all = ["curl-easy", "curl-easy2"]
 all-types = ["http-types", "reqwest-all", "curl-all"]
 # Response parsing
 xml-response = ["serde-xml-rs", "serde", "chrono"]
+# HTTP mapping rules
+rest-mappings = ["regex", "lazy_static"]
+rest-mappings-serde = ["serde"]
 
 [dependencies]
 percent-encoding = "^2"
@@ -50,6 +53,9 @@ serde-xml-rs = { version = "^0.4", optional = true }
 chrono = { version = "^0.4", optional = true, default-features = false }
 no-std-compat = { version = "^0.4", features = ["alloc"] }
 anyhow = { version = "^1", default-features = false }
+regex = { version = "^1", optional = true, default-features = false, features = ["perf"] }
+# lazy_static has a "negative" no_std flag rather than an additive "std" flag :/
+lazy_static = { version = "^1", optional = true, default-features = false, features = ["spin_no_std"] }
 
 [[example]]
 name = "reqwest-report"
@@ -65,3 +71,5 @@ required-features = ["curl-easy2"]
 
 [dev-dependencies]
 serde_json = "^1.0"
+itertools = "^0.10"
+rand = "^0.8"
