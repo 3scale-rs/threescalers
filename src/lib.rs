@@ -2,6 +2,8 @@
 #![cfg_attr(feature_never_type, feature(never_type))]
 #![cfg_attr(feature_matches_macro, feature(matches_macro))]
 #![cfg_attr(feature_inner_deref, feature(inner_deref))]
+#![cfg_attr(feature_unsafe_op_in_unsafe_fn, feature(unsafe_op_in_unsafe_fn))]
+#![cfg_attr(supports_unsafe_op_in_unsafe_fn, deny(unsafe_op_in_unsafe_fn))]
 #![cfg_attr(feature_test, feature(test))]
 #![cfg_attr(feature_transparent_enums, feature(transparent_enums))]
 #![no_std]
