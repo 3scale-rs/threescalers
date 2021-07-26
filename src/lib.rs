@@ -13,6 +13,10 @@ use std::prelude::v1::*;
 #[cfg(all(test, feature_test))]
 extern crate test;
 
+// C-API module
+#[cfg(feature = "capi")]
+pub mod capi;
+
 // Macros declared here, so this module should come first.
 #[macro_use]
 pub(crate) mod util;
