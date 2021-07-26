@@ -9,3 +9,6 @@ pub use c_slice::{CSlice, CSliceMut};
 
 pub mod encoding;
 pub mod version;
+
+#[cfg(feature = "rest-mappings")]
+pub mod mapping_rule;
