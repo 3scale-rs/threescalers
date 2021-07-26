@@ -46,6 +46,8 @@ xml-response = ["dep:serde-xml-rs", "dep:serde", "dep:chrono"]
 rest-mappings = ["dep:regex", "dep:lazy_static"]
 rest-mappings-serde = ["dep:serde"]
 serde = ["dep:serde", "rest-mappings-serde"]
+# C API
+capi = []
 
 [dependencies]
 percent-encoding = "^2"
@@ -79,3 +81,51 @@ required-features = ["curl-easy2"]
 serde_json = "^1.0"
 itertools = "^0.10"
 rand = "^0.8"
+
+[profile.release]
+lto = true
+codegen-units = 1
+
+[package.metadata.capi.header]
+# Used as header file name. By default this is equal to the crate name.
+# The name can be with or without the header filename extension `.h`
+#name = "new_name"
+# Install the header into a subdirectory with the name of the crate. This
+# is enabled by default, pass `false` or "" to disable it.
+#subdirectory = "libthreescalers-0.8/threescalers"
+# Generate the header file with `cbindgen`, or copy a pre-generated header
+# from the `assets` subdirectory. By default a header is generated.
+#generation = true
+# Can be use to disable header generation completely.
+# This can be used when generating dynamic modules instead of an actual library.
+#enabled = true
+
+[package.metadata.capi.pkg_config]
+# Used as the package name in the pkg-config file and defaults to the crate name.
+#name = "libthreescalers"
+# Used as the package description in the pkg-config file and defaults to the crate description.
+description = "3scale API client library"
+# Used as the package version in the pkg-config file and defaults to the crate version.
+#version = "1.2.3"
+# Used as the Requires field in the pkg-config file, if defined
+#requires = "gstreamer-1.0, gstreamer-base-1.0"
+# Used as the Requires.private field in the pkg-config file, if defined
+#requires_private = "gobject-2.0, glib-2.0 >= 2.56.0, gmodule-2.0"
+# Strip the include search path from the last n components, useful to support installing in a
+# subdirectory but then include with the path. By default it is 0.
+#strip_include_path_components = 1
+
+[package.metadata.capi.library]
+# Used as the library name and defaults to the crate name. This might get
+# prefixed with `lib` depending on the target platform.
+#name = "new_name"
+# Used as library version and defaults to the crate version. How this is used
+# depends on the target platform.
+#version = "1.2.3"
+# Used to install the library to a subdirectory of `libdir`.
+#install_subdir = "gstreamer-1.0"
+# Used to disable versioning links when installing the dynamic library
+#versioning = false
+# Add `-Cpanic=abort` to the RUSTFLAGS automatically, it may be useful in case
+# something might panic in the crates used by the library.
+rustflags = "-C panic=abort -C link-args=-Wl,-Map=libthreescalers.map"
