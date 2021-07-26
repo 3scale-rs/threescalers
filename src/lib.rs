@@ -27,6 +27,7 @@ pub mod service;
 pub mod transaction;
 pub mod usage;
 pub mod user;
+#[cfg_attr(feature = "capi", macro_use)]
 pub mod version;
 
 #[cfg(feature = "xml-response")]
