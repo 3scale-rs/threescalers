@@ -7,4 +7,5 @@ pub use ffi_cow::{FFICow, FFIStr, FFIString};
 mod c_slice;
 pub use c_slice::{CSlice, CSliceMut};
 
+pub mod encoding;
 pub mod version;
