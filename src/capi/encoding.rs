@@ -31,13 +31,13 @@ pub unsafe extern "C" fn encoding_encode_buffer(
     let c_slice_dst = if let Some(c_slice_mut) = CSliceMut::new_from_size_ptr(dst, dstlen_ptr) {
         c_slice_mut
     } else {
-        return c_int::from(-1);
+        return -1;
     };
 
     let c_slice_src = if let Some(c_slice) = CSlice::new(src, srclen) {
         c_slice
     } else {
-        return c_int::from(-1);
+        return -1;
     };
 
     let cow = encoding::encode(&c_slice_src);
@@ -46,7 +46,7 @@ pub unsafe extern "C" fn encoding_encode_buffer(
     unsafe { *dstlen_ptr = required_len };
 
     if required_len > c_slice_dst.len() {
-        return c_int::from(-1);
+        return -1;
     }
 
     unsafe {
@@ -55,5 +55,5 @@ pub unsafe extern "C" fn encoding_encode_buffer(
         core::ptr::copy_nonoverlapping(cow.as_ptr(), dst as *mut _, required_len);
     }
 
-    c_int::from(0)
+    0
 }
