@@ -83,18 +83,18 @@ pub unsafe extern "C" fn rest_rule_matches(
     path_qs: *const c_char,
 ) -> c_int {
     if rule.is_null() {
-        return c_int::from(-1);
+        return -1;
     }
 
     let method_s = if let Some(c_slice) = CSlice::new(method, 0) {
         c_slice.as_cow()
     } else {
-        return c_int::from(-1);
+        return -1;
     };
     let path_qs = if let Some(c_slice) = CSlice::new(path_qs, 0) {
         c_slice.as_cow()
     } else {
-        return c_int::from(-1);
+        return -1;
     };
 
     let rule = unsafe { std::ptr::read::<RestRule>(rule) };
@@ -102,11 +102,7 @@ pub unsafe extern "C" fn rest_rule_matches(
 
     let method = Method::from(method_s.as_ref());
 
-    if rule.matches(&method, path_qs) {
-        c_int::from(1)
-    } else {
-        c_int::from(0)
-    }
+    c_int::from(rule.matches(&method, path_qs))
 }
 
 #[no_mangle]
@@ -117,18 +113,18 @@ pub unsafe extern "C" fn rest_rule_matches_path_n_qs(
     qs: *const c_char,
 ) -> c_int {
     if rule.is_null() {
-        return c_int::from(-1);
+        return -1;
     }
 
     let method_s = if let Some(c_slice) = CSlice::new(method, 0) {
         c_slice.as_cow()
     } else {
-        return c_int::from(-1);
+        return -1;
     };
     let path = if let Some(c_slice) = CSlice::new(path, 0) {
         c_slice.as_cow()
     } else {
-        return c_int::from(-1);
+        return -1;
     };
     let qs = if let Some(c_slice) = CSlice::new(qs, 0) {
         c_slice.as_cow().into()
@@ -141,11 +137,7 @@ pub unsafe extern "C" fn rest_rule_matches_path_n_qs(
 
     let method = Method::from(method_s.as_ref());
 
-    if &method == rule.method() && rule.matches_path_n_qs(path, qs) {
-        c_int::from(1)
-    } else {
-        c_int::from(0)
-    }
+    c_int::from(&method == rule.method() && rule.matches_path_n_qs(path, qs))
 }
 
 #[no_mangle]
@@ -154,27 +146,21 @@ pub unsafe extern "C" fn rest_rule_matches_request_line(
     http_request_line: *const c_char,
 ) -> c_int {
     if rule.is_null() {
-        return c_int::from(-1);
+        return -1;
     }
 
     let http_request_line = if let Some(c_slice) = CSlice::new(http_request_line, 0) {
         c_slice.as_cow()
     } else {
-        return c_int::from(-1);
+        return -1;
     };
 
     let rule = unsafe { std::ptr::read::<RestRule>(rule) };
     let rule = ManuallyDrop::new(rule);
 
     match rule.matches_request_line(http_request_line) {
-        Ok(b) => {
-            if b {
-                c_int::from(1)
-            } else {
-                c_int::from(0)
-            }
-        }
-        Err(_) => c_int::from(-1),
+        Ok(b) => c_int::from(b),
+        Err(_) => -1,
     }
 }
 
