@@ -4,7 +4,7 @@ use core::mem::ManuallyDrop;
 use std::os::raw::{c_char, c_int};
 
 use super::c_slice::CSlice;
-use super::ffi_cow::FFICow;
+use super::ffi_cow::{FFICow, FFIString};
 
 use crate::http::mapping_rule::{Method, RestRule};
 
@@ -175,4 +175,18 @@ pub unsafe extern "C" fn rest_rule_method(rule: *const RestRule) -> *const FFICo
     let method = FFICow::from(rule.method().as_str());
 
     Box::into_raw(Box::new(method)) as *const _
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn rest_rule_debug(rule: *const RestRule) -> *const FFICow {
+    if rule.is_null() {
+        return core::ptr::null();
+    }
+    let rule = unsafe { std::ptr::read::<RestRule>(rule) };
+    let debug_s = format!("{:?}", rule);
+    let _ = ManuallyDrop::new(rule);
+
+    let debug = FFICow::from(FFIString::from(debug_s));
+
+    Box::into_raw(Box::new(debug)) as *const _
 }
