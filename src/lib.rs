@@ -2,6 +2,8 @@
 #![cfg_attr(feature_never_type, feature(never_type))]
 #![cfg_attr(feature_matches_macro, feature(matches_macro))]
 #![cfg_attr(feature_inner_deref, feature(inner_deref))]
+#![cfg_attr(feature_unsafe_op_in_unsafe_fn, feature(unsafe_op_in_unsafe_fn))]
+#![cfg_attr(supports_unsafe_op_in_unsafe_fn, deny(unsafe_op_in_unsafe_fn))]
 #![cfg_attr(feature_test, feature(test))]
 #![cfg_attr(feature_transparent_enums, feature(transparent_enums))]
 #![no_std]
@@ -10,6 +12,10 @@ use std::prelude::v1::*;
 
 #[cfg(all(test, feature_test))]
 extern crate test;
+
+// C-API module
+#[cfg(feature = "capi")]
+pub mod capi;
 
 // Macros declared here, so this module should come first.
 #[macro_use]
@@ -25,6 +31,7 @@ pub mod service;
 pub mod transaction;
 pub mod usage;
 pub mod user;
+#[cfg_attr(feature = "capi", macro_use)]
 pub mod version;
 
 #[cfg(feature = "xml-response")]

@@ -35,7 +35,7 @@ impl Extension<'_> {
 
         // This avoids encoding known extensions by issuing the final "encoded" form.
         match self {
-            Extension::Other(k, v) => encode(k) + "=" + encode(v),
+            Extension::Other(k, v) => encode(k.as_ref()) + "=" + encode(v.as_ref()),
             Extension::FlatUsage(value) => Cow::from("flat_usage=") + value.as_ref(),
             Extension::Hierarchy => "hierarchy=1".into(),
             Extension::ListAppKeys(value) => Cow::from("list_app_keys=") + value.as_ref(),
