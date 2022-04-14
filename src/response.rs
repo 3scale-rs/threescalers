@@ -110,7 +110,6 @@ impl AuthorizationError {
     }
 }
 
-#[repr(transparent)]
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct Metric(pub String);
 

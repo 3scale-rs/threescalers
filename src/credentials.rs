@@ -6,10 +6,8 @@ use crate::Error;
 
 use std::str::FromStr;
 
-#[repr(transparent)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ProviderKey(String);
-#[repr(transparent)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ServiceToken(String);
 
@@ -144,7 +142,6 @@ where
     }
 }
 
-#[repr(transparent)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ServiceId(String);
 

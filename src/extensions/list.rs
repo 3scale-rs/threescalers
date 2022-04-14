@@ -4,7 +4,6 @@ use std::{borrow::Cow, iter::FromIterator, vec::IntoIter};
 
 use super::Extension;
 
-#[repr(transparent)]
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct List<'s>(Vec<Extension<'s>>);
 

@@ -11,7 +11,6 @@ impl<'m, M: AsRef<str> + 'm, V: AsRef<str> + 'm> From<&'m (M, V)> for MetricUsag
     }
 }
 
-#[repr(transparent)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Usage<'m>(Vec<MetricUsage<'m>>);
 

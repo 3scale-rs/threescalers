@@ -29,7 +29,6 @@ impl Method {
     }
 }
 
-#[repr(transparent)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct HeaderMap(BTreeMap<String, String>);
 
@@ -68,7 +67,6 @@ impl Default for HeaderMap {
     }
 }
 
-#[repr(transparent)]
 #[derive(Debug, Clone)]
 pub struct Iter<'a> {
     iter: InnerIter<'a, String, String>,

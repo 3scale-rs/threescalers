@@ -11,7 +11,6 @@ use serde::{
 mod systemtime {
     use chrono::DateTime;
 
-    #[repr(transparent)]
     #[derive(Debug, Clone, PartialEq, Eq)]
     pub struct PeriodTime(pub i64);
 
