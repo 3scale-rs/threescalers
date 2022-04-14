@@ -1,4 +1,5 @@
 [package]
+rust-version = "1.60"
 edition = "2018"
 name = "threescalers"
 description = "3scale API client library for Rust"
