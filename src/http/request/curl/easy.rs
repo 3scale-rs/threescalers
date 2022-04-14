@@ -59,8 +59,6 @@ impl<'easy, 'data, URI: ToString>
         r: Request,
         params: URI,
     ) -> Result<CurlEasyClient<'easy, 'data>, Error> {
-        use core::convert::TryFrom;
-
         let (uri, body) = r.parameters.uri_and_body(r.path);
         let uri_base = params;
         let uri = uri_base.to_string() + uri.as_ref();
