@@ -22,24 +22,10 @@ pub enum Authorization {
 
 impl Authorization {
     pub fn is_status(&self) -> bool {
-        #[cfg(not(supports_matches_macro))]
-        match self {
-            Self::Status(_) => true,
-            _ => false,
-        }
-
-        #[cfg(supports_matches_macro)]
         matches!(self, Self::Status(_))
     }
 
     pub fn is_error(&self) -> bool {
-        #[cfg(not(supports_matches_macro))]
-        match self {
-            Self::Error(_) => true,
-            _ => false,
-        }
-
-        #[cfg(supports_matches_macro)]
         matches!(self, Self::Error(_))
     }
 

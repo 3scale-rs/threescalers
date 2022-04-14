@@ -1,5 +1,3 @@
-#[cfg(not(has_core_iter_Iterator_reduce))]
-use crate::util::compat::features::IteratorFoldSelfExt as _;
 use std::prelude::v1::*;
 
 use regex::Regex;
@@ -31,7 +29,6 @@ lazy_static::lazy_static! {
     static ref PLACEHOLDER_REGEX: Regex = Regex::new(r"\{.+?\}").unwrap();
 }
 
-#[cfg_attr(not(has_core_iter_Iterator_reduce), allow(unstable_name_collisions))]
 pub(super) fn query_string_regex(s: &str) -> Result<Vec<Regex>, Error> {
     let kv_regex_s = PLACEHOLDER_REGEX
         .split(s)
@@ -80,7 +77,6 @@ pub(super) fn query_string_regex(s: &str) -> Result<Vec<Regex>, Error> {
 //    regex that takes a superset of alphanumeric characters.
 // 3. Ensure that a terminating $ character means an exact match. (ie. don't
 //    escape the remaining literal text)
-#[cfg_attr(not(has_core_iter_Iterator_reduce), allow(unstable_name_collisions))]
 pub(super) fn path_regex(path: &str) -> Result<Regex, Error> {
     let path_without_dup_fslashes = coalesce_chars(path, '/');
     let regex_literal = PLACEHOLDER_REGEX
