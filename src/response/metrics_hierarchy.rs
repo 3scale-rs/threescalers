@@ -87,10 +87,10 @@ impl<'de> Visitor<'de> for MetricsHierarchyVisitor {
                 .get("children")
                 .ok_or_else(|| de::Error::missing_field("children"))?
                 .split(' ')
-                .map(|s| s.to_owned())
+                .map(ToOwned::to_owned)
                 .collect::<Vec<_>>();
 
-            hierarchy.insert(parent_metric.to_owned(), children_metrics);
+            hierarchy.insert(parent_metric.clone(), children_metrics);
         }
 
         Ok(hierarchy)

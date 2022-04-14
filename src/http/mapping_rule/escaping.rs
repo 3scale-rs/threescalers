@@ -81,7 +81,7 @@ pub(super) fn path_regex(path: &str) -> Result<Regex, Error> {
     let path_without_dup_fslashes = coalesce_chars(path, '/');
     let regex_literal = PLACEHOLDER_REGEX
         .split(path_without_dup_fslashes.as_str())
-        .map(|literal| literal.to_string()) // No regex escaping!
+        .map(ToString::to_string) // No regex escaping!
         .reduce(|mut acc, literal| {
             acc.push_str(PATH_VALUE_REGEX_S);
             acc.push_str(literal.as_str());
@@ -105,8 +105,7 @@ pub(super) fn path_regex(path: &str) -> Result<Regex, Error> {
 
 pub(super) fn split_path_n_qs(s: &str) -> (&str, Option<&str>) {
     s.find('?')
-        .map(|idx| (&s[..idx], Some(&s[idx + 1..])))
-        .unwrap_or((s, None))
+        .map_or((s, None), |idx| (&s[..idx], Some(&s[idx + 1..])))
 }
 
 pub(super) fn coalesce_chars(s: &str, coalescing_char: char) -> String {

@@ -69,7 +69,7 @@ where
         extendable.extend(self.0.iter().map(|mv| {
             let m = format!("usage[{}]", mv.0);
             (key_mangling(m.into()), mv.1)
-        }))
+        }));
     }
 }
 

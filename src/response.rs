@@ -81,11 +81,11 @@ impl AuthorizationStatus {
     }
 
     pub fn usage_reports(&self) -> Option<&Vec<UsageReport>> {
-        self.usage_reports.as_ref().map(|ur| ur.as_vec())
+        self.usage_reports.as_ref().map(UsageReports::as_vec)
     }
 
     pub fn usage_reports_mut(&mut self) -> Option<&mut Vec<UsageReport>> {
-        self.usage_reports.as_mut().map(|ur| ur.as_vec_mut())
+        self.usage_reports.as_mut().map(UsageReports::as_vec_mut)
     }
 
     pub fn hierarchy(&self) -> Option<&MetricsHierarchy> {
