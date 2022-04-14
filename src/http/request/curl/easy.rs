@@ -100,7 +100,7 @@ impl<'easy, 'data, URI: ToString>
                 let mut count = 0usize;
                 transfer
                     .read_function(move |buf| {
-                        Ok(super::copy_data(&mut count, &body.as_bytes(), buf))
+                        Ok(super::copy_data(&mut count, body.as_bytes(), buf))
                     })
                     .map_err(|e| anyhow!("failed to set curl client read function: {:#?}", e))?;
 

@@ -55,7 +55,7 @@ impl Handler for BodyHandle {
         debug_assert!(self.body.is_some());
 
         if let Some(ref body) = self.body {
-            Ok(Self::copy_data(&mut self.count, &body.as_bytes(), data))
+            Ok(Self::copy_data(&mut self.count, body.as_bytes(), data))
         } else {
             unreachable!()
         }

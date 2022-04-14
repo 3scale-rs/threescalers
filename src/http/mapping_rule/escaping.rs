@@ -38,7 +38,7 @@ pub(super) fn query_string_regex(s: &str) -> Result<Vec<Regex>, Error> {
         .map(|literal| {
             literal
                 .split('&')
-                .map(|part| regex::escape(part))
+                .map(regex::escape)
                 .reduce(|mut acc, escaped_part| {
                     acc.push('&');
                     acc.push_str(escaped_part.as_str());
