@@ -29,6 +29,13 @@ unnecessarily.
 Some features that pull in dependencies might require higher rustc versions based on
 the dependencies' MSRV.
 
+## no_std
+
+`#[no_std]` support can be achieved _if_ allocations are allowed and disabling the default
+feature set, but since at least one feature uses `lazy_static`, you'll want to build your
+binary enabling the spinlocks feature of this dependency, named `spin_no_std`. If you don't
+do this `std` will be pulled in regardless by `lazy_static` as of writing.
+
 ## Status
 
 This library is in _beta_ state. It should be useful to create clients that will
