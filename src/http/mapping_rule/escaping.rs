@@ -1,5 +1,3 @@
-#[cfg(not(has_core_iter_Iterator_reduce))]
-use crate::util::compat::features::IteratorFoldSelfExt as _;
 use std::prelude::v1::*;
 
 use regex::Regex;
@@ -31,14 +29,13 @@ lazy_static::lazy_static! {
     static ref PLACEHOLDER_REGEX: Regex = Regex::new(r"\{.+?\}").unwrap();
 }
 
-#[cfg_attr(not(has_core_iter_Iterator_reduce), allow(unstable_name_collisions))]
 pub(super) fn query_string_regex(s: &str) -> Result<Vec<Regex>, Error> {
     let kv_regex_s = PLACEHOLDER_REGEX
         .split(s)
         .map(|literal| {
             literal
                 .split('&')
-                .map(|part| regex::escape(part))
+                .map(regex::escape)
                 .reduce(|mut acc, escaped_part| {
                     acc.push('&');
                     acc.push_str(escaped_part.as_str());
@@ -80,12 +77,11 @@ pub(super) fn query_string_regex(s: &str) -> Result<Vec<Regex>, Error> {
 //    regex that takes a superset of alphanumeric characters.
 // 3. Ensure that a terminating $ character means an exact match. (ie. don't
 //    escape the remaining literal text)
-#[cfg_attr(not(has_core_iter_Iterator_reduce), allow(unstable_name_collisions))]
 pub(super) fn path_regex(path: &str) -> Result<Regex, Error> {
     let path_without_dup_fslashes = coalesce_chars(path, '/');
     let regex_literal = PLACEHOLDER_REGEX
         .split(path_without_dup_fslashes.as_str())
-        .map(|literal| literal.to_string()) // No regex escaping!
+        .map(ToString::to_string) // No regex escaping!
         .reduce(|mut acc, literal| {
             acc.push_str(PATH_VALUE_REGEX_S);
             acc.push_str(literal.as_str());
@@ -109,8 +105,7 @@ pub(super) fn path_regex(path: &str) -> Result<Regex, Error> {
 
 pub(super) fn split_path_n_qs(s: &str) -> (&str, Option<&str>) {
     s.find('?')
-        .map(|idx| (&s[..idx], Some(&s[idx + 1..])))
-        .unwrap_or((s, None))
+        .map_or((s, None), |idx| (&s[..idx], Some(&s[idx + 1..])))
 }
 
 pub(super) fn coalesce_chars(s: &str, coalescing_char: char) -> String {

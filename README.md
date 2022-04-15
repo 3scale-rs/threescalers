@@ -5,7 +5,7 @@ convenience implementations for some comonly used HTTP clients.
 
 ## Rust library crate for the 3scale Service Management API
 
-![Minimum rustc version](https://img.shields.io/badge/rustc-1.40.0+-green.svg)
+![Minimum rustc version](https://img.shields.io/badge/rustc-1.60.0+-green.svg)
 [![docs.rs](https://docs.rs/threescalers/badge.svg)](https://docs.rs/threescalers)
 [![Build Status](https://github.com/3scale-rs/threescalers/actions/workflows/ci.yaml/badge.svg)](https://travis-ci.org/3scale-rs/threescalers)
 [![codecov.io](https://codecov.io/gh/3scale-rs/threescalers/coverage.svg?branch=master)](https://codecov.io/gh/3scale-rs/threescalers/branch/master)
@@ -28,6 +28,13 @@ unnecessarily.
 
 Some features that pull in dependencies might require higher rustc versions based on
 the dependencies' MSRV.
+
+## no_std
+
+`#[no_std]` support can be achieved _if_ allocations are allowed and disabling the default
+feature set, but since at least one feature uses `lazy_static`, you'll want to build your
+binary enabling the spinlocks feature of this dependency, named `spin_no_std`. If you don't
+do this `std` will be pulled in regardless by `lazy_static` as of writing.
 
 ## Status
 

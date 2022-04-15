@@ -38,11 +38,11 @@ impl Request {
         use super::endpoints::*;
 
         match (kind, application, user) {
-            (Authorize, Some(Application::OAuthToken(_)), _) => OAUTH_AUTHORIZE_ENDPOINT,
-            (Authorize, _, Some(&User::OAuthToken(_))) => OAUTH_AUTHORIZE_ENDPOINT,
+            (Authorize, Some(Application::OAuthToken(_)), _)
+            | (Authorize, _, Some(&User::OAuthToken(_))) => OAUTH_AUTHORIZE_ENDPOINT,
             (Authorize, ..) => AUTHORIZE_ENDPOINT,
-            (AuthRep, Some(Application::OAuthToken(_)), _) => OAUTH_AUTHREP_ENDPOINT,
-            (AuthRep, _, Some(&User::OAuthToken(_))) => OAUTH_AUTHREP_ENDPOINT,
+            (AuthRep, Some(Application::OAuthToken(_)), _)
+            | (AuthRep, _, Some(&User::OAuthToken(_))) => OAUTH_AUTHREP_ENDPOINT,
             (AuthRep, ..) => AUTHREP_ENDPOINT,
             (Report, ..) => REPORT_ENDPOINT,
         }

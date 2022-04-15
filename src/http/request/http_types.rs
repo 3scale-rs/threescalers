@@ -11,7 +11,7 @@ use http_types::{
 
 impl From<Method> for HTTPMethod {
     fn from(m: Method) -> Self {
-        use Method::*;
+        use Method::{DELETE, GET, HEAD, PATCH, POST, PUT};
 
         match m {
             GET => Self::GET,

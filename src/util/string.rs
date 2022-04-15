@@ -8,7 +8,6 @@ use serde::{Deserialize, Serialize};
     derive(Serialize, Deserialize),
     serde(from = "String", into = "String")
 )]
-#[repr(transparent)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AllCaps(String);
 

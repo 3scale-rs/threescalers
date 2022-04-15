@@ -16,7 +16,7 @@ pub enum Method {
 
 impl Method {
     pub fn as_str(&self) -> &str {
-        use Method::*;
+        use Method::{DELETE, GET, HEAD, PATCH, POST, PUT};
 
         match self {
             GET => "GET",
@@ -29,7 +29,6 @@ impl Method {
     }
 }
 
-#[repr(transparent)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct HeaderMap(BTreeMap<String, String>);
 
@@ -68,7 +67,6 @@ impl Default for HeaderMap {
     }
 }
 
-#[repr(transparent)]
 #[derive(Debug, Clone)]
 pub struct Iter<'a> {
     iter: InnerIter<'a, String, String>,
@@ -102,7 +100,7 @@ impl<S: ToString> std::iter::FromIterator<(S, S)> for HeaderMap {
 
 impl<S: ToString> Extend<(S, S)> for HeaderMap {
     fn extend<T: IntoIterator<Item = (S, S)>>(&mut self, iter: T) {
-        for (key, value) in iter.into_iter() {
+        for (key, value) in iter {
             self.insert(key.to_string(), value.to_string());
         }
     }

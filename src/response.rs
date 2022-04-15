@@ -22,24 +22,10 @@ pub enum Authorization {
 
 impl Authorization {
     pub fn is_status(&self) -> bool {
-        #[cfg(not(supports_matches_macro))]
-        match self {
-            Self::Status(_) => true,
-            _ => false,
-        }
-
-        #[cfg(supports_matches_macro)]
         matches!(self, Self::Status(_))
     }
 
     pub fn is_error(&self) -> bool {
-        #[cfg(not(supports_matches_macro))]
-        match self {
-            Self::Error(_) => true,
-            _ => false,
-        }
-
-        #[cfg(supports_matches_macro)]
         matches!(self, Self::Error(_))
     }
 
@@ -95,11 +81,11 @@ impl AuthorizationStatus {
     }
 
     pub fn usage_reports(&self) -> Option<&Vec<UsageReport>> {
-        self.usage_reports.as_ref().map(|ur| ur.as_vec())
+        self.usage_reports.as_ref().map(UsageReports::as_vec)
     }
 
     pub fn usage_reports_mut(&mut self) -> Option<&mut Vec<UsageReport>> {
-        self.usage_reports.as_mut().map(|ur| ur.as_vec_mut())
+        self.usage_reports.as_mut().map(UsageReports::as_vec_mut)
     }
 
     pub fn hierarchy(&self) -> Option<&MetricsHierarchy> {
@@ -124,7 +110,6 @@ impl AuthorizationError {
     }
 }
 
-#[repr(transparent)]
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct Metric(pub String);
 

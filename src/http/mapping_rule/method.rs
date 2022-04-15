@@ -69,9 +69,10 @@ impl From<Method> for String {
 impl PartialEq for Method {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
-            (Self::Any, _) | (_, Self::Any) => true,
             (Self::Other(a), Self::Other(b)) => a == b,
-            (Self::GET, Self::GET)
+            (Self::Any, _)
+            | (_, Self::Any)
+            | (Self::GET, Self::GET)
             | (Self::HEAD, Self::HEAD)
             | (Self::POST, Self::POST)
             | (Self::PUT, Self::PUT)

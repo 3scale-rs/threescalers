@@ -6,16 +6,12 @@ use crate::Error;
 
 use std::str::FromStr;
 
-#[repr(transparent)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AppId(String);
-#[repr(transparent)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AppKey(String);
-#[repr(transparent)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UserKey(String);
-#[repr(transparent)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct OAuthToken(String);
 

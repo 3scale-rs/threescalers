@@ -55,7 +55,7 @@ impl Handler for BodyHandle {
         debug_assert!(self.body.is_some());
 
         if let Some(ref body) = self.body {
-            Ok(Self::copy_data(&mut self.count, &body.as_bytes(), data))
+            Ok(Self::copy_data(&mut self.count, body.as_bytes(), data))
         } else {
             unreachable!()
         }
@@ -70,8 +70,6 @@ impl SetBody for BodyHandle {
 
 impl<URI: ToString, H: SetBody> SetupRequest<'_, URI, Result<(), Error>> for Easy2<H> {
     fn setup_request(&mut self, r: Request, params: URI) -> Result<(), Error> {
-        use core::convert::TryFrom;
-
         let (uri, body) = r.parameters.uri_and_body(r.path);
         let uri_base = params;
         let uri = uri_base.to_string() + uri.as_ref();

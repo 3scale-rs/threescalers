@@ -4,11 +4,9 @@ use crate::{Error, ToParams};
 
 use std::str::FromStr;
 
-#[repr(transparent)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UserId(String);
 
-#[repr(transparent)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct OAuthToken(String);
 

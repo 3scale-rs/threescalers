@@ -3,7 +3,7 @@
 // check the details.
 
 static REQUIRED_MAJOR: usize = 1;
-static REQUIRED_MINOR: usize = 40;
+static REQUIRED_MINOR: usize = 60;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut ac = autocfg::AutoCfg::new()?;
@@ -15,47 +15,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
     }
 
-    let inner_deref_paths = [
-        "core::result::Result::as_deref",
-        "core::result::Result::as_deref_mut",
-    ];
-    ac.emit_paths_maybe_using_feature("inner_deref", &inner_deref_paths);
-
-    // iterator_fold_self not worth enabling, we can just define this path via expression
-    // (cannot directly `use core::iter::Iterator::reduce`)
-    ac.emit_expression_cfg(
-        "[1, 2, 3].iter().reduce(|max, e| if max >= e { max } else { e })",
-        "has_core_iter_Iterator_reduce",
-    );
-
-    ac.emit_expression_maybe_using_feature_cfg(
-        "str_split_once",
-        "has_str_split_once",
-        "\"t\".split_once('t')",
-    );
-
-    ac.emit_constant_maybe_using_feature("const_saturating_int_methods", "5i32.saturating_sub(4)");
-
-    ac.emit_expression_maybe_using_feature(
-        "unsafe_op_in_unsafe_fn",
-        "{\n#[deny(unknown_lints, unsafe_op_in_unsafe_fn)]\nunsafe fn t() {}\nunsafe { t() }\n}",
-    );
-
     if !ac.emit_type_cfg("!", "supports_never_type") {
         ac.emit_features_with(&["never_type"], |fac| {
             fac.emit_type_cfg("!", "supports_never_type")
         });
     }
-
-    ac.emit_expression_maybe_using_feature(
-        "matches_macro",
-        "{ let a = Some(5i32); matches!(a, None) }",
-    );
-
-    ac.emit_expression_maybe_using_feature(
-        "transparent_enums",
-        "{\n#[repr(transparent)]\npub enum MaybeTransparent { A }\n}",
-    );
 
     ac.emit_feature("test");
 
@@ -109,7 +73,7 @@ mod autocfg {
                 "AutoCfg error"
             }
 
-            fn cause(&self) -> Option<&error::Error> {
+            fn cause(&self) -> Option<&dyn error::Error> {
                 match self.kind {
                     ErrorKind::Io(ref e) => Some(e),
                     ErrorKind::Num(ref e) => Some(e),
@@ -781,7 +745,7 @@ mod autocfg {
     fn mangle(s: &str) -> String {
         s.chars()
             .map(|c| match c {
-                'A'...'Z' | 'a'...'z' | '0'...'9' => c,
+                'A'..='Z' | 'a'..='z' | '0'..='9' => c,
                 _ => '_',
             })
             .collect()

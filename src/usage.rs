@@ -11,7 +11,6 @@ impl<'m, M: AsRef<str> + 'm, V: AsRef<str> + 'm> From<&'m (M, V)> for MetricUsag
     }
 }
 
-#[repr(transparent)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Usage<'m>(Vec<MetricUsage<'m>>);
 
@@ -70,7 +69,7 @@ where
         extendable.extend(self.0.iter().map(|mv| {
             let m = format!("usage[{}]", mv.0);
             (key_mangling(m.into()), mv.1)
-        }))
+        }));
     }
 }
 

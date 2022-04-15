@@ -71,39 +71,33 @@ impl RestRule {
     }
 
     pub fn matches_path_n_qs<S: AsRef<str>>(&self, path: S, qs: Option<S>) -> bool {
-        self.qs
-            .as_deref()
-            .map(|qs_regexes| {
-                let mut kvs = qs
-                    .as_ref()
-                    .map(AsRef::as_ref)
-                    .unwrap_or("")
-                    .split('&')
-                    .collect::<Vec<_>>();
+        self.qs.as_deref().map_or(true, |qs_regexes| {
+            let mut kvs = qs
+                .as_ref()
+                .map_or("", AsRef::as_ref)
+                .split('&')
+                .collect::<Vec<_>>();
 
-                qs_regexes.iter().all(|regex| {
-                    kvs.iter()
-                        .enumerate()
-                        .find_map(
-                            |(idx, &kv)| {
-                                if regex.is_match(kv) {
-                                    Some(idx)
-                                } else {
-                                    None
-                                }
-                            },
-                        )
-                        .map(|idx| {
-                            kvs.remove(idx);
-                            true
-                        })
-                        .unwrap_or(false)
-                })
+            qs_regexes.iter().all(|regex| {
+                kvs.iter()
+                    .enumerate()
+                    .find_map(
+                        |(idx, &kv)| {
+                            if regex.is_match(kv) {
+                                Some(idx)
+                            } else {
+                                None
+                            }
+                        },
+                    )
+                    .map_or(false, |idx| {
+                        kvs.remove(idx);
+                        true
+                    })
             })
-            .unwrap_or(true)
-            && self
-                .path
-                .is_match(escaping::coalesce_chars(path.as_ref(), '/').as_str())
+        }) && self
+            .path
+            .is_match(escaping::coalesce_chars(path.as_ref(), '/').as_str())
     }
 
     pub fn matches_path_with_qs<S: AsRef<str>>(&self, path_qs: S) -> bool {
