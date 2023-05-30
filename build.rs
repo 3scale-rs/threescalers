@@ -158,7 +158,7 @@ mod autocfg {
             pub fn from_rustc(rustc: &Path) -> Result<Self, Error> {
                 // Get rustc's verbose version
                 let output = Command::new(rustc)
-                    .args(&["--version", "--verbose"])
+                    .args(["--version", "--verbose"])
                     .output()
                     .map_err(error::from_io)?;
                 if !output.status.success() {
@@ -767,7 +767,7 @@ mod autocfg {
 
                     cargo_target_dir
                         .to_str()
-                        .map(|cargo_target_dir| dir.contains(&cargo_target_dir))
+                        .map(|cargo_target_dir| dir.contains(cargo_target_dir))
                 })
             })
             .unwrap_or(false)
