@@ -22,11 +22,13 @@ jobs:
           components: rustfmt
           override: true
 
-      - name: Run cargo-tarpaulin
-        uses: actions-rs/tarpaulin@v0.1
+      - name: Install cargo-tarpaulin
+        uses: baptiste0928/cargo-install@v2
         with:
-          args: "--all-features -- --test-threads 1"
-          out-type: Xml
+          crate: cargo-tarpaulin
+          
+      - name: Run cargo tarpaulin
+        run: cargo tarpaulin --all-features -o Xml -- --test-threads 1 
 
       - name: Archive code coverage results
         uses: actions/upload-artifact@v2
