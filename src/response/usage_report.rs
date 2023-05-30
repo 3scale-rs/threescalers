@@ -9,11 +9,17 @@ use serde::{
 };
 
 mod systemtime {
-    use chrono::DateTime;
+    use chrono::{DateTime, LocalResult};
 
     #[repr(transparent)]
     #[derive(Debug, Clone, PartialEq, Eq)]
     pub struct PeriodTime(pub i64);
+
+    impl<Tz: chrono::TimeZone> From<LocalResult<DateTime<Tz>>> for PeriodTime {
+        fn from(dt: LocalResult<DateTime<Tz>>) -> PeriodTime {
+            PeriodTime(dt.single().unwrap().timestamp())
+        }
+    }
 
     impl<Tz: chrono::TimeZone> From<DateTime<Tz>> for PeriodTime {
         fn from(dt: DateTime<Tz>) -> PeriodTime {
@@ -223,8 +229,8 @@ mod tests {
         UsageReport {
             metric: "hits".into(),
             period: Period::Minute,
-            period_start: Utc.ymd(2021, 6, 22).and_hms(16, 58, 0).into(),
-            period_end: Utc.ymd(2021, 6, 22).and_hms(16, 59, 0).into(),
+            period_start: Utc.with_ymd_and_hms(2021, 6, 22, 16, 58, 0).into(),
+            period_end: Utc.with_ymd_and_hms(2021, 6, 22, 16, 59, 0).into(),
             max_value: 10,
             current_value: 0,
         }
@@ -239,8 +245,8 @@ mod tests {
         assert_eq!(
             ur.period_times(),
             (
-                &PeriodTime::from(Utc.ymd(2021, 6, 22).and_hms(16, 58, 0)),
-                &PeriodTime::from(Utc.ymd(2021, 6, 22).and_hms(16, 59, 0))
+                &PeriodTime::from(Utc.with_ymd_and_hms(2021, 6, 22, 16, 58, 0)),
+                &PeriodTime::from(Utc.with_ymd_and_hms(2021, 6, 22, 16, 59, 0))
             )
         );
         assert_eq!(ur.max_value(), 10);
