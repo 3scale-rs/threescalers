@@ -143,8 +143,7 @@ mod tests {
 
     #[test]
     fn parse() {
-        let s = r##"
-        <?xml version="1.0" encoding="UTF-8"?>
+        let s = r##"<?xml version="1.0" encoding="UTF-8"?>
         <status>
             <authorized>true</authorized>
             <plan>App Plan</plan>
@@ -171,16 +170,16 @@ mod tests {
             UsageReport {
                 metric: String::from("products"),
                 period: Period::Minute,
-                period_start: Utc.ymd(2019, 6, 5).and_hms(16, 24, 0).into(),
-                period_end: Utc.ymd(2019, 6, 5).and_hms(16, 25, 0).into(),
+                period_start: Utc.with_ymd_and_hms(2019, 6, 5, 16, 24, 0).into(),
+                period_end: Utc.with_ymd_and_hms(2019, 6, 5, 16, 25, 0).into(),
                 max_value: 5,
                 current_value: 0,
             },
             UsageReport {
                 metric: String::from("products"),
                 period: Period::Month,
-                period_start: Utc.ymd(2019, 6, 1).and_hms(0, 0, 0).into(),
-                period_end: Utc.ymd(2019, 7, 1).and_hms(0, 0, 0).into(),
+                period_start: Utc.with_ymd_and_hms(2019, 6, 1, 0, 0, 0).into(),
+                period_end: Utc.with_ymd_and_hms(2019, 7, 1, 0, 0, 0).into(),
                 max_value: 50,
                 current_value: 0,
             },
@@ -216,8 +215,7 @@ mod tests {
 
     #[test]
     fn parse_invalid_date_format() {
-        let s = r##"
-        <?xml version="1.0" encoding="UTF-8"?>
+        let s = r##"<?xml version="1.0" encoding="UTF-8"?>
         <status>
             <authorized>true</authorized>
             <plan>App Plan</plan>
@@ -248,8 +246,7 @@ mod tests {
 
     #[test]
     fn parse_response_with_no_usage_reports() {
-        let s = r##"
-        <?xml version="1.0" encoding="UTF-8"?>
+        let s = r##"<?xml version="1.0" encoding="UTF-8"?>
         <status>
             <authorized>true</authorized>
             <plan>App Plan</plan>
@@ -279,8 +276,7 @@ mod tests {
 
     #[test]
     fn parse_error_authorization() {
-        let xml_response = r##"
-        <?xml version="1.0" encoding="UTF-8"?>
+        let xml_response = r##"<?xml version="1.0" encoding="UTF-8"?>
         <error code="user_key_invalid">user key "some_user_key" is invalid</error>
         "##;
 
@@ -307,8 +303,7 @@ mod tests {
 
     #[test]
     fn parse_denied_authorization() {
-        let xml_response = r##"
-        <?xml version="1.0" encoding="UTF-8"?>
+        let xml_response = r##"<?xml version="1.0" encoding="UTF-8"?>
         <status>
           <authorized>false</authorized>
           <reason>application key is missing</reason>
@@ -331,8 +326,8 @@ mod tests {
         let usage_reports = vec![UsageReport {
             metric: String::from("ticks"),
             period: Period::Minute,
-            period_start: Utc.ymd(2021, 6, 8).and_hms(18, 7, 0).into(),
-            period_end: Utc.ymd(2021, 6, 8).and_hms(18, 8, 0).into(),
+            period_start: Utc.with_ymd_and_hms(2021, 6, 8, 18, 7, 0).into(),
+            period_end: Utc.with_ymd_and_hms(2021, 6, 8, 18, 8, 0).into(),
             max_value: 5,
             current_value: 0,
         }];
@@ -363,8 +358,7 @@ mod tests {
 
     #[test]
     fn parse_metrics_hierarchy() {
-        let xml_response = r##"
-        <?xml version="1.0" encoding="UTF-8"?>
+        let xml_response = r##"<?xml version="1.0" encoding="UTF-8"?>
         <status>
             <authorized>true</authorized>
             <plan>Basic</plan>
@@ -426,40 +420,40 @@ mod tests {
                 UsageReport {
                     metric: String::from("parent1"),
                     period: Period::Day,
-                    period_start: Utc.ymd(2016, 1, 1).and_hms(0, 0, 0).into(),
-                    period_end: Utc.ymd(2016, 1, 2).and_hms(0, 0, 0).into(),
+                    period_start: Utc.with_ymd_and_hms(2016, 1, 1, 0, 0, 0).into(),
+                    period_end: Utc.with_ymd_and_hms(2016, 1, 2, 0, 0, 0).into(),
                     max_value: 100,
                     current_value: 20,
                 },
                 UsageReport {
                     metric: String::from("parent2"),
                     period: Period::Day,
-                    period_start: Utc.ymd(2016, 1, 1).and_hms(0, 0, 0).into(),
-                    period_end: Utc.ymd(2016, 1, 2).and_hms(0, 0, 0).into(),
+                    period_start: Utc.with_ymd_and_hms(2016, 1, 1, 0, 0, 0).into(),
+                    period_end: Utc.with_ymd_and_hms(2016, 1, 2, 0, 0, 0).into(),
                     max_value: 100,
                     current_value: 10,
                 },
                 UsageReport {
                     metric: String::from("child1"),
                     period: Period::Day,
-                    period_start: Utc.ymd(2016, 1, 1).and_hms(0, 0, 0).into(),
-                    period_end: Utc.ymd(2016, 1, 2).and_hms(0, 0, 0).into(),
+                    period_start: Utc.with_ymd_and_hms(2016, 1, 1, 0, 0, 0).into(),
+                    period_end: Utc.with_ymd_and_hms(2016, 1, 2, 0, 0, 0).into(),
                     max_value: 100,
                     current_value: 10,
                 },
                 UsageReport {
                     metric: String::from("child2"),
                     period: Period::Day,
-                    period_start: Utc.ymd(2016, 1, 1).and_hms(0, 0, 0).into(),
-                    period_end: Utc.ymd(2016, 1, 2).and_hms(0, 0, 0).into(),
+                    period_start: Utc.with_ymd_and_hms(2016, 1, 1, 0, 0, 0).into(),
+                    period_end: Utc.with_ymd_and_hms(2016, 1, 2, 0, 0, 0).into(),
                     max_value: 100,
                     current_value: 10,
                 },
                 UsageReport {
                     metric: String::from("child3"),
                     period: Period::Day,
-                    period_start: Utc.ymd(2016, 1, 1).and_hms(0, 0, 0).into(),
-                    period_end: Utc.ymd(2016, 1, 2).and_hms(0, 0, 0).into(),
+                    period_start: Utc.with_ymd_and_hms(2016, 1, 1, 0, 0, 0).into(),
+                    period_end: Utc.with_ymd_and_hms(2016, 1, 2, 0, 0, 0).into(),
                     max_value: 100,
                     current_value: 10,
                 },
@@ -507,8 +501,7 @@ mod tests {
 
     #[test]
     fn parse_app_keys() {
-        let xml_response = r##"
-        <?xml version="1.0" encoding="UTF-8"?>
+        let xml_response = r##"<?xml version="1.0" encoding="UTF-8"?>
         <status>
             <authorized>true</authorized>
             <plan>Basic</plan>
@@ -541,8 +534,7 @@ mod tests {
 
     #[test]
     fn parse_empty_app_keys() {
-        let xml_response = r##"
-        <?xml version="1.0" encoding="UTF-8"?>
+        let xml_response = r##"<?xml version="1.0" encoding="UTF-8"?>
         <status>
             <authorized>true</authorized>
             <plan>Basic</plan>
