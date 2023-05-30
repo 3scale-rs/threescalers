@@ -87,7 +87,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 fn run_request(request: Request) -> Result<(), Box<dyn Error>> {
     let mut client = Easy2::new(BodyHandle::new());
-    let _ = client.verbose(true).unwrap();
+    client.verbose(true).unwrap();
     client.setup_request(request, "https://echo-api.3scale.net")?;
     let result = exec_request(&client);
     show_response(client, result).map_err(Into::into)
