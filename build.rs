@@ -31,6 +31,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     ac.emit_feature("test");
 
+    // Emit feature dependency of http-types: requires Never type.
+    // We are forced to do this until Cargo knows about private features.
+    #[cfg(feature = "http-types")]
+    println!("cargo:rustc-cfg=feature=\"never_type\"");
+
     autocfg::rerun_path("build.rs");
 
     Ok(())
