@@ -80,4 +80,4 @@ itertools = "^0.10"
 rand = "^0.8"
 
 [lints.rust]
-unexpected_cfgs = { level = "warn" }
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(feature, values("never_type"))'] }
