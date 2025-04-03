@@ -1,6 +1,7 @@
 // This build.rs file contains an inline vendored fork of autocfg with feature
 // detection capabilities. Please skip to the `autocfg` module if you want to
 // check the details.
+#![allow(clippy::all, clippy::pedantic)]
 
 static REQUIRED_MAJOR: usize = 1;
 static REQUIRED_MINOR: usize = 60;

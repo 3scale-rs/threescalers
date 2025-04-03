@@ -22,7 +22,7 @@ pub trait SetBody: Handler {
 }
 
 /// A default type that works with the requirements of conversion between a Request and a set up
-/// Easy2 client by implementing the SetBody trait.
+/// Easy2 client by implementing the `SetBody` trait.
 #[derive(Debug, Clone)]
 pub struct BodyHandle {
     count: usize,
@@ -37,7 +37,7 @@ impl BodyHandle {
         }
     }
 
-    /// A method to set/unset the body. To be used from a SetBody trait impl.
+    /// A method to set/unset the body. To be used from a `SetBody` trait impl.
     pub fn with_body(&mut self, body: Option<String>) {
         self.body = body;
     }
