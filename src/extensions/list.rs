@@ -1,5 +1,6 @@
 use std::prelude::v1::*;
 
+use core::fmt::{self, Display, Formatter};
 use std::{borrow::Cow, iter::FromIterator, vec::IntoIter};
 
 use super::Extension;
@@ -101,13 +102,17 @@ impl<'s> List<'s> {
     }
 }
 
-impl ToString for List<'_> {
-    fn to_string(&self) -> String {
-        self.0
-            .iter()
-            .map(|e| e.to_string())
-            .collect::<Vec<_>>()
-            .join("&")
+impl Display for List<'_> {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+        write!(
+            f,
+            "{}",
+            self.0
+                .iter()
+                .map(|e| e.to_string())
+                .collect::<Vec<_>>()
+                .join("&")
+        )
     }
 }
 
