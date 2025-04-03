@@ -86,7 +86,7 @@ impl<'a> Builder<'a> {
 use std::borrow::Cow;
 
 impl<'a> ApiCall<'a> {
-    pub fn builder(service: &'a Service) -> Builder {
+    pub fn builder(service: &'a Service) -> Builder<'a> {
         Builder::new(service)
     }
 
