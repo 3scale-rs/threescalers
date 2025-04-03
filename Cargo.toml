@@ -31,7 +31,6 @@ http-types = ["dep:http_types"]
 # Add in conversions for reqwest's crate types
 reqwest-async = ["dep:reqwest", "http-types"]
 reqwest-sync = ["dep:reqwest", "reqwest?/blocking", "http-types"]
-#reqwest-sync = ["dep:reqwest", "http-types"]
 reqwest-all = ["reqwest-async", "reqwest-sync"]
 # Add in conversions for curl's crate types
 curl-easy = ["dep:curl"]
