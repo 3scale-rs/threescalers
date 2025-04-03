@@ -15,12 +15,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
     }
 
+    let check_cfg_enabled = ac.probe_rustc_version(1, 80);
+
+    if check_cfg_enabled {
+        println!("cargo:rustc-check-cfg=cfg(supports_never_type, feature_never_type)");
+    }
     if !ac.emit_type_cfg("!", "supports_never_type") {
         ac.emit_features_with(&["never_type"], |fac| {
             fac.emit_type_cfg("!", "supports_never_type")
         });
     }
 
+    if check_cfg_enabled {
+        println!("cargo:rustc-check-cfg=cfg(feature_test)");
+    }
     ac.emit_feature("test");
 
     autocfg::rerun_path("build.rs");
