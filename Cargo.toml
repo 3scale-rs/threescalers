@@ -1,5 +1,5 @@
 [package]
-rust-version = "1.60"
+rust-version = "1.65"
 edition = "2021"
 name = "threescalers"
 description = "3scale API client library for Rust"
@@ -47,8 +47,8 @@ serde = ["dep:serde", "rest-mappings-serde"]
 
 [dependencies]
 percent-encoding = "2.1"
-http_types = { version = "0.2", package = "http", optional = true }
-reqwest = { version = ">= 0.10, < 0.12", optional = true }
+http_types = { version = "1", package = "http", optional = true }
+reqwest = { version = "0.12", optional = true }
 curl = { version = "0.4.10", optional = true }
 serde = { version = "1.0.103", optional = true, default-features = false, features = ["alloc", "derive"] }
 serde-xml-rs = { version = "0.6", optional = true }
