@@ -29,7 +29,7 @@ pub mod version;
 pub mod response;
 
 pub(crate) mod error {
-    pub use anyhow::{anyhow, Error, Result};
+    pub use anyhow::{anyhow, Error};
 }
 
 pub use error::Error;
