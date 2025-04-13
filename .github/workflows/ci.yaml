@@ -30,12 +30,15 @@ jobs:
             experimental: true
             cargo_flags: --all-features
           # MSRV
-          - rust: 1.60.0
+          - rust: 1.65.0
             experimental: false
             cargo_flags: ""
+          - rust: 1.81.0
+            experimental: false
+            cargo_flags: --all-features
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
