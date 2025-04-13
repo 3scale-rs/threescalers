@@ -12,7 +12,6 @@ keywords = ["3scale", "api-management", "api", "apisonator"]
 categories = ["api-bindings"]
 exclude = [
     ".gitignore",
-    "bors.toml",
     ".mailmap",
     "/ci/**",
     "/.github/**",
