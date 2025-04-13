@@ -144,7 +144,7 @@ pub enum Period {
 
 struct PeriodStringVisitor;
 
-impl<'de> Visitor<'de> for PeriodStringVisitor {
+impl Visitor<'_> for PeriodStringVisitor {
     type Value = Period;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
@@ -271,7 +271,7 @@ mod tests {
         let exceeded_limits = auth.unwrap_err();
         assert_eq!(exceeded_limits, UsageReportError::LimitsExceeded(1));
         assert!(ur.is_limited());
-        ur.reset(std::u64::MAX);
+        ur.reset(u64::MAX);
         let new_auth = ur.authorize(1);
         assert!(new_auth.is_err());
         let auth_err = new_auth.unwrap_err();

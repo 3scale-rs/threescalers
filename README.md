@@ -5,7 +5,7 @@ convenience implementations for some comonly used HTTP clients.
 
 ## Rust library crate for the 3scale Service Management API
 
-![Minimum rustc version](https://img.shields.io/badge/rustc-1.60.0+-green.svg)
+![Minimum rustc version](https://img.shields.io/badge/rustc-1.65.0+-green.svg)
 [![docs.rs](https://docs.rs/threescalers/badge.svg)](https://docs.rs/threescalers)
 [![Build Status](https://github.com/3scale-rs/threescalers/actions/workflows/ci.yaml/badge.svg)](https://travis-ci.org/3scale-rs/threescalers)
 [![codecov.io](https://codecov.io/gh/3scale-rs/threescalers/coverage.svg?branch=master)](https://codecov.io/gh/3scale-rs/threescalers/branch/master)
@@ -28,6 +28,9 @@ unnecessarily.
 
 Some features that pull in dependencies might require higher rustc versions based on
 the dependencies' MSRV.
+
+The current MSRV is 1.65.0, but if you enable any feature related to reqwest, the
+MSRV is bumped to 1.81.0.
 
 ## no_std
 

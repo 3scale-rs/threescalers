@@ -1,5 +1,5 @@
 [package]
-rust-version = "1.60"
+rust-version = "1.65"
 edition = "2021"
 name = "threescalers"
 description = "3scale API client library for Rust"
@@ -31,7 +31,6 @@ http-types = ["dep:http_types"]
 # Add in conversions for reqwest's crate types
 reqwest-async = ["dep:reqwest", "http-types"]
 reqwest-sync = ["dep:reqwest", "reqwest?/blocking", "http-types"]
-#reqwest-sync = ["dep:reqwest", "http-types"]
 reqwest-all = ["reqwest-async", "reqwest-sync"]
 # Add in conversions for curl's crate types
 curl-easy = ["dep:curl"]
@@ -47,20 +46,20 @@ rest-mappings-serde = ["dep:serde"]
 serde = ["dep:serde", "rest-mappings-serde"]
 
 [dependencies]
-percent-encoding = "^2"
-http_types = { version = "^0.2", package = "http", optional = true }
-reqwest = { version = ">= 0.10, < 0.12", optional = true }
-curl = { version = "^0.4", optional = true }
-serde = { version = "^1", optional = true, default-features = false, features = ["alloc", "derive"] }
-serde-xml-rs = { version = "^0.6", optional = true }
-chrono = { version = "^0.4", optional = true, default-features = false }
-no-std-compat = { version = "^0.4", features = ["alloc"] }
-anyhow = { version = "^1", default-features = false }
-regex = { version = "^1", optional = true, default-features = false, features = ["perf"] }
+percent-encoding = "2.1"
+http_types = { version = "1", package = "http", optional = true }
+reqwest = { version = "0.12", optional = true }
+curl = { version = "0.4.10", optional = true }
+serde = { version = "1.0.103", optional = true, default-features = false, features = ["alloc", "derive"] }
+serde-xml-rs = { version = "0.6", optional = true }
+chrono = { version = "0.4.23", optional = true, default-features = false }
+no-std-compat = { version = "0.4", features = ["alloc"] }
+anyhow = { version = "1.0.16", default-features = false }
+regex = { version = "1.3.2", optional = true, default-features = false, features = ["perf"] }
 # lazy_static has a "negative" no_std flag rather than an additive "std" flag :/
 # We'll now recommend users that want no_std to enable the "lazy_static/spin_no_std" feature,
 # since enabling it unconditionally here forces everyone, including std users, to use spinlocks.
-lazy_static = { version = "^1", optional = true }
+lazy_static = { version = "1.4", optional = true }
 
 [[example]]
 name = "reqwest-report"
@@ -75,6 +74,9 @@ name = "curl-easy2-report"
 required-features = ["curl-easy2"]
 
 [dev-dependencies]
-serde_json = "^1.0"
-itertools = "^0.10"
-rand = "^0.8"
+serde_json = "1"
+itertools = "0.10"
+rand = "0.8"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(feature, values("never_type"))'] }

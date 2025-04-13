@@ -1,6 +1,7 @@
 // This build.rs file contains an inline vendored fork of autocfg with feature
 // detection capabilities. Please skip to the `autocfg` module if you want to
 // check the details.
+#![allow(clippy::all, clippy::pedantic)]
 
 static REQUIRED_MAJOR: usize = 1;
 static REQUIRED_MINOR: usize = 60;
@@ -15,13 +16,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
     }
 
+    let check_cfg_enabled = ac.probe_rustc_version(1, 80);
+
+    if check_cfg_enabled {
+        println!("cargo:rustc-check-cfg=cfg(supports_never_type, feature_never_type)");
+    }
     if !ac.emit_type_cfg("!", "supports_never_type") {
         ac.emit_features_with(&["never_type"], |fac| {
             fac.emit_type_cfg("!", "supports_never_type")
         });
     }
 
+    if check_cfg_enabled {
+        println!("cargo:rustc-check-cfg=cfg(feature_test)");
+    }
     ac.emit_feature("test");
+
+    // Emit feature dependency of http-types: requires Never type.
+    // We are forced to do this until Cargo knows about private features.
+    #[cfg(feature = "http-types")]
+    println!("cargo:rustc-cfg=feature=\"never_type\"");
 
     autocfg::rerun_path("build.rs");
 

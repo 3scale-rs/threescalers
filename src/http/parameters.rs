@@ -17,7 +17,7 @@ use std::{iter::Map, slice::Iter};
 type ParamsMapper<'a, 'p, S, T> = Map<Iter<'a, (Cow<'p, str>, S)>, fn(&(Cow<'p, str>, S)) -> T>;
 
 impl Parameters {
-    pub fn new<S: AsRef<str>>(method: &Method, params: &[(Cow<str>, S)]) -> Self {
+    pub fn new<S: AsRef<str>>(method: Method, params: &[(Cow<str>, S)]) -> Self {
         let params_s = Self::params_to_query(params);
 
         if Self::method_requires_body(method) {
@@ -28,8 +28,8 @@ impl Parameters {
     }
 
     #[inline]
-    fn method_requires_body(method: &Method) -> bool {
-        !matches!(*method, Method::GET | Method::HEAD | Method::DELETE)
+    fn method_requires_body(method: Method) -> bool {
+        !matches!(method, Method::GET | Method::HEAD | Method::DELETE)
     }
 
     pub fn path_and_query<'p>(&self, path: &'p str) -> Cow<'p, str> {
@@ -64,8 +64,7 @@ impl Parameters {
 
     pub fn into_inner(self) -> String {
         match self {
-            Parameters::Query(s) => s,
-            Parameters::Body(s) => s,
+            Parameters::Query(s) | Parameters::Body(s) => s,
         }
     }
 

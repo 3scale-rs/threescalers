@@ -1,5 +1,6 @@
 use std::prelude::v1::*;
 
+use core::fmt::{self, Display, Formatter};
 use std::borrow::Cow;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -56,9 +57,9 @@ impl Extension<'_> {
     }
 }
 
-impl ToString for Extension<'_> {
-    fn to_string(&self) -> String {
-        self.to_cow().into()
+impl Display for Extension<'_> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), fmt::Error> {
+        write!(f, "{}", self.to_cow().as_ref())
     }
 }
 

@@ -73,7 +73,7 @@ impl From<&ApiCall<'_>> for Request {
         let mut params = Vec::with_capacity(8);
         apicall.to_params(&mut params);
 
-        let parameters = Parameters::new(&method, params.as_slice());
+        let parameters = Parameters::new(method, params.as_slice());
 
         let mut headers = apicall.extensions().map_or_else(
             || HeaderMap::with_capacity(1),

@@ -110,7 +110,7 @@ impl AuthorizationError {
     }
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, PartialEq, Eq)]
 pub struct Metric(pub String);
 
 impl FromStr for Authorization {
