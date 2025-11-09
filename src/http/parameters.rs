@@ -70,21 +70,21 @@ impl Parameters {
 
     pub fn as_mut_string(&mut self) -> &mut String {
         match self {
-            Parameters::Query(ref mut query) => query,
-            Parameters::Body(ref mut body) => body,
+            Parameters::Query(query) => query,
+            Parameters::Body(body) => body,
         }
     }
 
     pub fn query_as_mut_string(&mut self) -> Option<&mut String> {
         match self {
-            Parameters::Query(ref mut query) => Some(query),
+            Parameters::Query(query) => Some(query),
             _ => None,
         }
     }
 
     pub fn body_as_mut_string(&mut self) -> Option<&mut String> {
         match self {
-            Parameters::Body(ref mut body) => Some(body),
+            Parameters::Body(body) => Some(body),
             _ => None,
         }
     }
