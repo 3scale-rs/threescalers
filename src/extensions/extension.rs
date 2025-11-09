@@ -35,6 +35,8 @@ impl Extension<'_> {
         use crate::encoding::encode;
 
         // This avoids encoding known extensions by issuing the final "encoded" form.
+        // Clippy just doesn't understand we're not doing arithmetic here.
+        #[expect(clippy::arithmetic_side_effects)]
         match self {
             Extension::Other(k, v) => encode(k) + "=" + encode(v),
             Extension::FlatUsage(value) => Cow::from("flat_usage=") + value.as_ref(),

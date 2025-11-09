@@ -1,6 +1,6 @@
 use std::prelude::v1::*;
 
-use std::str::FromStr;
+use core::str::FromStr;
 
 use serde::Deserialize;
 
@@ -122,7 +122,7 @@ impl FromStr for Authorization {
 }
 
 #[cfg(test)]
-#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[expect(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::{UsageReports::UsageReports, *};
     use chrono::prelude::*;

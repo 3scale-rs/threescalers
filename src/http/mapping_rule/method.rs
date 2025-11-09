@@ -10,7 +10,6 @@ use crate::util::string::AllCaps;
     derive(Serialize, Deserialize),
     serde(from = "String", into = "String")
 )]
-#[allow(clippy::upper_case_acronyms)]
 #[derive(Debug, Clone)]
 pub enum Method {
     GET,
@@ -91,22 +90,23 @@ impl Eq for Method {}
 impl Method {
     pub fn as_str(&self) -> &str {
         match self {
-            Method::Any => "ANY",
-            Method::GET => "GET",
-            Method::HEAD => "HEAD",
-            Method::POST => "POST",
-            Method::PUT => "PUT",
-            Method::DELETE => "DELETE",
-            Method::CONNECT => "CONNECT",
-            Method::OPTIONS => "OPTIONS",
-            Method::TRACE => "TRACE",
-            Method::PATCH => "PATCH",
-            Method::Other(s) => s.as_str(),
+            Self::Any => "ANY",
+            Self::GET => "GET",
+            Self::HEAD => "HEAD",
+            Self::POST => "POST",
+            Self::PUT => "PUT",
+            Self::DELETE => "DELETE",
+            Self::CONNECT => "CONNECT",
+            Self::OPTIONS => "OPTIONS",
+            Self::TRACE => "TRACE",
+            Self::PATCH => "PATCH",
+            Self::Other(s) => s.as_str(),
         }
     }
 }
 
 #[cfg(test)]
+#[expect(clippy::indexing_slicing)]
 mod test {
     use super::*;
     use fixtures::all_methods;
@@ -134,7 +134,7 @@ mod test {
     fn any_matches_every_other_method() {
         let method = Method::from("any");
 
-        for other in all_methods().iter() {
+        for other in &all_methods() {
             assert_eq!(&method, other);
         }
     }
@@ -179,7 +179,7 @@ mod test {
 
     #[test]
     fn transitive_id_with_strings() {
-        for method in all_methods().iter() {
+        for method in &all_methods() {
             transitive_id_with_strings_check(method);
         }
     }
@@ -187,9 +187,9 @@ mod test {
     #[test]
     fn transitive_id_with_method_any() {
         assert_eq!(Method::Any.as_str(), "ANY");
-        assert_eq!(String::from(Method::Any), "ANY".to_string());
+        assert_eq!(String::from(Method::Any), "ANY".to_owned());
         assert!(matches!(Method::from("ANY"), Method::Any));
-        assert!(matches!(Method::from("ANY".to_string()), Method::Any));
+        assert!(matches!(Method::from("ANY".to_owned()), Method::Any));
 
         transitive_id_with_strings_check(&Method::Any);
     }

@@ -71,7 +71,7 @@ impl RestRule {
     }
 
     pub fn matches_path_n_qs<S: AsRef<str>>(&self, path: S, qs: Option<S>) -> bool {
-        self.qs.as_deref().map_or(true, |qs_regexes| {
+        self.qs.as_deref().is_none_or(|qs_regexes| {
             let mut kvs = qs
                 .as_ref()
                 .map_or("", AsRef::as_ref)
@@ -81,16 +81,8 @@ impl RestRule {
             qs_regexes.iter().all(|regex| {
                 kvs.iter()
                     .enumerate()
-                    .find_map(
-                        |(idx, &kv)| {
-                            if regex.is_match(kv) {
-                                Some(idx)
-                            } else {
-                                None
-                            }
-                        },
-                    )
-                    .map_or(false, |idx| {
+                    .find_map(|(idx, &kv)| regex.is_match(kv).then_some(idx))
+                    .is_some_and(|idx| {
                         kvs.remove(idx);
                         true
                     })
@@ -136,7 +128,7 @@ impl RestRule {
 }
 
 #[cfg(test)]
-#[allow(
+#[expect(
     clippy::panic_in_result_fn,
     clippy::unwrap_used,
     clippy::unwrap_in_result
@@ -174,8 +166,8 @@ mod tests {
         let method = random_method();
         let mr = RestRule::new(method.clone(), "/?required=1")?;
 
-        assert!(mr
-            .matches_request_line(
+        assert!(
+            mr.matches_request_line(
                 format!(
                     "{} {} HTTP/1.1",
                     method.as_str(),
@@ -183,7 +175,8 @@ mod tests {
                 )
                 .as_str()
             )
-            .unwrap());
+            .unwrap()
+        );
 
         Ok(())
     }

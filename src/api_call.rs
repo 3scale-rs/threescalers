@@ -1,6 +1,6 @@
 use std::prelude::v1::*;
 
-use crate::{anyhow, Error};
+use crate::{Error, anyhow};
 
 use crate::{
     application::Application, extensions::List, service::Service, transaction::Transaction,
@@ -20,7 +20,7 @@ impl Kind {
     // report requires specific treatment due to being the only call supporting
     // multiple transactions.
     pub fn is_report(self) -> bool {
-        matches!(self, Kind::Report)
+        matches!(self, Self::Report)
     }
 }
 
@@ -72,7 +72,7 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn build(&self) -> Result<ApiCall, Error> {
+    pub fn build(&self) -> Result<ApiCall<'_>, Error> {
         let kind = self.kind.ok_or_else(|| anyhow!("kind error"))?;
         Ok(ApiCall::new(
             kind,
@@ -118,14 +118,11 @@ impl<'a> ApiCall<'a> {
 
     // helper to get a transaction only if it's the only one
     // useful for non-report calls
+    #[inline]
     pub fn transaction(&self) -> Option<&Transaction<'a>> {
         let txns = self.transactions();
 
-        if txns.len() == 1 {
-            Some(&txns[0])
-        } else {
-            None
-        }
+        (txns.len() == 1).then(|| &txns[0])
     }
 
     pub fn application(&self) -> Option<&Application> {
@@ -136,11 +133,11 @@ impl<'a> ApiCall<'a> {
         self.transaction().and_then(Transaction::user)
     }
 
-    pub fn usage(&self) -> Option<&Usage> {
+    pub fn usage(&self) -> Option<&Usage<'_>> {
         self.transaction().and_then(Transaction::usage)
     }
 
-    pub fn extensions(&self) -> Option<&List> {
+    pub fn extensions(&self) -> Option<&List<'_>> {
         self.extensions
     }
 

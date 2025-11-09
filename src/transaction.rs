@@ -1,6 +1,6 @@
 use std::prelude::v1::*;
 
-use super::{application::Application, usage::Usage, user::User, ToParams};
+use super::{ToParams, application::Application, usage::Usage, user::User};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Transaction<'a> {
@@ -33,7 +33,7 @@ impl<'a> Transaction<'a> {
         self.user
     }
 
-    pub fn usage(&self) -> Option<&Usage> {
+    pub fn usage(&self) -> Option<&Usage<'_>> {
         self.usage
     }
 
@@ -56,7 +56,7 @@ where
     ) {
         if let Some(ts) = self.timestamp() {
             let field = key_mangling("timestamp".into());
-            extendable.extend([(field, ts)].iter().cloned());
+            extendable.extend(core::iter::once(&(field, ts)).cloned());
         }
 
         self.application

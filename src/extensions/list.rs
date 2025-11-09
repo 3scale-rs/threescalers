@@ -1,7 +1,10 @@
 use std::prelude::v1::*;
 
-use core::fmt::{self, Display, Formatter};
-use std::{borrow::Cow, iter::FromIterator, vec::IntoIter};
+use core::{
+    fmt::{self, Display, Formatter},
+    iter::FromIterator,
+};
+use std::{borrow::Cow, vec::IntoIter};
 
 use super::Extension;
 
@@ -100,7 +103,7 @@ impl<'s> List<'s> {
         let before = self.len();
         self.0.retain(|elem| elem != e);
         // Side-effect free: length before retain is >= self.len()
-        #[allow(clippy::arithmetic_side_effects)]
+        #[expect(clippy::arithmetic_side_effects)]
         {
             before - self.len()
         }
@@ -161,7 +164,7 @@ impl<'v, 's> IntoIterator for &'v List<'s> {
     type IntoIter = <&'v Vec<Extension<'s>> as IntoIterator>::IntoIter;
     type Item = <&'v Vec<Extension<'s>> as IntoIterator>::Item;
 
-    #[allow(clippy::into_iter_on_ref)]
+    #[expect(clippy::into_iter_on_ref)]
     fn into_iter(self) -> Self::IntoIter {
         (&self.0).into_iter()
     }
@@ -171,7 +174,7 @@ impl<'v, 's> IntoIterator for &'v mut List<'s> {
     type IntoIter = <&'v mut Vec<Extension<'s>> as IntoIterator>::IntoIter;
     type Item = <&'v mut Vec<Extension<'s>> as IntoIterator>::Item;
 
-    #[allow(clippy::into_iter_on_ref)]
+    #[expect(clippy::into_iter_on_ref)]
     fn into_iter(self) -> Self::IntoIter {
         (&mut self.0).into_iter()
     }

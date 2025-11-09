@@ -2,15 +2,15 @@ use std::prelude::v1::*;
 
 use std::{
     collections::{
-        btree_map::{Iter, IterMut},
         BTreeMap,
+        btree_map::{Iter, IterMut},
     },
     fmt,
 };
 
 use serde::{
-    de::{self, Deserializer, MapAccess, Visitor},
     Deserialize,
+    de::{self, Deserializer, MapAccess, Visitor},
 };
 
 // We might want to consider moving from a BTreeMap to a Vec, as most of the time this btreemap will
@@ -19,10 +19,13 @@ use serde::{
 pub struct MetricsHierarchy(BTreeMap<String, Vec<String>>);
 
 impl MetricsHierarchy {
+    #[must_use]
+    #[inline]
     pub fn new() -> Self {
         Self(BTreeMap::new())
     }
 
+    #[inline]
     pub fn insert<S: Into<String>, V: Into<Vec<String>>>(
         &mut self,
         parent_metric: S,
@@ -31,33 +34,38 @@ impl MetricsHierarchy {
         self.0.insert(parent_metric.into(), children_metrics.into())
     }
 
+    #[inline]
     pub fn remove<S: AsRef<str>>(&mut self, parent_metric: S) -> Option<Vec<String>> {
         self.0.remove(parent_metric.as_ref())
     }
 
-    #[allow(clippy::iter_without_into_iter)]
+    #[expect(clippy::iter_without_into_iter)]
+    #[inline]
     pub fn iter(&self) -> Iter<'_, String, Vec<String>> {
         self.0.iter()
     }
 
-    #[allow(clippy::iter_without_into_iter)]
+    #[expect(clippy::iter_without_into_iter)]
+    #[inline]
     pub fn iter_mut(&mut self) -> IterMut<'_, String, Vec<String>> {
         self.0.iter_mut()
     }
 
+    #[must_use]
+    #[inline]
     pub fn into_inner(self) -> BTreeMap<String, Vec<String>> {
         self.0
     }
 
     /// Retrieves the parent metric of a given metric. Note that Apisonator metrics have 0 or
     /// 1 parent metrics, not multiple.
+    #[must_use]
+    #[inline]
     pub fn parent_of(&self, metric_name: &str) -> Option<&str> {
         self.iter().find_map(|(parent, v)| {
-            if v.iter().any(|child| metric_name == child) {
-                Some(parent.as_str())
-            } else {
-                None
-            }
+            v.iter()
+                .any(|child| metric_name == child)
+                .then_some(parent.as_str())
         })
     }
 }
@@ -100,6 +108,7 @@ impl<'de> Visitor<'de> for MetricsHierarchyVisitor {
 }
 
 impl<'de> Deserialize<'de> for MetricsHierarchy {
+    #[inline]
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,

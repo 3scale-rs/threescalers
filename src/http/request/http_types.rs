@@ -1,12 +1,12 @@
 use std::prelude::v1::*;
 
 use super::{HeaderMap, Method, Request};
-use crate::{anyhow, api_call::ApiCall, version::*, Error};
+use crate::{Error, anyhow, api_call::ApiCall, version::*};
 use core::convert::TryFrom;
 use http_types::{
+    HeaderMap as HTTPHeaderMap, Method as HTTPMethod, Request as HTTPRequest,
     header::{HeaderName, HeaderValue},
     request::Builder,
-    HeaderMap as HTTPHeaderMap, Method as HTTPMethod, Request as HTTPRequest,
 };
 
 impl From<Method> for HTTPMethod {
@@ -35,7 +35,7 @@ impl FillFrom for HTTPHeaderMap {
     type Error = Error;
 
     fn fill_from(&mut self, hm: &HeaderMap) -> Result<(), Self::Error> {
-        use core::str::FromStr;
+        use core::str::FromStr as _;
 
         let it = hm.iter();
         for (key, value) in it {
@@ -54,7 +54,7 @@ impl TryFrom<HeaderMap> for HTTPHeaderMap {
     type Error = Error;
 
     fn try_from(hm: HeaderMap) -> Result<Self, Self::Error> {
-        let mut map = HTTPHeaderMap::with_capacity(hm.len());
+        let mut map = Self::with_capacity(hm.len());
 
         map.fill_from(&hm)
             .map_err(|e| anyhow!("failed to convert header map to http's HeaderMap: {:#?}", e))?;
@@ -90,7 +90,7 @@ impl TryFrom<&ApiCall<'_>> for HTTPRequest<String> {
     type Error = Error;
 
     fn try_from(i: &ApiCall) -> Result<Self, Self::Error> {
-        HTTPRequest::try_from(Request::from(i))
+        Self::try_from(Request::from(i))
     }
 }
 

@@ -1,8 +1,8 @@
 use std::prelude::v1::*;
 
 use crate::{
-    credentials::{Credentials, ServiceId},
     ToParams,
+    credentials::{Credentials, ServiceId},
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -45,7 +45,7 @@ where
     ) {
         let key = key_mangling("service_id".into());
 
-        extendable.extend([(key, self.service_id.as_ref())].iter().cloned());
+        extendable.extend(core::iter::once(&(key, self.service_id.as_ref())).cloned());
 
         self.creds.to_params_with_mangling(extendable, key_mangling);
     }

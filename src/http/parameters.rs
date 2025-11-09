@@ -1,15 +1,15 @@
 use std::prelude::v1::*;
 
-use super::Method;
+use core::{iter::Map, slice::Iter};
 use std::borrow::Cow;
+
+use super::Method;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Parameters {
     Query(String),
     Body(String),
 }
-
-use std::{iter::Map, slice::Iter};
 
 // This newtype is currently only used internally here, but we might want to move it elsewhere where
 // it could be more useful because of genericity. We could also aim at reducing the amount of
@@ -21,9 +21,9 @@ impl Parameters {
         let params_s = Self::params_to_query(params);
 
         if Self::method_requires_body(method) {
-            Parameters::Body(params_s)
+            Self::Body(params_s)
         } else {
-            Parameters::Query(params_s)
+            Self::Query(params_s)
         }
     }
 
@@ -36,7 +36,7 @@ impl Parameters {
         self.query().map_or_else(
             || Cow::Borrowed(path),
             |q| {
-                let mut url = path.to_string();
+                let mut url = path.to_owned();
                 url.push('?');
                 url.push_str(q);
                 Cow::Owned(url)
@@ -50,41 +50,41 @@ impl Parameters {
 
     pub fn query(&self) -> Option<&str> {
         match self {
-            Parameters::Query(query) => Some(query.as_str()),
+            Self::Query(query) => Some(query.as_str()),
             _ => None,
         }
     }
 
     pub fn body(&self) -> Option<&str> {
         match self {
-            Parameters::Body(body) => Some(body.as_str()),
+            Self::Body(body) => Some(body.as_str()),
             _ => None,
         }
     }
 
     pub fn into_inner(self) -> String {
         match self {
-            Parameters::Query(s) | Parameters::Body(s) => s,
+            Self::Query(s) | Self::Body(s) => s,
         }
     }
 
     pub fn as_mut_string(&mut self) -> &mut String {
         match self {
-            Parameters::Query(query) => query,
-            Parameters::Body(body) => body,
+            Self::Query(query) => query,
+            Self::Body(body) => body,
         }
     }
 
     pub fn query_as_mut_string(&mut self) -> Option<&mut String> {
         match self {
-            Parameters::Query(query) => Some(query),
+            Self::Query(query) => Some(query),
             _ => None,
         }
     }
 
     pub fn body_as_mut_string(&mut self) -> Option<&mut String> {
         match self {
-            Parameters::Body(body) => Some(body),
+            Self::Body(body) => Some(body),
             _ => None,
         }
     }

@@ -1,11 +1,11 @@
 use std::prelude::v1::*;
 
 use crate::{
+    ToParams as _,
     api_call::{Kind::*, *},
     application::*,
     user::*,
     version::USER_AGENT,
-    ToParams,
 };
 
 use super::Parameters;
@@ -48,7 +48,9 @@ impl Request {
         }
     }
 
-    pub fn uri_and_body(&self) -> (Cow<str>, Option<&str>) {
+    #[must_use]
+    #[inline]
+    pub fn uri_and_body(&self) -> (Cow<'_, str>, Option<&str>) {
         (
             self.parameters.path_and_query(self.path),
             self.parameters.body(),
@@ -67,8 +69,7 @@ pub trait SetupRequest<'client, P, Output> {
 
 impl From<&ApiCall<'_>> for Request {
     fn from(apicall: &ApiCall) -> Self {
-        let (method, path) =
-            Request::endpoint(apicall.kind(), apicall.application(), apicall.user());
+        let (method, path) = Self::endpoint(apicall.kind(), apicall.application(), apicall.user());
 
         let mut params = Vec::with_capacity(8);
         apicall.to_params(&mut params);
@@ -86,7 +87,7 @@ impl From<&ApiCall<'_>> for Request {
 
         headers.insert("User-Agent".to_owned(), USER_AGENT.to_owned());
 
-        Request {
+        Self {
             method,
             path,
             parameters,

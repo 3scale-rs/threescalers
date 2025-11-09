@@ -52,7 +52,10 @@ impl Default for BodyHandle {
 impl Handler for BodyHandle {
     fn read(&mut self, data: &mut [u8]) -> Result<usize, ReadError> {
         // we should never have this called on requests without a body
-        debug_assert!(self.body.is_some());
+        debug_assert!(
+            self.body.is_some(),
+            "BodyHandle::read called but no body was set: read() should only be invoked for requests with a body"
+        );
 
         if let Some(ref body) = self.body {
             Ok(Self::copy_data(&mut self.count, body.as_bytes(), data))

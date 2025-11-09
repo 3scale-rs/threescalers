@@ -4,15 +4,15 @@ use threescalers::{
     credentials::*,
     extensions::{self, Extension},
     http::{
-        request::{curl::CurlEasyClient, SetupRequest},
         Request,
+        request::{SetupRequest as _, curl::CurlEasyClient},
     },
     service::*,
     transaction::Transaction,
     usage::Usage,
 };
 
-use std::error::Error;
+use core::error::Error;
 
 use curl::easy::Easy;
 
@@ -56,7 +56,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("Usages: {:#?}", usages);
 
     let ts = SystemTime::now().duration_since(UNIX_EPOCH).ok().map(|st| {
-        std::convert::TryInto::<i64>::try_into(st.as_secs())
+        core::convert::TryInto::<i64>::try_into(st.as_secs())
             .expect("cannot fit timestamp in an i64")
     });
 

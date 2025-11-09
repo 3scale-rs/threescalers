@@ -4,7 +4,7 @@ use crate::ToParams;
 
 use crate::Error;
 
-use std::str::FromStr;
+use core::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AppId(String);
@@ -44,94 +44,103 @@ impl AsRef<str> for OAuthToken {
 impl FromStr for AppId {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<AppId, Self::Err> {
-        Ok(AppId(s.into()))
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self(s.into()))
     }
 }
 
 impl FromStr for AppKey {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<AppKey, Self::Err> {
-        Ok(AppKey(s.into()))
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self(s.into()))
     }
 }
 
 impl FromStr for UserKey {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<UserKey, Self::Err> {
-        Ok(UserKey(s.into()))
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self(s.into()))
     }
 }
 
 impl FromStr for OAuthToken {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<OAuthToken, Self::Err> {
-        Ok(OAuthToken(s.into()))
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self(s.into()))
     }
 }
 
 // These trait impls are similar to FromStr (but are infallible)
+#[expect(clippy::fallible_impl_from, clippy::unwrap_used)]
 impl<'a> From<&'a str> for AppId
 where
     Self: FromStr,
 {
-    fn from(s: &'a str) -> AppId {
+    fn from(s: &'a str) -> Self {
         s.parse().unwrap()
     }
 }
 
+#[expect(clippy::fallible_impl_from, clippy::unwrap_used)]
 impl<'a> From<&'a str> for AppKey
 where
     Self: FromStr,
 {
-    fn from(s: &'a str) -> AppKey {
+    fn from(s: &'a str) -> Self {
         s.parse().unwrap()
     }
 }
 
+#[expect(clippy::fallible_impl_from, clippy::unwrap_used)]
 impl<'a> From<&'a str> for UserKey
 where
     Self: FromStr,
 {
-    fn from(s: &'a str) -> UserKey {
+    #[inline]
+    fn from(s: &'a str) -> Self {
         s.parse().unwrap()
     }
 }
 
+#[expect(clippy::fallible_impl_from, clippy::unwrap_used)]
 impl<'a> From<&'a str> for OAuthToken
 where
     Self: FromStr,
 {
-    fn from(s: &'a str) -> OAuthToken {
+    #[inline]
+    fn from(s: &'a str) -> Self {
         s.parse().unwrap()
     }
 }
 
 // These trait impls take ownership of a given String and also provide Into<AppId> for String
 impl From<String> for AppId {
-    fn from(s: String) -> AppId {
-        AppId(s)
+    fn from(s: String) -> Self {
+        Self(s)
     }
 }
 
 impl From<String> for AppKey {
-    fn from(s: String) -> AppKey {
-        AppKey(s)
+    #[inline]
+    fn from(s: String) -> Self {
+        Self(s)
     }
 }
 
 impl From<String> for UserKey {
-    fn from(s: String) -> UserKey {
-        UserKey(s)
+    #[inline]
+    fn from(s: String) -> Self {
+        Self(s)
     }
 }
 
 impl From<String> for OAuthToken {
-    fn from(s: String) -> OAuthToken {
-        OAuthToken(s)
+    #[inline]
+    fn from(s: String) -> Self {
+        Self(s)
     }
 }
 
@@ -144,26 +153,30 @@ pub enum Application {
 
 // These trait impls build an Application variant out of its required types
 impl From<AppId> for Application {
+    #[inline]
     fn from(a: AppId) -> Self {
-        Application::AppId(a, None)
+        Self::AppId(a, None)
     }
 }
 
 impl From<(AppId, AppKey)> for Application {
+    #[inline]
     fn from(a: (AppId, AppKey)) -> Self {
-        Application::AppId(a.0, Some(a.1))
+        Self::AppId(a.0, Some(a.1))
     }
 }
 
 impl From<UserKey> for Application {
+    #[inline]
     fn from(u: UserKey) -> Self {
-        Application::UserKey(u)
+        Self::UserKey(u)
     }
 }
 
 impl From<OAuthToken> for Application {
+    #[inline]
     fn from(o: OAuthToken) -> Self {
-        Application::OAuthToken(o)
+        Self::OAuthToken(o)
     }
 }
 
@@ -177,8 +190,9 @@ impl Application {
     ///
     /// let app = Application::from_app_id("my_app_id");
     /// ```
+    #[inline]
     pub fn from_app_id<T: Into<AppId>>(app_id: T) -> Self {
-        Application::AppId(app_id.into(), None)
+        Self::AppId(app_id.into(), None)
     }
 
     /// Creates a new `Application` from an `AppId` and an `AppKey`.
@@ -190,8 +204,9 @@ impl Application {
     ///
     /// let app = Application::from_app_id_and_key("my_app_id", "my_app_key");
     /// ```
+    #[inline]
     pub fn from_app_id_and_key<T: Into<AppId>, U: Into<AppKey>>(app_id: T, app_key: U) -> Self {
-        Application::AppId(app_id.into(), Some(app_key.into()))
+        Self::AppId(app_id.into(), Some(app_key.into()))
     }
 
     /// Creates a new `Application` from a `UserKey`.
@@ -203,8 +218,9 @@ impl Application {
     ///
     /// let app = Application::from_user_key("my_user_key");
     /// ```
+    #[inline]
     pub fn from_user_key<T: Into<UserKey>>(user_key: T) -> Self {
-        Application::UserKey(user_key.into())
+        Self::UserKey(user_key.into())
     }
 
     /// Creates a new `Application` from an `OAuthToken`.
@@ -216,8 +232,9 @@ impl Application {
     ///
     /// let app = Application::from_oauth_token("my_token");
     /// ```
+    #[inline]
     pub fn from_oauth_token<T: Into<OAuthToken>>(token: T) -> Self {
-        Application::OAuthToken(token.into())
+        Self::OAuthToken(token.into())
     }
 }
 

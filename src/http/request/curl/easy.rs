@@ -1,6 +1,6 @@
 use std::prelude::v1::*;
 
-use crate::{anyhow, Error};
+use crate::{Error, anyhow};
 
 use super::super::{Method, Request, SetupRequest};
 use curl::easy::{Easy, List, Transfer};
@@ -104,7 +104,7 @@ impl<'easy, 'data, URI: ToString>
 
                 transfer.into()
             }
-            None => (self as &Easy).into(),
+            None => (self as &Self).into(),
         })
     }
 }

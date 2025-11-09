@@ -26,13 +26,13 @@ pub(super) const START_RE: &str = r"\A";
 // The regular expression that defines how a placeholder looks.
 lazy_static::lazy_static! {
     // Panic: this literal string is a valid regular expression, so won't panic.
-    static ref PLACEHOLDER_REGEX: Regex = #[allow(clippy::unwrap_used)] Regex::new(r"\{.+?\}").unwrap();
+    static ref PLACEHOLDER_REGEX: Regex = #[expect(clippy::unwrap_used)] Regex::new(r"\{.+?\}").unwrap();
 }
 
 pub(super) fn query_string_regex(s: &str) -> Result<Vec<Regex>, Error> {
     // Panic: can't panic because both str::split and Regex::split always return 1
     // or more elements in the iterators, so reduce always returns Some()
-    #[allow(clippy::unwrap_used)]
+    #[expect(clippy::unwrap_used)]
     let kv_regex_s = PLACEHOLDER_REGEX
         .split(s)
         .map(|literal| {
@@ -82,7 +82,7 @@ pub(super) fn path_regex(path: &str) -> Result<Regex, Error> {
     let path_without_dup_fslashes = coalesce_chars(path, '/');
     // Panic: can't panic because both Regex::split always returns 1 or more
     // elements in the iterators, so reduce always returns Some()
-    #[allow(clippy::unwrap_used)]
+    #[expect(clippy::unwrap_used)]
     let regex_literal = PLACEHOLDER_REGEX
         .split(path_without_dup_fslashes.as_str())
         .map(ToString::to_string) // No regex escaping!
@@ -123,7 +123,7 @@ pub(super) fn coalesce_chars(s: &str, coalescing_char: char) -> String {
     s.chars()
         .fold(String::with_capacity(s.len()), |mut acc, c| {
             if c == coalescing_char {
-                #[allow(clippy::equatable_if_let)]
+                #[expect(clippy::equatable_if_let)]
                 if let Last::Missed = last {
                     acc.push(c);
                     last = Last::Matched;
@@ -138,7 +138,7 @@ pub(super) fn coalesce_chars(s: &str, coalescing_char: char) -> String {
 }
 
 #[cfg(test)]
-#[allow(clippy::panic_in_result_fn)]
+#[expect(clippy::panic_in_result_fn)]
 mod test {
     use super::*;
 

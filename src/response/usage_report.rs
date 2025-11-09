@@ -4,8 +4,8 @@ use core::fmt;
 
 use chrono::DateTime;
 use serde::{
-    de::{self, MapAccess, Visitor},
     Deserialize, Deserializer,
+    de::{self, MapAccess, Visitor},
 };
 
 mod systemtime {
@@ -15,14 +15,14 @@ mod systemtime {
     pub struct PeriodTime(pub i64);
 
     impl<Tz: chrono::TimeZone> From<LocalResult<DateTime<Tz>>> for PeriodTime {
-        fn from(dt: LocalResult<DateTime<Tz>>) -> PeriodTime {
-            PeriodTime(dt.single().unwrap().timestamp())
+        fn from(dt: LocalResult<DateTime<Tz>>) -> Self {
+            Self(dt.single().unwrap().timestamp())
         }
     }
 
     impl<Tz: chrono::TimeZone> From<DateTime<Tz>> for PeriodTime {
-        fn from(dt: DateTime<Tz>) -> PeriodTime {
-            PeriodTime(dt.timestamp())
+        fn from(dt: DateTime<Tz>) -> Self {
+            Self(dt.timestamp())
         }
     }
 }
@@ -169,7 +169,7 @@ impl Visitor<'_> for PeriodStringVisitor {
 }
 
 impl<'de> Deserialize<'de> for Period {
-    fn deserialize<D>(deserializer: D) -> Result<Period, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -210,7 +210,7 @@ impl<'de> Visitor<'de> for TimestampVisitor {
 }
 
 impl<'de> Deserialize<'de> for PeriodTime {
-    fn deserialize<D>(deserializer: D) -> Result<PeriodTime, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {

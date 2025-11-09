@@ -3,13 +3,13 @@ use threescalers::{
     application::*,
     credentials::*,
     extensions::{self, Extension},
-    http::{request::SetupRequest, Request},
+    http::{Request, request::SetupRequest as _},
     service::*,
     transaction::Transaction,
     usage::Usage,
 };
 
-use std::error::Error;
+use core::error::Error;
 
 use reqwest::blocking::{Client, RequestBuilder, Response};
 
@@ -53,7 +53,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("Usages: {:#?}", usages);
 
     let ts = SystemTime::now().duration_since(UNIX_EPOCH).ok().map(|st| {
-        std::convert::TryInto::<i64>::try_into(st.as_secs())
+        core::convert::TryInto::<i64>::try_into(st.as_secs())
             .expect("cannot fit timestamp in an i64")
     });
 

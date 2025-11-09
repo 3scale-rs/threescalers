@@ -30,12 +30,11 @@ pub mod version;
 pub mod response;
 
 pub(crate) mod error {
-    pub use anyhow::{anyhow, Error};
+    pub use anyhow::{Error, anyhow};
 }
 
 pub use error::Error;
 
-#[allow(unused_imports)]
 pub(crate) use error::anyhow;
 
 use std::borrow::Cow;
@@ -57,7 +56,7 @@ where
 
     fn to_params_with_prefix(&'this self, extendable: &mut E, prefix: Option<&'k str>) {
         // Clippy sees an Add op and believes we're doing arithmetic regardless of types. :/
-        #[allow(clippy::arithmetic_side_effects)]
+        #[expect(clippy::arithmetic_side_effects)]
         self.to_params_with_mangling(extendable, &mut |c| match prefix {
             Some(p) => c + p,
             _ => c,

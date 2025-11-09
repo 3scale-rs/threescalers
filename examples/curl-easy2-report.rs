@@ -3,7 +3,7 @@ use threescalers::{
     application::*,
     credentials::*,
     extensions::{self, Extension},
-    http::{request::SetupRequest, Request},
+    http::{Request, request::SetupRequest as _},
     service::*,
     transaction::Transaction,
     usage::Usage,
@@ -11,7 +11,7 @@ use threescalers::{
 
 use threescalers::http::request::curl::BodyHandle;
 
-use std::error::Error;
+use core::error::Error;
 
 use curl::easy::Easy2;
 
@@ -93,13 +93,13 @@ fn run_request(request: Request) -> Result<(), Box<dyn Error>> {
     show_response(client, result).map_err(Into::into)
 }
 
-fn exec_request<H: std::fmt::Debug>(curlc: &Easy2<H>) -> Result<(), curl::Error> {
+fn exec_request<H: core::fmt::Debug>(curlc: &Easy2<H>) -> Result<(), curl::Error> {
     println!("Client Easy2: {:#?}", curlc);
     curlc.perform()
 }
 
 // Not looking directly at the response but using the verbose mode.
-fn show_response<H: std::fmt::Debug>(
+fn show_response<H: core::fmt::Debug>(
     curlc: Easy2<H>,
     res: Result<(), curl::Error>,
 ) -> Result<(), curl::Error> {

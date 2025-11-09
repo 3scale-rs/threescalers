@@ -1,8 +1,8 @@
 use std::prelude::v1::*;
 
-use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer, de};
 
-use super::{escaping, RestRule};
+use super::{RestRule, escaping};
 
 fn convert_escaping_error<E: de::Error>(ee: escaping::Error) -> E {
     match ee {
@@ -79,7 +79,7 @@ impl<'de> Deserialize<'de> for RestRule {
 
 impl Serialize for RestRule {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        use serde::ser::SerializeStruct;
+        use serde::ser::SerializeStruct as _;
 
         let mut state = serializer.serialize_struct("MappingRule", 2)?;
         state.serialize_field("method", self.method().as_str())?;
@@ -89,6 +89,11 @@ impl Serialize for RestRule {
 }
 
 #[cfg(test)]
+#[expect(
+    clippy::unwrap_used,
+    clippy::panic_in_result_fn,
+    clippy::unwrap_in_result
+)]
 mod test {
     use super::*;
     use fixtures::JSON;
@@ -108,7 +113,7 @@ mod test {
 
         let path_pattern = mapping_rule.path.as_str();
         let path_expected = format!(
-            r"{}/some/{}/id",
+            "{}/some/{}/id",
             super::escaping::START_RE,
             super::escaping::PATH_VALUE_REGEX_S
         );
@@ -126,7 +131,7 @@ mod test {
             .join("&");
 
         let qs_expected = format!(
-            r"{start_re}n={qs_re}&{start_re}order=asc",
+            "{start_re}n={qs_re}&{start_re}order=asc",
             start_re = super::escaping::START_RE,
             qs_re = super::escaping::QS_VALUE_REGEX_S
         );

@@ -3,14 +3,14 @@ use std::prelude::v1::*;
 use curl::easy::List;
 
 use super::HeaderMap;
-use crate::{anyhow, Error};
+use crate::{Error, anyhow};
 use core::convert::TryFrom;
 
 impl TryFrom<&HeaderMap> for List {
     type Error = Error;
 
     fn try_from(hm: &HeaderMap) -> Result<Self, Self::Error> {
-        let mut list = List::new();
+        let mut list = Self::new();
 
         for (k, v) in hm.iter() {
             let header = [k.as_str(), ": ", v.as_str()].concat();

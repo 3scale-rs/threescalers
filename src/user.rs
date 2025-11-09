@@ -2,7 +2,7 @@ use std::prelude::v1::*;
 
 use crate::{Error, ToParams};
 
-use std::str::FromStr;
+use core::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UserId(String);
@@ -45,17 +45,19 @@ impl From<&str> for UserId
 where
     Self: FromStr,
 {
+    #[inline]
     fn from(s: &str) -> Self {
         s.parse().unwrap()
     }
 }
 
-#[allow(clippy::fallible_impl_from)]
+#[expect(clippy::fallible_impl_from)]
 impl From<&str> for OAuthToken
 where
     Self: FromStr,
 {
-    #[allow(clippy::unwrap_used)]
+    #[expect(clippy::unwrap_used)]
+    #[inline]
     fn from(s: &str) -> Self {
         s.parse().unwrap()
     }
@@ -63,12 +65,14 @@ where
 
 // These trait impls take ownership of a given String
 impl From<String> for UserId {
+    #[inline]
     fn from(s: String) -> Self {
         Self(s)
     }
 }
 
 impl From<String> for OAuthToken {
+    #[inline]
     fn from(s: String) -> Self {
         Self(s)
     }
@@ -81,12 +85,14 @@ pub enum User {
 }
 
 impl From<UserId> for User {
+    #[inline]
     fn from(uid: UserId) -> Self {
         Self::UserId(uid)
     }
 }
 
 impl From<OAuthToken> for User {
+    #[inline]
     fn from(token: OAuthToken) -> Self {
         Self::OAuthToken(token)
     }
@@ -102,6 +108,7 @@ impl User {
     ///
     /// let user = User::from_user_id("my_id");
     /// ```
+    #[inline]
     pub fn from_user_id<T: Into<UserId>>(user_id: T) -> Self {
         Self::UserId(user_id.into())
     }
@@ -115,6 +122,7 @@ impl User {
     ///
     /// let user = User::from_oauth_token("my_token");
     /// ```
+    #[inline]
     pub fn from_oauth_token<T: Into<OAuthToken>>(token: T) -> Self {
         Self::OAuthToken(token.into())
     }

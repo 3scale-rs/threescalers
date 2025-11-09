@@ -4,7 +4,7 @@ use crate::ToParams;
 
 use crate::Error;
 
-use std::str::FromStr;
+use core::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ProviderKey(String);
@@ -34,60 +34,62 @@ impl AsRef<str> for ServiceToken {
 impl FromStr for ProviderKey {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<ProviderKey, Self::Err> {
-        Ok(ProviderKey(s.into()))
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self(s.into()))
     }
 }
 
 impl FromStr for ServiceToken {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<ServiceToken, Self::Err> {
-        Ok(ServiceToken(s.into()))
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self(s.into()))
     }
 }
 
 // These trait impls are similar to FromStr (but are infallible)
+#[expect(clippy::fallible_impl_from, clippy::unwrap_used)]
 impl From<&str> for ProviderKey
 where
     Self: FromStr,
 {
-    fn from(s: &str) -> ProviderKey {
+    fn from(s: &str) -> Self {
         s.parse().unwrap()
     }
 }
 
+#[expect(clippy::fallible_impl_from, clippy::unwrap_used)]
 impl From<&str> for ServiceToken
 where
     Self: FromStr,
 {
-    fn from(s: &str) -> ServiceToken {
+    fn from(s: &str) -> Self {
         s.parse().unwrap()
     }
 }
 
 // These trait impls take ownership of a given String
 impl From<String> for ProviderKey {
-    fn from(s: String) -> ProviderKey {
-        ProviderKey(s)
+    fn from(s: String) -> Self {
+        Self(s)
     }
 }
 
 impl From<String> for ServiceToken {
-    fn from(s: String) -> ServiceToken {
-        ServiceToken(s)
+    fn from(s: String) -> Self {
+        Self(s)
     }
 }
 
 impl From<ProviderKey> for Credentials {
     fn from(pk: ProviderKey) -> Self {
-        Credentials::ProviderKey(pk)
+        Self::ProviderKey(pk)
     }
 }
 
 impl From<ServiceToken> for Credentials {
     fn from(token: ServiceToken) -> Self {
-        Credentials::ServiceToken(token)
+        Self::ServiceToken(token)
     }
 }
 
@@ -102,7 +104,7 @@ impl Credentials {
     /// let creds = Credentials::from_key("my_key");
     /// ```
     pub fn from_key<T: Into<ProviderKey>>(key: T) -> Self {
-        Credentials::ProviderKey(key.into())
+        Self::ProviderKey(key.into())
     }
 
     /// Creates `Credentials` from a `ServiceToken`.
@@ -115,7 +117,7 @@ impl Credentials {
     /// let creds = Credentials::from_token("my_token");
     /// ```
     pub fn from_token<T: Into<ServiceToken>>(token: T) -> Self {
-        Credentials::ServiceToken(token.into())
+        Self::ServiceToken(token.into())
     }
 }
 
@@ -138,7 +140,7 @@ where
             ServiceToken(token) => (key_mangling("service_token".into()), token.as_ref()),
         };
 
-        extendable.extend([(field, value)].iter().cloned());
+        extendable.extend(core::iter::once(&(field, value)).cloned());
     }
 }
 
@@ -154,22 +156,23 @@ impl AsRef<str> for ServiceId {
 impl FromStr for ServiceId {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<ServiceId, Self::Err> {
-        Ok(ServiceId(s.into()))
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self(s.into()))
     }
 }
 
+#[expect(clippy::fallible_impl_from, clippy::unwrap_used)]
 impl From<&str> for ServiceId
 where
     Self: FromStr,
 {
-    fn from(s: &str) -> ServiceId {
+    fn from(s: &str) -> Self {
         s.parse().unwrap()
     }
 }
 
 impl From<String> for ServiceId {
-    fn from(s: String) -> ServiceId {
-        ServiceId(s)
+    fn from(s: String) -> Self {
+        Self(s)
     }
 }

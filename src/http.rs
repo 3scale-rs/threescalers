@@ -1,8 +1,7 @@
 use std::prelude::v1::*;
 
-use std::collections::{btree_map::Iter as InnerIter, BTreeMap};
+use std::collections::{BTreeMap, btree_map::Iter as InnerIter};
 
-#[allow(clippy::upper_case_acronyms)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Method {
@@ -54,7 +53,7 @@ impl HeaderMap {
         self.len() == 0
     }
 
-    #[allow(clippy::iter_without_into_iter)]
+    #[expect(clippy::iter_without_into_iter)]
     #[inline]
     pub fn iter(&self) -> Iter<'_> {
         Iter {
@@ -91,7 +90,7 @@ impl IntoIterator for HeaderMap {
     }
 }
 
-impl<S: ToString> std::iter::FromIterator<(S, S)> for HeaderMap {
+impl<S: ToString> core::iter::FromIterator<(S, S)> for HeaderMap {
     fn from_iter<T: IntoIterator<Item = (S, S)>>(iter: T) -> Self {
         let mut map = Self::new();
 
