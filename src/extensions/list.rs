@@ -82,7 +82,8 @@ impl<'s> List<'s> {
     pub fn remove_all(&mut self, e: &Extension<'s>) -> usize {
         let before = self.len();
         self.0.retain(|elem| elem != e);
-        self.len() - before
+        // side-effect free: length before retain is >= self.len()
+        before - self.len()
     }
 
     pub fn no_body(self) -> Self {
