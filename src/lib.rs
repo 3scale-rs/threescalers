@@ -1,4 +1,5 @@
 #![deny(clippy::all, clippy::cargo)]
+#![allow(clippy::blanket_clippy_restriction_lints)]
 #![deny(unsafe_op_in_unsafe_fn)]
 #![cfg_attr(feature_never_type, feature(never_type))]
 #![cfg_attr(feature_test, feature(test))]
