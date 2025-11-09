@@ -1,9 +1,17 @@
-use threescalers::{api_call::*, application::*, credentials::*, service::*, user::*};
+extern crate alloc;
 
 use std::collections::HashMap;
 
-use crate::helpers::*;
 use threescalers::transaction::Transaction;
+use threescalers::{
+    api_call::{ApiCall, Kind},
+    application::Application,
+    credentials::Credentials,
+    service::Service,
+    user::User,
+};
+
+use crate::helpers::vec_to_hash;
 
 #[test]
 fn returns_auth_request_from_service_id_pkey_and_app_id() {
@@ -286,7 +294,7 @@ fn returns_auth_request_from_service_id_pkey_oauth_token_and_user_id() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "TODO: must fix code before enabling"]
 fn returns_auth_request_from_service_id_pkey_oauth_token_and_oauth_user() {
     // TODO fix code. It should not be possible to create an ApiCall instance with
     // using a token for the app and another for the user.
@@ -573,18 +581,19 @@ fn returns_auth_request_from_service_id_token_oauth_token_and_user_id() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "TODO: must fix code before enabling"]
 fn returns_auth_request_from_service_id_token_oauth_token_and_oauth_user() {
     // TODO fix code. It should not be possible to create an ApiCall instance with
     // using a token for the app and another for the user.
 }
 
 mod helpers {
-    use std::{borrow::Cow, collections::HashMap};
+    use alloc::borrow::Cow;
+    use std::collections::HashMap;
 
     pub fn vec_to_hash<'a, V: Copy>(vec: &'a [(Cow<str>, V)]) -> HashMap<&'a str, V> {
         let mut h: HashMap<&str, V> = HashMap::new();
-        for (k, v) in vec.iter() {
+        for (k, v) in vec {
             h.insert(k.as_ref(), *v);
         }
         h
