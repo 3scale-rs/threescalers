@@ -25,11 +25,14 @@ pub(super) const START_RE: &str = r"\A";
 
 // The regular expression that defines how a placeholder looks.
 lazy_static::lazy_static! {
-    // panic: this literal string is a valid regular expression, so won't panic.
-    static ref PLACEHOLDER_REGEX: Regex = Regex::new(r"\{.+?\}").unwrap();
+    // Panic: this literal string is a valid regular expression, so won't panic.
+    static ref PLACEHOLDER_REGEX: Regex = #[allow(clippy::unwrap_used)] Regex::new(r"\{.+?\}").unwrap();
 }
 
 pub(super) fn query_string_regex(s: &str) -> Result<Vec<Regex>, Error> {
+    // Panic: can't panic because both str::split and Regex::split always return 1
+    // or more elements in the iterators, so reduce always returns Some()
+    #[allow(clippy::unwrap_used)]
     let kv_regex_s = PLACEHOLDER_REGEX
         .split(s)
         .map(|literal| {
@@ -41,7 +44,6 @@ pub(super) fn query_string_regex(s: &str) -> Result<Vec<Regex>, Error> {
                     acc.push_str(escaped_part.as_str());
                     acc
                 })
-                // panic: can't panic because String::split always return 1 or more elements in the iterator, so reduce always returns Some()
                 .unwrap()
         })
         .reduce(|mut acc, escaped| {
@@ -49,7 +51,6 @@ pub(super) fn query_string_regex(s: &str) -> Result<Vec<Regex>, Error> {
             acc.push_str(escaped.as_str());
             acc
         })
-        // panic: can't panic because Regex::split always return 1 or more elements in the iterator, so reduce always returns Some()
         .unwrap();
 
     let mut kv_iter = kv_regex_s.split('&');
@@ -57,7 +58,7 @@ pub(super) fn query_string_regex(s: &str) -> Result<Vec<Regex>, Error> {
     kv_iter.try_fold(
         Vec::with_capacity(core::cmp::max(kv_iter.size_hint().0, 8)),
         |mut acc, kv_literal| {
-            let mut kv = START_RE.to_string();
+            let mut kv = START_RE.to_owned();
             kv.push_str(kv_literal);
             Regex::new(kv.as_str())
                 .map(|regex| {
@@ -79,6 +80,9 @@ pub(super) fn query_string_regex(s: &str) -> Result<Vec<Regex>, Error> {
 //    escape the remaining literal text)
 pub(super) fn path_regex(path: &str) -> Result<Regex, Error> {
     let path_without_dup_fslashes = coalesce_chars(path, '/');
+    // Panic: can't panic because both Regex::split always returns 1 or more
+    // elements in the iterators, so reduce always returns Some()
+    #[allow(clippy::unwrap_used)]
     let regex_literal = PLACEHOLDER_REGEX
         .split(path_without_dup_fslashes.as_str())
         .map(ToString::to_string) // No regex escaping!
@@ -119,6 +123,7 @@ pub(super) fn coalesce_chars(s: &str, coalescing_char: char) -> String {
     s.chars()
         .fold(String::with_capacity(s.len()), |mut acc, c| {
             if c == coalescing_char {
+                #[allow(clippy::equatable_if_let)]
                 if let Last::Missed = last {
                     acc.push(c);
                     last = Last::Matched;
@@ -133,6 +138,7 @@ pub(super) fn coalesce_chars(s: &str, coalescing_char: char) -> String {
 }
 
 #[cfg(test)]
+#[allow(clippy::panic_in_result_fn)]
 mod test {
     use super::*;
 
@@ -172,10 +178,10 @@ mod test {
             let regexes = query_string_regex(qs_patterns)?;
             let regexes_s = regexes.iter().map(Regex::as_str).collect::<Vec<_>>();
 
-            assert!(regexes_s.contains(&format!(r"{}fmt={}", START_RE, QS_VALUE_REGEX_S).as_str()));
-            assert!(regexes_s.contains(&format!(r"{}hardcoded=1", START_RE).as_str()));
+            assert!(regexes_s.contains(&format!("{}fmt={}", START_RE, QS_VALUE_REGEX_S).as_str()));
+            assert!(regexes_s.contains(&format!("{}hardcoded=1", START_RE).as_str()));
             assert!(regexes_s.contains(
-                &format!(r"{s}lang{qs}={qs}", s = START_RE, qs = QS_VALUE_REGEX_S).as_str()
+                &format!("{s}lang{qs}={qs}", s = START_RE, qs = QS_VALUE_REGEX_S).as_str()
             ));
 
             Ok(())
@@ -267,7 +273,7 @@ mod test {
                 ("/foo/bar///", "/foo/bar/"),
                 ("/foo/ /bar", "/foo/ /bar"),
             ];
-            for (pattern, expected) in patterns.iter() {
+            for (pattern, expected) in &patterns {
                 let regex = path_regex(pattern)?;
                 assert!(regex.is_match(expected));
             }

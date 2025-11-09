@@ -27,16 +27,16 @@ impl AsRef<str> for OAuthToken {
 impl FromStr for UserId {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<UserId, Self::Err> {
-        Ok(UserId(s.to_owned()))
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self(s.to_owned()))
     }
 }
 
 impl FromStr for OAuthToken {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<OAuthToken, Self::Err> {
-        Ok(OAuthToken(s.to_owned()))
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self(s.to_owned()))
     }
 }
 
@@ -45,30 +45,32 @@ impl From<&str> for UserId
 where
     Self: FromStr,
 {
-    fn from(s: &str) -> UserId {
+    fn from(s: &str) -> Self {
         s.parse().unwrap()
     }
 }
 
+#[allow(clippy::fallible_impl_from)]
 impl From<&str> for OAuthToken
 where
     Self: FromStr,
 {
-    fn from(s: &str) -> OAuthToken {
+    #[allow(clippy::unwrap_used)]
+    fn from(s: &str) -> Self {
         s.parse().unwrap()
     }
 }
 
 // These trait impls take ownership of a given String
 impl From<String> for UserId {
-    fn from(s: String) -> UserId {
-        UserId(s)
+    fn from(s: String) -> Self {
+        Self(s)
     }
 }
 
 impl From<String> for OAuthToken {
-    fn from(s: String) -> OAuthToken {
-        OAuthToken(s)
+    fn from(s: String) -> Self {
+        Self(s)
     }
 }
 
@@ -80,13 +82,13 @@ pub enum User {
 
 impl From<UserId> for User {
     fn from(uid: UserId) -> Self {
-        User::UserId(uid)
+        Self::UserId(uid)
     }
 }
 
 impl From<OAuthToken> for User {
     fn from(token: OAuthToken) -> Self {
-        User::OAuthToken(token)
+        Self::OAuthToken(token)
     }
 }
 
@@ -101,7 +103,7 @@ impl User {
     /// let user = User::from_user_id("my_id");
     /// ```
     pub fn from_user_id<T: Into<UserId>>(user_id: T) -> Self {
-        User::UserId(user_id.into())
+        Self::UserId(user_id.into())
     }
 
     /// Creates a `User` from an `OAuthToken`.
@@ -114,7 +116,7 @@ impl User {
     /// let user = User::from_oauth_token("my_token");
     /// ```
     pub fn from_oauth_token<T: Into<OAuthToken>>(token: T) -> Self {
-        User::OAuthToken(token.into())
+        Self::OAuthToken(token.into())
     }
 }
 
@@ -131,11 +133,11 @@ where
         key_mangling: &mut F,
     ) {
         let (field, value) = match self {
-            User::UserId(user_id) => ("user_id", user_id.as_ref()),
-            User::OAuthToken(token) => ("access_token", token.as_ref()),
+            Self::UserId(user_id) => ("user_id", user_id.as_ref()),
+            Self::OAuthToken(token) => ("access_token", token.as_ref()),
         };
 
-        extendable.extend([(key_mangling(field.into()), value)].iter().cloned());
+        extendable.extend(core::iter::once(&(key_mangling(field.into()), value)).cloned());
     }
 }
 

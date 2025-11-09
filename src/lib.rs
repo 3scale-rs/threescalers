@@ -56,6 +56,8 @@ where
     }
 
     fn to_params_with_prefix(&'this self, extendable: &mut E, prefix: Option<&'k str>) {
+        // Clippy sees an Add op and believes we're doing arithmetic regardless of types. :/
+        #[allow(clippy::arithmetic_side_effects)]
         self.to_params_with_mangling(extendable, &mut |c| match prefix {
             Some(p) => c + p,
             _ => c,

@@ -136,6 +136,11 @@ impl RestRule {
 }
 
 #[cfg(test)]
+#[allow(
+    clippy::panic_in_result_fn,
+    clippy::unwrap_used,
+    clippy::unwrap_in_result
+)]
 mod tests {
     use super::*;
     use helpers::random_method;
@@ -178,7 +183,7 @@ mod tests {
                 )
                 .as_str()
             )
-            .unwrap(),);
+            .unwrap());
 
         Ok(())
     }
@@ -200,7 +205,7 @@ mod tests {
             ("/some/path/?a=1&b=2", true),
         ];
 
-        for (pnqs, expected) in path_w_qs.iter() {
+        for (pnqs, expected) in &path_w_qs {
             let (path, qs) = escaping::split_path_n_qs(pnqs);
             let method = helpers::random_method();
 
@@ -234,7 +239,7 @@ mod tests {
             ("/auto-matic?w=hello&color&maybe_empty=", false),
         ];
 
-        for (pnqs, expected) in path_w_qs.iter() {
+        for (pnqs, expected) in &path_w_qs {
             let (path, qs) = escaping::split_path_n_qs(pnqs);
             let method = helpers::random_method();
 
@@ -255,7 +260,7 @@ mod tests {
     fn match_combined_cases() -> Result<(), escaping::Error> {
         use itertools::Itertools as _;
 
-        let args = [r"fmt={fmt}", r"l{an}g={code}", r"s=1", r"t=$9"];
+        let args = ["fmt={fmt}", "l{an}g={code}", "s=1", "t=$9"];
 
         for permutation in args.iter().permutations(args.len()) {
             let qs = permutation.iter().join("&");
@@ -275,7 +280,7 @@ mod tests {
                 ("/abc/v1/id?fmt=json&lang=ca&other=70&s=1&z=2&t=$9", false),
             ];
 
-            for (pnqs, expected) in path_w_qs.iter() {
+            for (pnqs, expected) in &path_w_qs {
                 let (path, qs) = escaping::split_path_n_qs(pnqs);
                 let method = helpers::random_method();
 

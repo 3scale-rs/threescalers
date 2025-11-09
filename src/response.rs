@@ -122,13 +122,14 @@ impl FromStr for Authorization {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::{UsageReports::UsageReports, *};
     use chrono::prelude::*;
 
     #[test]
     fn parse() {
-        let s = r##"<?xml version="1.0" encoding="UTF-8"?>
+        let s = r#"<?xml version="1.0" encoding="UTF-8"?>
         <status>
             <authorized>true</authorized>
             <plan>App Plan</plan>
@@ -147,7 +148,7 @@ mod tests {
                 </usage_report>
             </usage_reports>
         </status>
-        "##;
+        "#;
 
         let parsed_auth = Authorization::from_str(s).unwrap();
 
@@ -200,7 +201,7 @@ mod tests {
 
     #[test]
     fn parse_invalid_date_format() {
-        let s = r##"<?xml version="1.0" encoding="UTF-8"?>
+        let s = r#"<?xml version="1.0" encoding="UTF-8"?>
         <status>
             <authorized>true</authorized>
             <plan>App Plan</plan>
@@ -219,7 +220,7 @@ mod tests {
                 </usage_report>
             </usage_reports>
         </status>
-        "##;
+        "#;
 
         let parsed_auth = Authorization::from_str(s);
 
@@ -231,12 +232,12 @@ mod tests {
 
     #[test]
     fn parse_response_with_no_usage_reports() {
-        let s = r##"<?xml version="1.0" encoding="UTF-8"?>
+        let s = r#"<?xml version="1.0" encoding="UTF-8"?>
         <status>
             <authorized>true</authorized>
             <plan>App Plan</plan>
         </status>
-        "##;
+        "#;
         let expected_auth = Authorization::Status(AuthorizationStatus {
             authorized: true,
             reason: None,
@@ -261,9 +262,9 @@ mod tests {
 
     #[test]
     fn parse_error_authorization() {
-        let xml_response = r##"<?xml version="1.0" encoding="UTF-8"?>
+        let xml_response = r#"<?xml version="1.0" encoding="UTF-8"?>
         <error code="user_key_invalid">user key "some_user_key" is invalid</error>
-        "##;
+        "#;
 
         let parsed_auth = Authorization::from_str(xml_response).unwrap();
 
@@ -288,7 +289,7 @@ mod tests {
 
     #[test]
     fn parse_denied_authorization() {
-        let xml_response = r##"<?xml version="1.0" encoding="UTF-8"?>
+        let xml_response = r#"<?xml version="1.0" encoding="UTF-8"?>
         <status>
           <authorized>false</authorized>
           <reason>application key is missing</reason>
@@ -302,7 +303,7 @@ mod tests {
             </usage_report>
           </usage_reports>
         </status>
-        "##;
+        "#;
 
         let parsed_auth = Authorization::from_str(xml_response).unwrap();
 
@@ -343,7 +344,7 @@ mod tests {
 
     #[test]
     fn parse_metrics_hierarchy() {
-        let xml_response = r##"<?xml version="1.0" encoding="UTF-8"?>
+        let xml_response = r#"<?xml version="1.0" encoding="UTF-8"?>
         <status>
             <authorized>true</authorized>
             <plan>Basic</plan>
@@ -384,7 +385,7 @@ mod tests {
                 <metric name="parent2" children="child3" />
             </hierarchy>
         </status>
-        "##;
+        "#;
 
         let parsed_auth = Authorization::from_str(xml_response).unwrap();
 
@@ -486,7 +487,7 @@ mod tests {
 
     #[test]
     fn parse_app_keys() {
-        let xml_response = r##"<?xml version="1.0" encoding="UTF-8"?>
+        let xml_response = r#"<?xml version="1.0" encoding="UTF-8"?>
         <status>
             <authorized>true</authorized>
             <plan>Basic</plan>
@@ -495,7 +496,7 @@ mod tests {
                 <key id="another_secret_key"/>
             </app_keys>
         </status>
-        "##;
+        "#;
 
         let parsed_auth = Authorization::from_str(xml_response).unwrap();
 
@@ -519,14 +520,14 @@ mod tests {
 
     #[test]
     fn parse_empty_app_keys() {
-        let xml_response = r##"<?xml version="1.0" encoding="UTF-8"?>
+        let xml_response = r#"<?xml version="1.0" encoding="UTF-8"?>
         <status>
             <authorized>true</authorized>
             <plan>Basic</plan>
             <app_keys app="app_id" svc="service_id">
             </app_keys>
         </status>
-        "##;
+        "#;
 
         let parsed_auth = Authorization::from_str(xml_response).unwrap();
 

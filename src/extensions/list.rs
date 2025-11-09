@@ -23,55 +23,71 @@ impl<'s> List<'s> {
         Self(Vec::with_capacity(capacity))
     }
 
+    #[inline]
     pub fn into_inner(self) -> Vec<Extension<'s>> {
         self.0
     }
 
+    #[inline]
     pub fn as_vec(&self) -> &Vec<Extension<'s>> {
         self.0.as_ref()
     }
 
+    #[inline]
     pub fn as_mut_vec(&mut self) -> &mut Vec<Extension<'s>> {
         self.0.as_mut()
     }
 
+    #[inline]
     pub fn len(&self) -> usize {
         self.0.len()
     }
 
+    #[inline]
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
 
+    #[inline]
     pub fn clear(&mut self) -> usize {
         let cleared = self.len();
         self.0.clear();
         cleared
     }
 
+    #[inline]
     pub fn capacity(&self) -> usize {
         self.0.capacity()
     }
 
+    #[must_use]
+    #[inline]
     pub fn reserve(mut self, additional: usize) -> Self {
         self.0.reserve(additional);
         self
     }
 
+    #[must_use]
+    #[inline]
     pub fn shrink_to_fit(mut self) -> Self {
         self.0.shrink_to_fit();
         self
     }
 
+    #[must_use]
+    #[inline]
     pub fn push(mut self, e: Extension<'s>) -> Self {
         self.0.push(e);
         self
     }
 
+    #[must_use]
+    #[inline]
     pub fn push_other(self, key: Cow<'s, str>, value: Cow<'s, str>) -> Self {
         self.push(Extension::Other(key, value))
     }
 
+    #[inline]
     pub fn remove_item(&mut self, e: &Extension<'s>) -> Option<Extension<'s>> {
         match self.0.iter().position(|elem| elem == e) {
             Some(idx) => Some(self.0.remove(idx)),
@@ -79,6 +95,7 @@ impl<'s> List<'s> {
         }
     }
 
+    #[inline]
     pub fn remove_all(&mut self, e: &Extension<'s>) -> usize {
         let before = self.len();
         self.0.retain(|elem| elem != e);
@@ -89,18 +106,26 @@ impl<'s> List<'s> {
         }
     }
 
+    #[must_use]
+    #[inline]
     pub fn no_body(self) -> Self {
         self.push(Extension::NoBody)
     }
 
+    #[must_use]
+    #[inline]
     pub fn hierarchy(self) -> Self {
         self.push(Extension::Hierarchy)
     }
 
+    #[must_use]
+    #[inline]
     pub fn flat_usage(self, level: u32) -> Self {
         self.push(Extension::FlatUsage(level.to_string().into()))
     }
 
+    #[must_use]
+    #[inline]
     pub fn list_app_keys(self, level: u32) -> Self {
         self.push(Extension::ListAppKeys(level.to_string().into()))
     }

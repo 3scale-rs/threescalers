@@ -35,11 +35,13 @@ impl MetricsHierarchy {
         self.0.remove(parent_metric.as_ref())
     }
 
-    pub fn iter(&self) -> Iter<String, Vec<String>> {
+    #[allow(clippy::iter_without_into_iter)]
+    pub fn iter(&self) -> Iter<'_, String, Vec<String>> {
         self.0.iter()
     }
 
-    pub fn iter_mut(&mut self) -> IterMut<String, Vec<String>> {
+    #[allow(clippy::iter_without_into_iter)]
+    pub fn iter_mut(&mut self) -> IterMut<'_, String, Vec<String>> {
         self.0.iter_mut()
     }
 
@@ -98,7 +100,7 @@ impl<'de> Visitor<'de> for MetricsHierarchyVisitor {
 }
 
 impl<'de> Deserialize<'de> for MetricsHierarchy {
-    fn deserialize<D>(deserializer: D) -> Result<MetricsHierarchy, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {

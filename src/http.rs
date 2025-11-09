@@ -54,6 +54,8 @@ impl HeaderMap {
         self.len() == 0
     }
 
+    #[allow(clippy::iter_without_into_iter)]
+    #[inline]
     pub fn iter(&self) -> Iter<'_> {
         Iter {
             iter: self.0.iter(),
@@ -108,7 +110,7 @@ impl<S: ToString> Extend<(S, S)> for HeaderMap {
 
 impl From<BTreeMap<String, String>> for HeaderMap {
     fn from(map: BTreeMap<String, String>) -> Self {
-        HeaderMap(map)
+        Self(map)
     }
 }
 
