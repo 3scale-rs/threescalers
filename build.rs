@@ -5,6 +5,14 @@
 static REQUIRED_MAJOR: usize = 1;
 static REQUIRED_MINOR: usize = 40;
 
+const MACRO_PROBE_PRELUDE: &str = r#"
+    #[allow(unused_imports)]
+    use core::prelude::v1::*;
+    #[cfg(feature = "std")]
+    #[allow(unused_imports)]
+    use std::prelude::v1::*;
+"#;
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut ac = autocfg::AutoCfg::new()?;
 
@@ -49,7 +57,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     ac.emit_expression_maybe_using_feature(
         "matches_macro",
-        "{ let a = Some(5i32); matches!(a, None) }",
+        "let a = Some(5i32); matches!(a, None)",
     );
 
     ac.emit_expression_maybe_using_feature(
@@ -410,7 +418,9 @@ mod autocfg {
                 .arg("--crate-type=lib")
                 .arg("--out-dir")
                 .arg(&self.out_dir)
-                .arg("--emit=llvm-ir");
+                .arg("--emit=llvm-ir")
+                // use Rust 2018 so core can be referenced from probes
+                .arg("--edition=2018");
 
             if let Some(ref rustflags) = self.rustflags {
                 command.args(rustflags);
@@ -589,8 +599,12 @@ mod autocfg {
         /// pub fn probe() { let _ = EXPR; }
         /// ```
         pub fn probe_expression(&self, expr: &str) -> bool {
-            self.probe(format!("pub fn probe() {{ let _ = {}; }}", expr))
-                .unwrap_or(false)
+            self.probe(format!(
+                "{} pub fn probe() {{ let _ = {}; }}",
+                super::MACRO_PROBE_PRELUDE,
+                expr
+            ))
+            .unwrap_or(false)
         }
 
         /// Emits the given `cfg` value if `probe_expression` returns true.
@@ -613,8 +627,12 @@ mod autocfg {
         /// pub const PROBE: () = ((), EXPR).0;
         /// ```
         pub fn probe_constant(&self, expr: &str) -> bool {
-            self.probe(format!("pub const PROBE: () = ((), {}).0;", expr))
-                .unwrap_or(false)
+            self.probe(format!(
+                "{} pub const PROBE: () = ((), {}).0;",
+                super::MACRO_PROBE_PRELUDE,
+                expr
+            ))
+            .unwrap_or(false)
         }
 
         /// Emits the given `cfg` value if `probe_constant` returns true.
