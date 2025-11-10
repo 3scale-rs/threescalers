@@ -9,4 +9,5 @@ mod iterator_fold_self;
 pub use iterator_fold_self::IteratorFoldSelfExt;
 
 mod never;
+#[cfg(feature = "http-types")]
 pub use never::Never;
