@@ -48,11 +48,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
     }
 
-    let inner_deref_paths = [
-        "core::result::Result::as_deref",
-        "core::result::Result::as_deref_mut",
-    ];
-    ac.emit_paths_maybe_using_feature("inner_deref", &inner_deref_paths);
+    // Can't use paths for these, so gather expressions and emit if all succeed.
+    if ac.emit_expression_maybe_using_feature_cfg(
+        "inner_deref",
+        "has_core_result_Result_as_deref",
+        "{ let r: Result<&[u8], &[u8]> = Ok(b\"test\"); r.as_deref(); }",
+    ) && ac.emit_expression_maybe_using_feature_cfg(
+        "inner_deref",
+        "has_core_result_Result_as_deref_mut",
+        "{ let mut buf = [0u8; 4]; let mut r: Result<&mut [u8], &[u8]> = Ok(&mut buf[..]); r.as_deref_mut(); }",
+    ) {
+        autocfg::emit("supports_inner_deref");
+    }
 
     // iterator_fold_self not worth enabling, we can just define this path via expression
     // (cannot directly `use core::iter::Iterator::reduce`)
