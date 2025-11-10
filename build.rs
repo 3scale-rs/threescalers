@@ -13,7 +13,32 @@ const MACRO_PROBE_PRELUDE: &str = r#"
     use std::prelude::v1::*;
 "#;
 
+const KNOWN_CFGS: &[&str] = &[
+    "feature_const_saturating_int_methods",
+    "feature_inner_deref",
+    "feature_matches_macro",
+    "feature_never_type",
+    "feature_str_split_once",
+    "feature_test",
+    "feature_transparent_enums",
+    "feature_unsafe_op_in_unsafe_fn",
+    "has_core_iter_Iterator_reduce",
+    "has_core_result_Result_as_deref",
+    "has_core_result_Result_as_deref_mut",
+    "has_str_split_once",
+    "supports_const_saturating_int_methods",
+    "supports_inner_deref",
+    "supports_matches_macro",
+    "supports_never_type",
+    "supports_transparent_enums",
+    "supports_unsafe_op_in_unsafe_fn",
+];
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    for cfg_name in KNOWN_CFGS {
+        println!("cargo:rustc-check-cfg=cfg({})", cfg_name);
+    }
+
     let mut ac = autocfg::AutoCfg::new()?;
 
     if !ac.probe_rustc_version(REQUIRED_MAJOR, REQUIRED_MINOR) {
@@ -23,11 +48,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
     }
 
-    let inner_deref_paths = [
-        "core::result::Result::as_deref",
-        "core::result::Result::as_deref_mut",
-    ];
-    ac.emit_paths_maybe_using_feature("inner_deref", &inner_deref_paths);
+    // Can't use paths for these, so gather expressions and emit if all succeed.
+    if ac.emit_expression_maybe_using_feature_cfg(
+        "inner_deref",
+        "has_core_result_Result_as_deref",
+        "{ let r: Result<&[u8], &[u8]> = Ok(b\"test\"); r.as_deref(); }",
+    ) && ac.emit_expression_maybe_using_feature_cfg(
+        "inner_deref",
+        "has_core_result_Result_as_deref_mut",
+        "{ let mut buf = [0u8; 4]; let mut r: Result<&mut [u8], &[u8]> = Ok(&mut buf[..]); r.as_deref_mut(); }",
+    ) {
+        autocfg::emit("supports_inner_deref");
+    }
 
     // iterator_fold_self not worth enabling, we can just define this path via expression
     // (cannot directly `use core::iter::Iterator::reduce`)
