@@ -13,7 +13,32 @@ const MACRO_PROBE_PRELUDE: &str = r#"
     use std::prelude::v1::*;
 "#;
 
+const KNOWN_CFGS: &[&str] = &[
+    "feature_const_saturating_int_methods",
+    "feature_inner_deref",
+    "feature_matches_macro",
+    "feature_never_type",
+    "feature_str_split_once",
+    "feature_test",
+    "feature_transparent_enums",
+    "feature_unsafe_op_in_unsafe_fn",
+    "has_core_iter_Iterator_reduce",
+    "has_core_result_Result_as_deref",
+    "has_core_result_Result_as_deref_mut",
+    "has_str_split_once",
+    "supports_const_saturating_int_methods",
+    "supports_inner_deref",
+    "supports_matches_macro",
+    "supports_never_type",
+    "supports_transparent_enums",
+    "supports_unsafe_op_in_unsafe_fn",
+];
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    for cfg_name in KNOWN_CFGS {
+        println!("cargo:rustc-check-cfg=cfg({})", cfg_name);
+    }
+
     let mut ac = autocfg::AutoCfg::new()?;
 
     if !ac.probe_rustc_version(REQUIRED_MAJOR, REQUIRED_MINOR) {
