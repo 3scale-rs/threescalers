@@ -48,7 +48,7 @@ impl Request {
         }
     }
 
-    pub fn uri_and_body(&self) -> (Cow<str>, Option<&str>) {
+    pub fn uri_and_body(&self) -> (Cow<'_, str>, Option<&str>) {
         (
             self.parameters.path_and_query(self.path),
             self.parameters.body(),
