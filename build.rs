@@ -119,6 +119,7 @@ mod autocfg {
     #![allow(unknown_lints)]
     #![allow(bare_trait_objects)]
     #![allow(ellipsis_inclusive_range_patterns)]
+    #![allow(clippy::needless_borrows_for_generic_args)]
 
     use std::collections::HashSet;
     use std::env;
