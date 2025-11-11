@@ -31,7 +31,7 @@ jobs:
         run: cargo tarpaulin --all-features -o Xml -- --test-threads 1 
 
       - name: Archive code coverage results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: code-coverage-report
           path: cobertura.xml
