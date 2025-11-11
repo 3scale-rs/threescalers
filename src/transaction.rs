@@ -33,7 +33,7 @@ impl<'a> Transaction<'a> {
         self.user
     }
 
-    pub fn usage(&self) -> Option<&Usage> {
+    pub fn usage(&self) -> Option<&Usage<'_>> {
         self.usage
     }
 

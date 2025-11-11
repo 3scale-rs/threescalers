@@ -72,7 +72,7 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn build(&self) -> Result<ApiCall, Error> {
+    pub fn build(&self) -> Result<ApiCall<'_>, Error> {
         let kind = self.kind.ok_or_else(|| anyhow!("kind error"))?;
         Ok(ApiCall::new(
             kind,
@@ -86,7 +86,7 @@ impl<'a> Builder<'a> {
 use std::borrow::Cow;
 
 impl<'a> ApiCall<'a> {
-    pub fn builder(service: &'a Service) -> Builder {
+    pub fn builder(service: &'a Service) -> Builder<'a> {
         Builder::new(service)
     }
 
@@ -136,11 +136,11 @@ impl<'a> ApiCall<'a> {
         self.transaction().and_then(Transaction::user)
     }
 
-    pub fn usage(&self) -> Option<&Usage> {
+    pub fn usage(&self) -> Option<&Usage<'_>> {
         self.transaction().and_then(Transaction::usage)
     }
 
-    pub fn extensions(&self) -> Option<&List> {
+    pub fn extensions(&self) -> Option<&List<'_>> {
         self.extensions
     }
 

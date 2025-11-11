@@ -11,6 +11,6 @@ const APISONATOR_EXTENSION_ENCODE_SET: &AsciiSet = &PATH_SEGMENT_ENCODE_SET
     .add(b'[')
     .add(b']');
 
-pub fn encode(s: &str) -> Cow<str> {
+pub fn encode(s: &str) -> Cow<'_, str> {
     utf8_percent_encode(s, APISONATOR_EXTENSION_ENCODE_SET).into()
 }

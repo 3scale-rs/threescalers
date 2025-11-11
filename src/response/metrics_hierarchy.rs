@@ -35,11 +35,11 @@ impl MetricsHierarchy {
         self.0.remove(parent_metric.as_ref())
     }
 
-    pub fn iter(&self) -> Iter<String, Vec<String>> {
+    pub fn iter(&self) -> Iter<'_, String, Vec<String>> {
         self.0.iter()
     }
 
-    pub fn iter_mut(&mut self) -> IterMut<String, Vec<String>> {
+    pub fn iter_mut(&mut self) -> IterMut<'_, String, Vec<String>> {
         self.0.iter_mut()
     }
 
