@@ -2,6 +2,20 @@
 
 Notable changes to threescalers will be tracked in this document.
 
+## 0.8.1 - 2025-11-11
+
+### Fixed
+
+- Fixed future incompatibility with implicitly imported macros. ([#109](https://github.com/3scale-rs/threescalers/pull/109))
+- Fixed build detection logic for a couple features. ([#110](https://github.com/3scale-rs/threescalers/pull/110), [#111](https://github.com/3scale-rs/threescalers/pull/111))
+- Fixed an issue with the `List::remove_all()` method returning the wrong count of
+  removed extensions. ([#108](https://github.com/3scale-rs/threescalers/pull/108))
+
+### Thanks
+
+- [@pehala](https://github.com/pehala)
+- [@unleashed](https://github.com/unleashed)
+
 ## 0.8.0 - 2021-06-23
 
 ### Compatibility
