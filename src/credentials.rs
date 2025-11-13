@@ -49,7 +49,10 @@ impl FromStr for ServiceToken {
     }
 }
 
-// These trait impls are similar to FromStr (but are infallible)
+/// Converts a string slice into a `ProviderKey`.
+///
+/// This implementation is infallible because the underlying `FromStr::from_str`
+/// for `ProviderKey` always succeeds (it simply wraps the input string without validation).
 impl From<&str> for ProviderKey
 where
     Self: FromStr,
@@ -59,6 +62,10 @@ where
     }
 }
 
+/// Converts a string slice into a `ServiceToken`.
+///
+/// This implementation is infallible because the underlying `FromStr::from_str`
+/// for `ServiceToken` always succeeds (it simply wraps the input string without validation).
 impl From<&str> for ServiceToken
 where
     Self: FromStr,
@@ -162,6 +169,10 @@ impl FromStr for ServiceId {
     }
 }
 
+/// Converts a string slice into a `ServiceId`.
+///
+/// This implementation is infallible because the underlying `FromStr::from_str`
+/// for `ServiceId` always succeeds (it simply wraps the input string without validation).
 impl From<&str> for ServiceId
 where
     Self: FromStr,

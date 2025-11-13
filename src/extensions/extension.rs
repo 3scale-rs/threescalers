@@ -2,6 +2,18 @@ use std::prelude::v1::*;
 
 use std::borrow::Cow;
 
+/// Represents an extension parameter for 3scale API calls.
+///
+/// Extensions modify the behavior or output of API calls. Each variant represents a different
+/// type of extension that can be added to an API request.
+///
+/// # Variants
+///
+/// - `FlatUsage`: Changes usage reporting format to a flat structure
+/// - `Hierarchy`: Requests the metrics hierarchy in the response
+/// - `NoBody`: Requests that the response body be omitted
+/// - `ListAppKeys`: Requests the list of application keys for an app
+/// - `Other`: Any custom extension with arbitrary key-value pairs
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Extension<'s> {
@@ -13,6 +25,9 @@ pub enum Extension<'s> {
 }
 
 impl Extension<'_> {
+    /// Returns the key name for this extension.
+    ///
+    /// The key is used when serializing the extension as a parameter.
     pub fn key(&self) -> &'_ str {
         match self {
             Extension::Other(k, _) => k,
@@ -23,6 +38,10 @@ impl Extension<'_> {
         }
     }
 
+    /// Returns the value for this extension.
+    ///
+    /// For known extensions, this returns the configured value.
+    /// For extensions without values, this returns "1".
     pub fn value(&self) -> &'_ str {
         match self {
             Extension::Other(_, v) | Extension::FlatUsage(v) | Extension::ListAppKeys(v) => v,
@@ -30,6 +49,10 @@ impl Extension<'_> {
         }
     }
 
+    /// Returns this extension as a URL-encoded key-value pair.
+    ///
+    /// For known extensions, the key is not encoded. For custom extensions,
+    /// both key and value are URL-encoded.
     pub fn to_cow(&self) -> Cow<'_, str> {
         use crate::encoding::encode;
 

@@ -77,7 +77,10 @@ impl FromStr for OAuthToken {
     }
 }
 
-// These trait impls are similar to FromStr (but are infallible)
+/// Converts a string slice into an `AppId`.
+///
+/// This implementation is infallible because the underlying `FromStr::from_str`
+/// for `AppId` always succeeds (it simply wraps the input string without validation).
 impl<'a> From<&'a str> for AppId
 where
     Self: FromStr,
@@ -87,6 +90,10 @@ where
     }
 }
 
+/// Converts a string slice into an `AppKey`.
+///
+/// This implementation is infallible because the underlying `FromStr::from_str`
+/// for `AppKey` always succeeds (it simply wraps the input string without validation).
 impl<'a> From<&'a str> for AppKey
 where
     Self: FromStr,
@@ -96,6 +103,10 @@ where
     }
 }
 
+/// Converts a string slice into a `UserKey`.
+///
+/// This implementation is infallible because the underlying `FromStr::from_str`
+/// for `UserKey` always succeeds (it simply wraps the input string without validation).
 impl<'a> From<&'a str> for UserKey
 where
     Self: FromStr,
@@ -105,6 +116,10 @@ where
     }
 }
 
+/// Converts a string slice into an `OAuthToken`.
+///
+/// This implementation is infallible because the underlying `FromStr::from_str`
+/// for `OAuthToken` always succeeds (it simply wraps the input string without validation).
 impl<'a> From<&'a str> for OAuthToken
 where
     Self: FromStr,
