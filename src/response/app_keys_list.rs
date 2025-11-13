@@ -12,6 +12,10 @@ use crate::{
     credentials::ServiceId,
 };
 
+/// Contains the list of application keys returned by the `list_app_keys` extension.
+///
+/// This structure holds the keys associated with a 3scale application, along with
+/// metadata about which service and application they belong to.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ListAppKeys {
     service_id: Option<ServiceId>,
@@ -20,6 +24,13 @@ pub struct ListAppKeys {
 }
 
 impl ListAppKeys {
+    /// Creates a new `ListAppKeys` structure.
+    ///
+    /// # Arguments
+    ///
+    /// * `service_id` - Optional service ID
+    /// * `app_id` - Optional application ID
+    /// * `keys` - Iterator of application keys
     pub fn new<S: Into<ServiceId>, A: Into<AppId>, K: Into<AppKey>, I: IntoIterator<Item = K>>(
         service_id: Option<S>,
         app_id: Option<A>,
@@ -32,14 +43,17 @@ impl ListAppKeys {
         }
     }
 
+    /// Returns the service ID if available.
     pub fn service_id(&self) -> Option<&ServiceId> {
         self.service_id.as_ref()
     }
 
+    /// Returns the application ID if available.
     pub fn app_id(&self) -> Option<&AppId> {
         self.app_id.as_ref()
     }
 
+    /// Returns the list of application keys as a slice.
     pub fn keys(&self) -> &[AppKey] {
         self.keys.as_slice()
     }
